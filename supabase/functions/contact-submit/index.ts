@@ -168,7 +168,7 @@ serve(async (req) => {
     // Send emails (don't block response on email sending)
     const emailPromises = [
       sendEmail(adminEmail, 'Neue Kontaktanfrage - Amiel Immobilienverwaltung', adminEmailContent, true),
-      sendEmail(formData.email, 'Bestätigung Ihrer Anfrage - Amiel Immobilienverwaltung', userEmailContent, false)
+      sendEmail(formData.email, 'Vielen Dank für Ihre Anfrage', userEmailContent, false)
     ]
 
     // Send emails in background
