@@ -35,10 +35,16 @@ interface AdminSidebarProps {
 
 const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, onTabChange, adminUser, onLogout }) => {
   const { setOpenMobile, isMobile } = useSidebar();
-  const [leadsExpanded, setLeadsExpanded] = useState(false);
+  const [leadsExpanded, setLeadsExpanded] = useState(
+    activeTab === 'leads' || activeTab === 'postident1' || activeTab === 'postident2'
+  );
 
   const handleTabChange = (tab: string) => {
     onTabChange(tab);
+    // Keep dropdown expanded when navigating between leads sections
+    if (tab === 'leads' || tab === 'postident1' || tab === 'postident2') {
+      setLeadsExpanded(true);
+    }
     // Close sidebar on mobile when item is clicked
     if (isMobile) {
       setOpenMobile(false);
@@ -46,9 +52,15 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, onTabChange, adm
   };
 
   const handleLeadsClick = () => {
-    if (activeTab === 'leads' || activeTab === 'postident1' || activeTab === 'postident2') {
+    if (activeTab === 'postident1' || activeTab === 'postident2') {
+      // If in a PostIdent section, go back to main leads
+      handleTabChange('leads');
+      setLeadsExpanded(true);
+    } else if (activeTab === 'leads') {
+      // If already in main leads, toggle dropdown
       setLeadsExpanded(!leadsExpanded);
     } else {
+      // If in other section, go to leads and expand dropdown
       setLeadsExpanded(true);
       handleTabChange('leads');
     }
