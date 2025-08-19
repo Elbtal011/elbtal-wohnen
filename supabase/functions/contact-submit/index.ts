@@ -109,6 +109,15 @@ serve(async (req) => {
           <p><strong>Straße:</strong> ${formData.strasse || 'Nicht angegeben'} ${formData.nummer || ''}</p>
           <p><strong>PLZ/Ort:</strong> ${formData.plz || 'Nicht angegeben'} ${formData.ort || 'Nicht angegeben'}</p>
           
+          ${formData.geburtsort ? `<h3>Zusätzliche Informationen:</h3>
+          <p><strong>Geburtsort:</strong> ${formData.geburtsort}</p>` : ''}
+          ${formData.staatsangehoerigkeit ? `<p><strong>Staatsangehörigkeit:</strong> ${formData.staatsangehoerigkeit}</p>` : ''}
+          ${formData.geburtsdatum ? `<p><strong>Geburtsdatum:</strong> ${formData.geburtsdatum}</p>` : ''}
+          ${formData.nettoeinkommen ? `<p><strong>Nettoeinkommen:</strong> ${formData.nettoeinkommen}</p>` : ''}
+          ${formData.einzugsdatum ? `<p><strong>Gewünschtes Einzugsdatum:</strong> ${formData.einzugsdatum}</p>` : ''}
+          ${formData.beruf ? `<p><strong>Beruf:</strong> ${formData.beruf}</p>` : ''}
+          ${formData.arbeitgeber ? `<p><strong>Arbeitgeber:</strong> ${formData.arbeitgeber}</p>` : ''}
+          
           ${propertyInfo}
           
           <h3>Nachricht:</h3>
