@@ -574,9 +574,18 @@ serve(async (req) => {
           const filePath = `${contactRequestId}/${documentType}/${timestamp}-${fileName}`;
           
           // Upload file to storage
+          // Decode base64 string to bytes (handles optional data URL prefix)
+          const base64String = typeof fileData === 'string' ? (fileData.split(',').pop() ?? fileData) : fileData;
+          const binaryString = atob(base64String);
+          const len = binaryString.length;
+          const bytes = new Uint8Array(len);
+          for (let i = 0; i < len; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+          }
+
           const { data: uploadData, error: uploadError } = await supabase.storage
             .from('lead-documents')
-            .upload(filePath, fileData, {
+            .upload(filePath, bytes, {
               contentType,
               upsert: false
             });
@@ -620,7 +629,18 @@ serve(async (req) => {
             .eq('contact_request_id', contactRequestId)
             .order('created_at', { ascending: false });
 
-          if (docsError) throw docsError;
+          if (docsError) {
+            // If table doesn't exist yet, return empty list gracefully
+            const code = (docsError as any).code || '';
+            const msg = (docsError as any).message || '';
+            if (code === '42P01' || String(msg).toLowerCase().includes('does not exist')) {
+              return new Response(
+                JSON.stringify({ documents: [] }),
+                { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+              );
+            }
+            throw docsError;
+          }
 
           return new Response(
             JSON.stringify({ documents }),
