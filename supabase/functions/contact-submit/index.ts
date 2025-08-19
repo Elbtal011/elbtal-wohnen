@@ -11,11 +11,13 @@ const resend = new Resend(Deno.env.get('RESEND_API_KEY') || '')
 
 // Email sending via Resend with proper headers
 async function sendEmail(to: string, subject: string, htmlContent: string, isAdminEmail = false) {
-  const fromEmail = Deno.env.get('SMTP_FROM') || 'info@amiel-immobilienverwaltung.de'
+  const rawFrom = Deno.env.get('SMTP_FROM') || Deno.env.get('FROM_EMAIL') || ''
+  const defaultFrom = 'info@amiel-immobilienverwaltung.de'
+  const fromEmail = rawFrom.includes('@') ? rawFrom : defaultFrom
   const apiKeyPresent = !!Deno.env.get('RESEND_API_KEY')
 
-  if (!apiKeyPresent || !fromEmail) {
-    console.error('Email service not configured: missing RESEND_API_KEY or FROM')
+  if (!apiKeyPresent) {
+    console.error('Email service not configured: missing RESEND_API_KEY')
     return { success: false, error: 'Email service not configured' }
   }
 
@@ -23,6 +25,7 @@ async function sendEmail(to: string, subject: string, htmlContent: string, isAdm
     const messageId = `<${Date.now()}.${Math.random().toString(36).slice(2)}@amiel-immobilienverwaltung.de>`
     const date = new Date().toUTCString()
     const replyTo = isAdminEmail ? fromEmail : 'info@amiel-immobilienverwaltung.de'
+    console.log('Resend email payload meta', { to, fromEmail, subject, isAdminEmail })
 
     const response = await resend.emails.send({
       from: `Amiel Immobilienverwaltung <${fromEmail}>`,
