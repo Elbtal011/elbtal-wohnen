@@ -140,7 +140,6 @@ export type Database = {
           email: string
           id: string
           lead_label: string | null
-          lead_stage: string | null
           nachname: string
           nachricht: string
           nummer: string | null
@@ -159,7 +158,6 @@ export type Database = {
           email: string
           id?: string
           lead_label?: string | null
-          lead_stage?: string | null
           nachname: string
           nachricht: string
           nummer?: string | null
@@ -178,7 +176,6 @@ export type Database = {
           email?: string
           id?: string
           lead_label?: string | null
-          lead_stage?: string | null
           nachname?: string
           nachricht?: string
           nummer?: string | null
@@ -412,7 +409,6 @@ export type Database = {
           email: string
           id: string
           lead_label: string
-          lead_stage: string
           nachname: string
           nachricht: string
           property_id: string

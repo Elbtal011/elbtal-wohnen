@@ -10,7 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar as CalendarUI } from '@/components/ui/calendar';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Calendar, Eye, Mail, Phone, Tag, Plus, Trash2, ArrowRight } from 'lucide-react';
+import { Calendar, Eye, Mail, Phone, Tag, Plus, Trash2 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import LeadLabelBadge from '@/components/LeadLabelBadge';
 import AddLeadDialog from '@/components/AddLeadDialog';
@@ -27,7 +27,6 @@ interface Lead {
   created_at: string;
   status?: string;
   lead_label?: string | null;
-  lead_stage?: string | null;
   property?: { title: string; address: string } | null;
   strasse?: string | null;
   nummer?: string | null;
@@ -36,35 +35,6 @@ interface Lead {
 }
 
 const DEFAULT_LABELS = ['Cold', 'Warm', 'Hot Lead', 'VIP', 'Follow-Up', 'Unqualified', 'Converted'];
-
-const LEAD_STAGES = [
-  { id: 'initial', name: 'Erstkontakt', color: 'bg-gray-500' },
-  { id: 'qualified', name: 'Qualifiziert', color: 'bg-blue-500' },
-  { id: 'postident1', name: 'PostIdent 1', color: 'bg-yellow-500' },
-  { id: 'postident2', name: 'PostIdent 2', color: 'bg-orange-500' },
-  { id: 'contract', name: 'Vertragsverhandlung', color: 'bg-purple-500' },
-  { id: 'signed', name: 'Vertrag unterzeichnet', color: 'bg-green-500' },
-  { id: 'completed', name: 'Abgeschlossen', color: 'bg-emerald-600' }
-];
-
-const getNextStage = (currentStage: string | null | undefined): string | null => {
-  if (!currentStage) return 'initial';
-  const currentIndex = LEAD_STAGES.findIndex(stage => stage.id === currentStage);
-  if (currentIndex === -1 || currentIndex === LEAD_STAGES.length - 1) return null;
-  return LEAD_STAGES[currentIndex + 1].id;
-};
-
-const getStageName = (stageId: string | null | undefined): string => {
-  if (!stageId) return 'Kein Status';
-  const stage = LEAD_STAGES.find(s => s.id === stageId);
-  return stage?.name || 'Unbekannt';
-};
-
-const getStageColor = (stageId: string | null | undefined): string => {
-  if (!stageId) return 'bg-gray-400';
-  const stage = LEAD_STAGES.find(s => s.id === stageId);
-  return stage?.color || 'bg-gray-400';
-};
 
 const LeadsManagement: React.FC = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -229,29 +199,6 @@ const { toast } = useToast();
     }
   };
 
-  const moveToNextStage = async (leadId: string, currentStage: string | null | undefined) => {
-    const nextStage = getNextStage(currentStage);
-    if (!nextStage) {
-      toast({ title: 'Info', description: 'Lead ist bereits im letzten Stadium.', variant: 'default' });
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem('adminToken');
-      const { data, error } = await supabase.functions.invoke('admin-management', {
-        body: { action: 'update_contact_request_stage', token, id: leadId, lead_stage: nextStage },
-      });
-      if (error) throw error;
-      
-      const stageName = getStageName(nextStage);
-      toast({ title: 'Stadium aktualisiert', description: `Lead wurde zu "${stageName}" verschoben.` });
-      setLeads(prev => prev.map(l => (l.id === leadId ? { ...l, lead_stage: nextStage } : l)));
-    } catch (e) {
-      console.error('Error updating stage:', e);
-      toast({ title: 'Fehler', description: 'Stadium konnte nicht aktualisiert werden.', variant: 'destructive' });
-    }
-  };
-
   const handleDeleteSelected = async () => {
     const ids = Array.from(selectedIds);
     if (!ids.length) return;
@@ -384,10 +331,9 @@ const { toast } = useToast();
                     <TableHead className="min-w-[160px]">Name</TableHead>
                     <TableHead className="min-w-[200px]">Kontakt</TableHead>
                     <TableHead className="min-w-[160px]">Label</TableHead>
-                    <TableHead className="min-w-[160px]">Stadium</TableHead>
                     <TableHead className="min-w-[100px]">Datum</TableHead>
                     <TableHead className="min-w-[160px]">Immobilie</TableHead>
-                    <TableHead className="text-right min-w-[140px]">Aktionen</TableHead>
+                    <TableHead className="text-right min-w-[100px]">Aktionen</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -442,24 +388,6 @@ const { toast } = useToast();
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Badge className={`text-white text-xs ${getStageColor(lead.lead_stage)}`}>
-                            {getStageName(lead.lead_stage)}
-                          </Badge>
-                          {getNextStage(lead.lead_stage) && (
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="p-1 h-6 text-xs"
-                              onClick={() => moveToNextStage(lead.id, lead.lead_stage)}
-                              title={`Zu "${getStageName(getNextStage(lead.lead_stage))}" verschieben`}
-                            >
-                              <ArrowRight className="h-3 w-3" />
-                            </Button>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
                         <div className="flex items-center gap-1 text-xs">
                           <Calendar className="h-3 w-3" />
                           {new Date(lead.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}
@@ -469,11 +397,9 @@ const { toast } = useToast();
                         <div className="text-xs truncate max-w-[180px]">{lead.property?.title || 'Allgemein'}</div>
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex gap-1 justify-end">
-                          <Button variant="outline" size="sm" className="p-2" onClick={() => openDetails(lead)}>
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </div>
+                        <Button variant="outline" size="sm" className="p-2" onClick={() => openDetails(lead)}>
+                          <Eye className="h-4 w-4" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
