@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Sidebar, 
   SidebarContent, 
@@ -18,7 +18,11 @@ import {
   MapPin,
   BarChart3,
   User,
-  LogOut
+  LogOut,
+  ChevronDown,
+  ChevronRight,
+  CheckCircle,
+  UserCheck
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
@@ -31,12 +35,22 @@ interface AdminSidebarProps {
 
 const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, onTabChange, adminUser, onLogout }) => {
   const { setOpenMobile, isMobile } = useSidebar();
+  const [leadsExpanded, setLeadsExpanded] = useState(false);
 
   const handleTabChange = (tab: string) => {
     onTabChange(tab);
     // Close sidebar on mobile when item is clicked
     if (isMobile) {
       setOpenMobile(false);
+    }
+  };
+
+  const handleLeadsClick = () => {
+    if (activeTab === 'leads' || activeTab === 'postident1' || activeTab === 'postident2') {
+      setLeadsExpanded(!leadsExpanded);
+    } else {
+      setLeadsExpanded(true);
+      handleTabChange('leads');
     }
   };
 
@@ -57,11 +71,6 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, onTabChange, adm
       icon: MessageSquare,
     },
     {
-      id: 'leads',
-      label: 'Leads',
-      icon: Tag,
-    },
-    {
       id: 'cities',
       label: 'Städte',
       icon: MapPin,
@@ -70,6 +79,19 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, onTabChange, adm
       id: 'analytics',
       label: 'Analytics',
       icon: BarChart3,
+    },
+  ];
+
+  const leadsSubItems = [
+    {
+      id: 'postident1',
+      label: 'PostIdent 1',
+      icon: CheckCircle,
+    },
+    {
+      id: 'postident2',
+      label: 'PostIdent 2',
+      icon: UserCheck,
     },
   ];
 
@@ -99,6 +121,45 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, onTabChange, adm
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+              
+              {/* Leads with dropdown */}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={handleLeadsClick}
+                  className={`w-full flex items-center gap-4 px-6 py-4 rounded-lg transition-all duration-200 font-medium ${
+                    activeTab === 'leads' || activeTab === 'postident1' || activeTab === 'postident2'
+                      ? 'bg-primary text-primary-foreground shadow-md' 
+                      : 'hover:bg-muted hover:shadow-sm'
+                  }`}
+                >
+                  <Tag className="h-6 w-6" />
+                  <span className="text-sm flex-1">Leads</span>
+                  {leadsExpanded ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                </SidebarMenuButton>
+                
+                {leadsExpanded && (
+                  <div className="ml-6 mt-2 space-y-1">
+                    {leadsSubItems.map((subItem) => (
+                      <SidebarMenuButton
+                        key={subItem.id}
+                        onClick={() => handleTabChange(subItem.id)}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-sm ${
+                          activeTab === subItem.id 
+                            ? 'bg-primary/80 text-primary-foreground shadow-sm' 
+                            : 'hover:bg-muted/60'
+                        }`}
+                      >
+                        <subItem.icon className="h-4 w-4" />
+                        <span>{subItem.label}</span>
+                      </SidebarMenuButton>
+                    ))}
+                  </div>
+                )}
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

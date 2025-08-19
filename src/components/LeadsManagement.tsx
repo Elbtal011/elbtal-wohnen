@@ -10,7 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar as CalendarUI } from '@/components/ui/calendar';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Calendar, Eye, Mail, Phone, Tag, Plus, Trash2 } from 'lucide-react';
+import { Calendar, Eye, Mail, Phone, Tag, Plus, Trash2, ArrowRight } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import LeadLabelBadge from '@/components/LeadLabelBadge';
 import AddLeadDialog from '@/components/AddLeadDialog';
@@ -27,6 +27,7 @@ interface Lead {
   created_at: string;
   status?: string;
   lead_label?: string | null;
+  lead_stage?: string | null;
   property?: { title: string; address: string } | null;
   strasse?: string | null;
   nummer?: string | null;
@@ -97,6 +98,10 @@ const { toast } = useToast();
   const filtered = useMemo(() => {
     const s = search.trim().toLowerCase();
     return leads.filter(l => {
+      // Filter out leads that are already in PostIdent stages
+      const isInPostIdentStage = l.lead_stage === 'postident1' || l.lead_stage === 'postident2';
+      if (isInPostIdentStage) return false;
+
       const matchesLabel =
         labelFilter === 'all'
           ? true
@@ -215,6 +220,38 @@ const { toast } = useToast();
     } catch (e) {
       console.error('Delete leads error:', e);
       toast({ title: 'Fehler', description: 'Leads konnten nicht gelöscht werden.', variant: 'destructive' });
+    }
+  };
+
+  const moveToPostIdent1 = async (leadId: string) => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const { error } = await supabase.functions.invoke('admin-management', {
+        body: { 
+          action: 'update_contact_request_stage', 
+          token, 
+          id: leadId, 
+          lead_stage: 'postident1' 
+        },
+      });
+      if (error) throw error;
+      
+      toast({ 
+        title: 'Erfolgreich', 
+        description: 'Lead wurde zu PostIdent 1 verschoben.' 
+      });
+      
+      // Update the lead in the current list
+      setLeads(prev => prev.map(l => 
+        l.id === leadId ? { ...l, lead_stage: 'postident1' } : l
+      ));
+    } catch (e) {
+      console.error('Error moving to PostIdent 1:', e);
+      toast({ 
+        title: 'Fehler', 
+        description: 'Lead konnte nicht verschoben werden.', 
+        variant: 'destructive' 
+      });
     }
   };
 
@@ -397,9 +434,19 @@ const { toast } = useToast();
                         <div className="text-xs truncate max-w-[180px]">{lead.property?.title || 'Allgemein'}</div>
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button variant="outline" size="sm" className="p-2" onClick={() => openDetails(lead)}>
-                          <Eye className="h-4 w-4" />
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="sm" className="p-2" onClick={() => openDetails(lead)}>
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            onClick={() => moveToPostIdent1(lead.id)}
+                            className="gap-1 text-xs"
+                          >
+                            <ArrowRight className="h-3 w-3" />
+                            PostIdent 1
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}

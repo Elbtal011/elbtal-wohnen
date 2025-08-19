@@ -11,6 +11,8 @@ import CitiesManagement from '@/components/CitiesManagement';
 import AdminOverview from '@/components/AdminOverview';
 import AnalyticsReporting from '@/components/AnalyticsReporting';
 import LeadsManagement from '@/components/LeadsManagement';
+import PostIdent1Management from '@/components/PostIdent1Management';
+import PostIdent2Management from '@/components/PostIdent2Management';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -127,6 +129,10 @@ const AdminDashboard = () => {
         return <ContactRequestsManagement />;
       case 'leads':
         return <LeadsManagement />;
+      case 'postident1':
+        return <PostIdent1Management />;
+      case 'postident2':
+        return <PostIdent2Management />;
       case 'cities':
         return <CitiesManagement />;
       case 'analytics':
