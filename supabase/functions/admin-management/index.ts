@@ -565,6 +565,130 @@ serve(async (req) => {
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
 
+      case 'upload_lead_document':
+        try {
+          const { contactRequestId, documentType, fileName, fileData, contentType } = data;
+          
+          // Generate unique file path
+          const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+          const filePath = `${contactRequestId}/${documentType}/${timestamp}-${fileName}`;
+          
+          // Upload file to storage
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('lead-documents')
+            .upload(filePath, fileData, {
+              contentType,
+              upsert: false
+            });
+
+          if (uploadError) throw uploadError;
+
+          // Save document record to database
+          const { data: docRecord, error: docError } = await supabase
+            .from('lead_documents')
+            .insert({
+              contact_request_id: contactRequestId,
+              document_type: documentType,
+              file_name: fileName,
+              file_path: filePath,
+              content_type: contentType
+            })
+            .select()
+            .single();
+
+          if (docError) throw docError;
+
+          return new Response(
+            JSON.stringify({ document: docRecord }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        } catch (error) {
+          console.error('Document upload error:', error);
+          return new Response(
+            JSON.stringify({ error: 'Failed to upload document', details: error.message }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+      case 'get_lead_documents':
+        try {
+          const { contactRequestId } = data;
+          
+          const { data: documents, error: docsError } = await supabase
+            .from('lead_documents')
+            .select('*')
+            .eq('contact_request_id', contactRequestId)
+            .order('created_at', { ascending: false });
+
+          if (docsError) throw docsError;
+
+          return new Response(
+            JSON.stringify({ documents }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        } catch (error) {
+          console.error('Get documents error:', error);
+          return new Response(
+            JSON.stringify({ error: 'Failed to get documents', details: error.message }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+      case 'get_document_download_url':
+        try {
+          const { filePath } = data;
+          
+          const { data: urlData, error: urlError } = await supabase.storage
+            .from('lead-documents')
+            .createSignedUrl(filePath, 3600); // 1 hour expiry
+
+          if (urlError) throw urlError;
+
+          return new Response(
+            JSON.stringify({ url: urlData.signedUrl }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        } catch (error) {
+          console.error('Get download URL error:', error);
+          return new Response(
+            JSON.stringify({ error: 'Failed to get download URL', details: error.message }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+      case 'delete_lead_document':
+        try {
+          const { documentId, filePath } = data;
+          
+          // Delete from storage
+          const { error: storageError } = await supabase.storage
+            .from('lead-documents')
+            .remove([filePath]);
+
+          if (storageError) {
+            console.warn('Storage deletion error:', storageError);
+          }
+
+          // Delete from database
+          const { error: dbError } = await supabase
+            .from('lead_documents')
+            .delete()
+            .eq('id', documentId);
+
+          if (dbError) throw dbError;
+
+          return new Response(
+            JSON.stringify({ success: true }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        } catch (error) {
+          console.error('Delete document error:', error);
+          return new Response(
+            JSON.stringify({ error: 'Failed to delete document', details: error.message }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
       case 'bulk_delete_properties':
         const { error: bulkDeleteError } = await supabase
           .from('properties')

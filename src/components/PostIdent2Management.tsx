@@ -23,6 +23,7 @@ import {
   Check,
   Shield
 } from 'lucide-react';
+import DocumentUploadSection from '@/components/DocumentUploadSection';
 
 interface Lead {
   id: string;
@@ -49,6 +50,7 @@ const PostIdent2Management: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [finalNotes, setFinalNotes] = useState('');
   const [verificationStatus, setVerificationStatus] = useState<'pending' | 'approved' | 'rejected'>('pending');
+  const [documents, setDocuments] = useState<any[]>([]);
   const { toast } = useToast();
 
   const fetchLeads = async () => {
@@ -158,6 +160,25 @@ const PostIdent2Management: React.FC = () => {
     setFinalNotes('');
     setVerificationStatus('pending');
     setOpen(true);
+    fetchDocuments(lead.id);
+  };
+
+  const fetchDocuments = async (contactRequestId: string) => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const { data, error } = await supabase.functions.invoke('admin-management', {
+        body: {
+          action: 'get_lead_documents',
+          token,
+          contactRequestId
+        }
+      });
+
+      if (error) throw error;
+      setDocuments(data.documents || []);
+    } catch (error) {
+      console.error('Error fetching documents:', error);
+    }
   };
 
   const startVideoCall = () => {
@@ -347,7 +368,12 @@ const PostIdent2Management: React.FC = () => {
                 </Card>
               </div>
 
-              {/* Verification Checklist */}
+              {/* Document Upload/View Section */}
+              <DocumentUploadSection
+                contactRequestId={selected.id}
+                documents={documents}
+                onDocumentsUpdate={() => fetchDocuments(selected.id)}
+              />
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base flex items-center gap-2">

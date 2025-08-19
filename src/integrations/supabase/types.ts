@@ -140,6 +140,7 @@ export type Database = {
           email: string
           id: string
           lead_label: string | null
+          lead_stage: string | null
           nachname: string
           nachricht: string
           nummer: string | null
@@ -158,6 +159,7 @@ export type Database = {
           email: string
           id?: string
           lead_label?: string | null
+          lead_stage?: string | null
           nachname: string
           nachricht: string
           nummer?: string | null
@@ -176,6 +178,7 @@ export type Database = {
           email?: string
           id?: string
           lead_label?: string | null
+          lead_stage?: string | null
           nachname?: string
           nachricht?: string
           nummer?: string | null
@@ -194,6 +197,60 @@ export type Database = {
             columns: ["property_id"]
             isOneToOne: false
             referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_documents: {
+        Row: {
+          contact_request_id: string
+          content_type: string | null
+          created_at: string
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size: number | null
+          id: string
+          updated_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          contact_request_id: string
+          content_type?: string | null
+          created_at?: string
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          contact_request_id?: string
+          content_type?: string | null
+          created_at?: string
+          document_type?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_documents_contact_request_id_fkey"
+            columns: ["contact_request_id"]
+            isOneToOne: false
+            referencedRelation: "contact_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_documents_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
             referencedColumns: ["id"]
           },
         ]
@@ -409,6 +466,7 @@ export type Database = {
           email: string
           id: string
           lead_label: string
+          lead_stage: string
           nachname: string
           nachricht: string
           property_id: string

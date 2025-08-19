@@ -15,13 +15,12 @@ import {
   Mail, 
   Phone, 
   CheckCircle, 
-  Upload, 
-  FileText, 
   Calendar,
   ArrowRight,
   X,
   Check
 } from 'lucide-react';
+import DocumentUploadSection from '@/components/DocumentUploadSection';
 
 interface Lead {
   id: string;
@@ -48,6 +47,7 @@ const PostIdent1Management: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [verificationNotes, setVerificationNotes] = useState('');
   const [verificationStatus, setVerificationStatus] = useState<'pending' | 'approved' | 'rejected'>('pending');
+  const [documents, setDocuments] = useState<any[]>([]);
   const { toast } = useToast();
 
   const fetchLeads = async () => {
@@ -157,6 +157,25 @@ const PostIdent1Management: React.FC = () => {
     setVerificationNotes('');
     setVerificationStatus('pending');
     setOpen(true);
+    fetchDocuments(lead.id);
+  };
+
+  const fetchDocuments = async (contactRequestId: string) => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const { data, error } = await supabase.functions.invoke('admin-management', {
+        body: {
+          action: 'get_lead_documents',
+          token,
+          contactRequestId
+        }
+      });
+
+      if (error) throw error;
+      setDocuments(data.documents || []);
+    } catch (error) {
+      console.error('Error fetching documents:', error);
+    }
   };
 
   if (isLoading) {
@@ -351,33 +370,11 @@ const PostIdent1Management: React.FC = () => {
               </div>
 
               {/* Document Upload Section */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <Upload className="h-4 w-4" />
-                    Dokumente hochladen
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="border-2 border-dashed border-muted rounded-lg p-4 text-center hover:border-primary transition-colors cursor-pointer">
-                      <FileText className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                      <p className="text-sm font-medium">Personalausweis</p>
-                      <p className="text-xs text-muted-foreground">PDF, JPG oder PNG</p>
-                    </div>
-                    <div className="border-2 border-dashed border-muted rounded-lg p-4 text-center hover:border-primary transition-colors cursor-pointer">
-                      <FileText className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                      <p className="text-sm font-medium">Einkommensnachweis</p>
-                      <p className="text-xs text-muted-foreground">PDF oder JPG</p>
-                    </div>
-                    <div className="border-2 border-dashed border-muted rounded-lg p-4 text-center hover:border-primary transition-colors cursor-pointer">
-                      <FileText className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                      <p className="text-sm font-medium">SCHUFA-Auskunft</p>
-                      <p className="text-xs text-muted-foreground">PDF</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <DocumentUploadSection
+                contactRequestId={selected.id}
+                documents={documents}
+                onDocumentsUpdate={() => fetchDocuments(selected.id)}
+              />
 
               {/* Verification Notes */}
               <div className="space-y-4">
