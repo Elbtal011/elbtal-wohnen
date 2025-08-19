@@ -123,31 +123,45 @@ serve(async (req) => {
 
     // Send user confirmation email
     const userEmailContent = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #2563eb;">Vielen Dank für Ihre Anfrage</h2>
-        <p>Liebe/r ${formData.vorname} ${formData.nachname},</p>
-        
-        <p>vielen Dank für Ihre Kontaktanfrage. Wir haben Ihre Nachricht erfolgreich erhalten und werden uns schnellstmöglich bei Ihnen melden.</p>
-        
-        <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <h3>Ihre Anfrage im Überblick:</h3>
-          <p><strong>Ihre E-Mail:</strong> ${formData.email}</p>
-          <p><strong>Ihre Telefonnummer:</strong> ${formData.telefon}</p>
-          ${propertyInfo}
-          <p><strong>Ihre Nachricht:</strong></p>
-          <p style="background: white; padding: 15px; border-radius: 4px; border-left: 4px solid #2563eb;">${formData.nachricht}</p>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+        <div style="padding: 30px; background: #ffffff;">
+          <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.5;">
+            Sehr geehrte Damen und Herren,
+          </p>
+          
+          <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.5;">
+            Wir haben Ihre Anfrage erhalten und werden uns schnellstmöglich mit Ihnen in Verbindung setzen.
+          </p>
+          
+          <p style="margin: 20px 0; font-size: 16px; line-height: 1.5;">
+            Mit freundlichen Grüßen<br>
+            Amiel Immobilienverwaltung
+          </p>
         </div>
         
-        <p>Für Rückfragen stehen wir Ihnen gerne zur Verfügung:</p>
-        <p>
-          <strong>Amiel Immobilienverwaltung</strong><br>
-          E-Mail: info@amiel-immobilienverwaltung.de<br>
-          Telefon: <a href="tel:+4915778749754">+49 157 78749754</a>
-        </p>
-        
-        <p style="color: #666; font-size: 14px; margin-top: 30px;">
-          Diese E-Mail wurde automatisch generiert. Bitte antworten Sie nicht direkt auf diese E-Mail.
-        </p>
+        <div style="background: #f8f9fa; padding: 20px; border-top: 1px solid #e9ecef; font-size: 14px; line-height: 1.4; color: #666;">
+          <p style="margin: 0 0 10px 0; font-weight: bold; color: #333;">
+            Mit freundlichen Grüßen<br>
+            Amiel Immobilienverwaltung
+          </p>
+          
+          <p style="margin: 15px 0; color: #333;">
+            <strong>Amiel Immobilienverwaltung GmbH</strong><br>
+            Leuchtenbergring 54<br>
+            81677 München<br>
+            Telefon: +49 89 123 456 789<br>
+            E-Mail: info@amiel-immobilienverwaltung.de
+          </p>
+          
+          <p style="margin: 15px 0; font-size: 12px;">
+            Handelsregister: Amtsgericht München, HRB 90221<br>
+            USt-IdNr.: DE9741089
+          </p>
+          
+          <p style="margin: 15px 0 0 0; font-size: 12px; font-style: italic;">
+            Hinweis: Diese E-Mail und alle Anhänge sind vertraulich und ausschließlich für den bezeichneten Adressaten bestimmt.
+          </p>
+        </div>
       </div>
     `
 
