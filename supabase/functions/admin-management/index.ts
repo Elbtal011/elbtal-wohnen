@@ -415,6 +415,21 @@ serve(async (req) => {
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
 
+      case 'update_contact_request_stage':
+        const { data: stagedRequest, error: stageError } = await supabase
+          .from('contact_requests')
+          .update({ lead_stage: data.lead_stage })
+          .eq('id', data.id)
+          .select()
+          .single()
+
+        if (stageError) throw stageError
+
+        return new Response(
+          JSON.stringify({ request: stagedRequest }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+
       case 'create_contact_request': {
         // Validate required fields
         const required = ['vorname','nachname','email','telefon','nachricht']
