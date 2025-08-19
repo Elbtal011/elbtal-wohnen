@@ -98,10 +98,6 @@ const { toast } = useToast();
   const filtered = useMemo(() => {
     const s = search.trim().toLowerCase();
     return leads.filter(l => {
-      // Filter out leads that are already in PostIdent stages
-      const isInPostIdentStage = l.lead_stage === 'postident1' || l.lead_stage === 'postident2';
-      if (isInPostIdentStage) return false;
-
       const matchesLabel =
         labelFilter === 'all'
           ? true
@@ -255,6 +251,70 @@ const { toast } = useToast();
     }
   };
 
+  const moveToPostIdent2 = async (leadId: string) => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const { error } = await supabase.functions.invoke('admin-management', {
+        body: { 
+          action: 'update_contact_request_stage', 
+          token, 
+          id: leadId, 
+          lead_stage: 'postident2' 
+        },
+      });
+      if (error) throw error;
+      
+      toast({ 
+        title: 'Erfolgreich', 
+        description: 'Lead wurde zu PostIdent 2 verschoben.' 
+      });
+      
+      // Update the lead in the current list
+      setLeads(prev => prev.map(l => 
+        l.id === leadId ? { ...l, lead_stage: 'postident2' } : l
+      ));
+    } catch (e) {
+      console.error('Error moving to PostIdent 2:', e);
+      toast({ 
+        title: 'Fehler', 
+        description: 'Lead konnte nicht verschoben werden.', 
+        variant: 'destructive' 
+      });
+    }
+  };
+
+  const moveToContract = async (leadId: string) => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const { error } = await supabase.functions.invoke('admin-management', {
+        body: { 
+          action: 'update_contact_request_stage', 
+          token, 
+          id: leadId, 
+          lead_stage: 'contract' 
+        },
+      });
+      if (error) throw error;
+      
+      toast({ 
+        title: 'Erfolgreich', 
+        description: 'Lead wurde zur Vertragsverhandlung verschoben.' 
+      });
+      
+      // Update the lead in the current list
+      setLeads(prev => prev.map(l => 
+        l.id === leadId ? { ...l, lead_stage: 'contract' } : l
+      ));
+    } catch (e) {
+      console.error('Error moving to contract:', e);
+      toast({ 
+        title: 'Fehler', 
+        description: 'Lead konnte nicht verschoben werden.', 
+        variant: 'destructive' 
+      });
+    }
+  };
+
   const openDetails = (lead: Lead) => {
     setSelected(lead);
     setOpen(true);
@@ -370,7 +430,7 @@ const { toast } = useToast();
                     <TableHead className="min-w-[160px]">Label</TableHead>
                     <TableHead className="min-w-[100px]">Datum</TableHead>
                     <TableHead className="min-w-[160px]">Immobilie</TableHead>
-                    <TableHead className="text-right min-w-[100px]">Aktionen</TableHead>
+                    <TableHead className="min-w-[140px]">Stage & Aktionen</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -433,19 +493,73 @@ const { toast } = useToast();
                       <TableCell>
                         <div className="text-xs truncate max-w-[180px]">{lead.property?.title || 'Allgemein'}</div>
                       </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm" className="p-2" onClick={() => openDetails(lead)}>
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            onClick={() => moveToPostIdent1(lead.id)}
-                            className="gap-1 text-xs"
-                          >
-                            <ArrowRight className="h-3 w-3" />
-                            PostIdent 1
-                          </Button>
+                      <TableCell>
+                        <div className="flex flex-col gap-2">
+                          {/* Current Stage Badge */}
+                          {lead.lead_stage && (
+                            <div className="flex items-center gap-1">
+                              <span className="text-xs text-muted-foreground">Stage:</span>
+                              <Badge 
+                                variant="secondary" 
+                                className={
+                                  lead.lead_stage === 'postident1' ? 'bg-orange-100 text-orange-800' :
+                                  lead.lead_stage === 'postident2' ? 'bg-blue-100 text-blue-800' :
+                                  lead.lead_stage === 'contract' ? 'bg-purple-100 text-purple-800' :
+                                  lead.lead_stage === 'signed' ? 'bg-green-100 text-green-800' :
+                                  lead.lead_stage === 'completed' ? 'bg-emerald-100 text-emerald-800' :
+                                  'bg-gray-100 text-gray-800'
+                                }
+                              >
+                                {lead.lead_stage === 'postident1' ? 'PostIdent 1' :
+                                 lead.lead_stage === 'postident2' ? 'PostIdent 2' :
+                                 lead.lead_stage === 'contract' ? 'Vertrag' :
+                                 lead.lead_stage === 'signed' ? 'Unterzeichnet' :
+                                 lead.lead_stage === 'completed' ? 'Abgeschlossen' :
+                                 lead.lead_stage}
+                              </Badge>
+                            </div>
+                          )}
+                          
+                          {/* Action Buttons */}
+                          <div className="flex gap-2">
+                            <Button variant="outline" size="sm" className="p-2" onClick={() => openDetails(lead)}>
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            
+                            {/* Next Step Button */}
+                            {!lead.lead_stage && (
+                              <Button 
+                                size="sm" 
+                                onClick={() => moveToPostIdent1(lead.id)}
+                                className="gap-1 text-xs"
+                              >
+                                <ArrowRight className="h-3 w-3" />
+                                PostIdent 1
+                              </Button>
+                            )}
+                            
+                            {lead.lead_stage === 'postident1' && (
+                              <Button 
+                                size="sm" 
+                                onClick={() => moveToPostIdent2(lead.id)}
+                                className="gap-1 text-xs bg-blue-600 hover:bg-blue-700"
+                              >
+                                <ArrowRight className="h-3 w-3" />
+                                PostIdent 2
+                              </Button>
+                            )}
+                            
+                            {lead.lead_stage === 'postident2' && (
+                              <Button 
+                                size="sm" 
+                                onClick={() => moveToContract(lead.id)}
+                                className="gap-1 text-xs bg-purple-600 hover:bg-purple-700"
+                              >
+                                <ArrowRight className="h-3 w-3" />
+                                Vertrag
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       </TableCell>
                     </TableRow>

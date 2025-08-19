@@ -426,7 +426,7 @@ const PostIdent1Management: React.FC = () => {
                 </Button>
                 <Button 
                   onClick={() => moveToPostIdent2(selected.id)}
-                  className="gap-2 bg-green-600 hover:bg-green-700"
+                  className="gap-2 bg-blue-600 hover:bg-blue-700"
                 >
                   <ArrowRight className="h-4 w-4" />
                   Zu PostIdent 2
