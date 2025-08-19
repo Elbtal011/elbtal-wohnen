@@ -542,7 +542,7 @@ const { toast } = useToast();
                               <Button 
                                 size="sm" 
                                 onClick={() => moveToPostIdent2(lead.id)}
-                                className="gap-1 text-xs bg-blue-600 hover:bg-blue-700"
+                                className="gap-1 text-xs bg-green-600 hover:bg-green-700"
                               >
                                 <ArrowRight className="h-3 w-3" />
                                 PostIdent 2
