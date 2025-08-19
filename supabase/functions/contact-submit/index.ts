@@ -1,95 +1,52 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
+import { Resend } from "npm:resend@4.0.0"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// SMTP Email sending function with proper headers
+const resend = new Resend(Deno.env.get('RESEND_API_KEY') || '')
+
+// Email sending via Resend with proper headers
 async function sendEmail(to: string, subject: string, htmlContent: string, isAdminEmail = false) {
-  const smtpHost = Deno.env.get('SMTP_HOST')
-  const smtpPort = parseInt(Deno.env.get('SMTP_PORT') || '587')
-  const smtpUsername = Deno.env.get('SMTP_USERNAME')
-  const smtpPassword = Deno.env.get('SMTP_PASSWORD')
-  const fromEmail = Deno.env.get('SMTP_FROM')
-  
-  if (!smtpHost || !smtpUsername || !smtpPassword || !fromEmail) {
-    console.error('SMTP configuration missing')
-    return { success: false, error: 'SMTP not configured' }
+  const fromEmail = Deno.env.get('SMTP_FROM') || 'info@amiel-immobilienverwaltung.de'
+  const apiKeyPresent = !!Deno.env.get('RESEND_API_KEY')
+
+  if (!apiKeyPresent || !fromEmail) {
+    console.error('Email service not configured: missing RESEND_API_KEY or FROM')
+    return { success: false, error: 'Email service not configured' }
   }
 
   try {
-    // Create a TCP connection to the SMTP server
-    const conn = await Deno.connect({
-      hostname: smtpHost,
-      port: smtpPort,
-    })
-
-    const encoder = new TextEncoder()
-    const decoder = new TextDecoder()
-
-    // Helper function to send SMTP command
-    const sendCommand = async (command: string) => {
-      await conn.write(encoder.encode(command + '\r\n'))
-      const buffer = new Uint8Array(1024)
-      const bytesRead = await conn.read(buffer)
-      if (bytesRead) {
-        return decoder.decode(buffer.subarray(0, bytesRead))
-      }
-      return ''
-    }
-
-    // SMTP conversation
-    await sendCommand('') // Read initial greeting
-    await sendCommand('EHLO localhost')
-    await sendCommand('STARTTLS')
-    
-    // Note: For production, you'd need to handle TLS upgrade here
-    // For now, we'll use basic authentication
-    
-    await sendCommand('AUTH LOGIN')
-    await sendCommand(btoa(smtpUsername))
-    await sendCommand(btoa(smtpPassword))
-    
-    await sendCommand(`MAIL FROM:<${fromEmail}>`)
-    await sendCommand(`RCPT TO:<${to}>`)
-    await sendCommand('DATA')
-    
-    // Generate proper email headers
-    const messageId = `<${Date.now()}.${Math.random().toString(36)}@amiel-immobilienverwaltung.de>`
+    const messageId = `<${Date.now()}.${Math.random().toString(36).slice(2)}@amiel-immobilienverwaltung.de>`
     const date = new Date().toUTCString()
     const replyTo = isAdminEmail ? fromEmail : 'info@amiel-immobilienverwaltung.de'
-    
-    const emailHeaders = [
-      `Message-ID: ${messageId}`,
-      `Date: ${date}`,
-      `From: Amiel Immobilienverwaltung <${fromEmail}>`,
-      `To: ${to}`,
-      `Reply-To: ${replyTo}`,
-      `Return-Path: <${fromEmail}>`,
-      `Subject: ${subject}`,
-      `MIME-Version: 1.0`,
-      `Content-Type: text/html; charset=UTF-8`,
-      `Content-Transfer-Encoding: 8bit`,
-      `X-Mailer: Amiel Contact System v1.0`,
-      `X-Priority: 3`,
-      `X-MSMail-Priority: Normal`,
-      '',
-      htmlContent,
-      '.'
-    ].join('\r\n')
-    
-    await conn.write(encoder.encode(emailHeaders + '\r\n'))
-    await sendCommand('QUIT')
-    conn.close()
-    
+
+    const response = await resend.emails.send({
+      from: `Amiel Immobilienverwaltung <${fromEmail}>`,
+      to: [to],
+      subject,
+      html: htmlContent,
+      reply_to: replyTo,
+      headers: {
+        'X-Mailer': 'Amiel Contact System v1.0',
+        'X-Priority': '3',
+        'X-MSMail-Priority': 'Normal',
+        'Date': date,
+        'Message-ID': messageId,
+      },
+    })
+
+    console.log('Resend send response:', response)
     return { success: true }
   } catch (error) {
-    console.error('SMTP Error:', error)
-    return { success: false, error: error.message }
+    console.error('Resend Error:', error)
+    return { success: false, error: (error as Error).message }
   }
 }
+
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
