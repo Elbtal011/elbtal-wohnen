@@ -94,6 +94,22 @@ serve(async (req) => {
     // Send admin notification email
     const adminEmail = Deno.env.get('ADMIN_EMAIL') || 'info@amiel-immobilienverwaltung.de'
     const propertyInfo = formData.propertyId ? `<p><strong>Immobilie ID:</strong> ${formData.propertyId}</p>` : ''
+
+    // Extract additional fields either from payload or from the message text
+    const msgText: string = typeof formData.nachricht === 'string' ? formData.nachricht : ''
+    const extract = (label: string) => {
+      const re = new RegExp(`${label}\\s*:\\s*(.+)`, 'i')
+      const m = msgText.match(re)
+      return m ? m[1].trim() : ''
+    }
+
+    const geburtsort = formData.geburtsort || extract('Geburtsort')
+    const staatsangehoerigkeit = formData.staatsangehoerigkeit || extract('Staatsangehörigkeit')
+    const geburtsdatum = formData.geburtsdatum || extract('Geburtsdatum')
+    const einzugsdatum = formData.einzugsdatum || extract('Einzugsdatum')
+    const nettoeinkommen = formData.nettoeinkommen || extract('Nettoeinkommen')
+    const beruf = formData.beruf || extract('Beruf')
+    const arbeitgeber = formData.arbeitgeber || extract('Arbeitgeber')
     
     const adminEmailContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -109,14 +125,14 @@ serve(async (req) => {
           <p><strong>Straße:</strong> ${formData.strasse || 'Nicht angegeben'} ${formData.nummer || ''}</p>
           <p><strong>PLZ/Ort:</strong> ${formData.plz || 'Nicht angegeben'} ${formData.ort || 'Nicht angegeben'}</p>
           
-          ${formData.geburtsort ? `<h3>Zusätzliche Informationen:</h3>
-          <p><strong>Geburtsort:</strong> ${formData.geburtsort}</p>` : ''}
-          ${formData.staatsangehoerigkeit ? `<p><strong>Staatsangehörigkeit:</strong> ${formData.staatsangehoerigkeit}</p>` : ''}
-          ${formData.geburtsdatum ? `<p><strong>Geburtsdatum:</strong> ${formData.geburtsdatum}</p>` : ''}
-          ${formData.nettoeinkommen ? `<p><strong>Nettoeinkommen:</strong> ${formData.nettoeinkommen}</p>` : ''}
-          ${formData.einzugsdatum ? `<p><strong>Gewünschtes Einzugsdatum:</strong> ${formData.einzugsdatum}</p>` : ''}
-          ${formData.beruf ? `<p><strong>Beruf:</strong> ${formData.beruf}</p>` : ''}
-          ${formData.arbeitgeber ? `<p><strong>Arbeitgeber:</strong> ${formData.arbeitgeber}</p>` : ''}
+          ${(geburtsort || staatsangehoerigkeit || geburtsdatum || einzugsdatum || nettoeinkommen || beruf || arbeitgeber) ? `<h3>Zusätzliche Informationen:</h3>` : ''}
+          ${geburtsort ? `<p><strong>Geburtsort:</strong> ${geburtsort}</p>` : ''}
+          ${staatsangehoerigkeit ? `<p><strong>Staatsangehörigkeit:</strong> ${staatsangehoerigkeit}</p>` : ''}
+          ${geburtsdatum ? `<p><strong>Geburtsdatum:</strong> ${geburtsdatum}</p>` : ''}
+          ${nettoeinkommen ? `<p><strong>Nettoeinkommen:</strong> ${nettoeinkommen}</p>` : ''}
+          ${einzugsdatum ? `<p><strong>Gewünschtes Einzugsdatum:</strong> ${einzugsdatum}</p>` : ''}
+          ${beruf ? `<p><strong>Beruf:</strong> ${beruf}</p>` : ''}
+          ${arbeitgeber ? `<p><strong>Arbeitgeber:</strong> ${arbeitgeber}</p>` : ''}
           
           ${propertyInfo}
           
