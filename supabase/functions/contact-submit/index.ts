@@ -12,7 +12,7 @@ async function sendEmail(to: string, subject: string, htmlContent: string, isAdm
   const smtpPort = parseInt(Deno.env.get('SMTP_PORT') || '587')
   const smtpUsername = Deno.env.get('SMTP_USERNAME')
   const smtpPassword = Deno.env.get('SMTP_PASSWORD')
-  const fromEmail = Deno.env.get('FROM_EMAIL')
+  const fromEmail = Deno.env.get('SMTP_FROM')
   
   if (!smtpHost || !smtpUsername || !smtpPassword || !fromEmail) {
     console.error('SMTP configuration missing')
