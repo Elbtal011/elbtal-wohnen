@@ -123,14 +123,27 @@ const UserProfile = () => {
         nettoeinkommen: profileData.nettoeinkommen ? parseInt(profileData.nettoeinkommen) : null,
       };
 
-      const { error } = await supabase
+      // Update existing profile if exists, else insert a new one
+      const { data: existing, error: selectError } = await supabase
         .from('profiles')
-        .upsert({
-          user_id: user?.id,
-          ...updateData,
-        });
+        .select('id')
+        .eq('user_id', user?.id)
+        .maybeSingle();
 
-      if (error) throw error;
+      if (selectError) throw selectError;
+
+      if (existing?.id) {
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update(updateData)
+          .eq('id', existing.id);
+        if (updateError) throw updateError;
+      } else {
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert({ user_id: user?.id, ...updateData });
+        if (insertError) throw insertError;
+      }
 
       toast.success('Profil erfolgreich aktualisiert!');
     } catch (error) {
