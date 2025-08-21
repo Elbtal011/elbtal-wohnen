@@ -167,7 +167,7 @@ serve(async (req) => {
           </p>
           
           <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.5;">
-            <a href="https://amiel-immobilienverwaltung.lovableproject.com/auth" style="color: #2563eb; text-decoration: underline;">
+            <a href="https://amiel-immobilienverwaltung.de/auth" style="color: #2563eb; text-decoration: underline;">
               Hier zur Registrierung klicken
             </a>
           </p>
