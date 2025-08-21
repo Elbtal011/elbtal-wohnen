@@ -53,7 +53,8 @@ export const useAuth = () => {
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
+    // Force local sign-out to avoid 403 'session_not_found' on global
+    const { error } = await supabase.auth.signOut({ scope: 'local' });
     return { error };
   };
 
