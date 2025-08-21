@@ -52,10 +52,30 @@ export const useAuth = () => {
     return { error };
   };
 
+  const forceClearSupabaseSession = () => {
+    try {
+      const keysToRemove: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (!key) continue;
+        if (key.startsWith('sb-') || key.includes('supabase.auth')) {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach((k) => localStorage.removeItem(k));
+    } catch (e) {
+      // ignore
+    }
+  };
+
   const signOut = async () => {
-    // Force local sign-out to avoid 403 'session_not_found' on global
-    const { error } = await supabase.auth.signOut({ scope: 'local' });
-    return { error };
+    // Try local sign out first; ignore errors (403 when session already gone)
+    const { error } = await supabase.auth.signOut({ scope: 'local' }).catch((e) => ({ error: e }));
+    // Always clear cached tokens and reset state
+    forceClearSupabaseSession();
+    setSession(null);
+    setUser(null);
+    return { error: error ?? null };
   };
 
   return {
