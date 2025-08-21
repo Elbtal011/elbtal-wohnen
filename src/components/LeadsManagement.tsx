@@ -427,6 +427,8 @@ const { toast } = useToast();
                     </TableHead>
                     <TableHead className="min-w-[160px]">Name</TableHead>
                     <TableHead className="min-w-[200px]">Kontakt</TableHead>
+                    <TableHead className="min-w-[120px]">Staatsangehörigkeit</TableHead>
+                    <TableHead className="min-w-[120px]">Nettoeinkommen</TableHead>
                     <TableHead className="min-w-[160px]">Label</TableHead>
                     <TableHead className="min-w-[100px]">Datum</TableHead>
                     <TableHead className="min-w-[160px]">Immobilie</TableHead>
@@ -434,38 +436,50 @@ const { toast } = useToast();
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filtered.map((lead) => (
-                    <TableRow key={lead.id} className={isSelected(lead.id) ? 'bg-muted/40' : ''}>
-                      <TableCell className="w-10">
-                        <Checkbox
-                          checked={isSelected(lead.id)}
-                          onCheckedChange={(v) => toggleSelect(lead.id, Boolean(v))}
-                          aria-label="Lead auswählen"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <div className="font-medium text-sm">
-                          {lead.anrede && (lead.anrede === 'herr' ? 'Hr.' : lead.anrede === 'frau' ? 'Fr.' : 'Divers')}{' '}
-                          {lead.vorname} {lead.nachname}
-                        </div>
-                        <div className="text-xs text-muted-foreground truncate max-w-[220px]">{lead.nachricht}</div>
-                        {(lead.plz || lead.ort) && (
-                          <div className="text-xs text-muted-foreground">{lead.plz} {lead.ort}</div>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-1 text-xs">
-                            <Mail className="h-3 w-3" />
-                            <span className="truncate">{lead.email}</span>
+                  {filtered.map((lead) => {
+                    const details = extractDetails(lead.nachricht);
+                    return (
+                      <TableRow key={lead.id} className={isSelected(lead.id) ? 'bg-muted/40' : ''}>
+                        <TableCell className="w-10">
+                          <Checkbox
+                            checked={isSelected(lead.id)}
+                            onCheckedChange={(v) => toggleSelect(lead.id, Boolean(v))}
+                            aria-label="Lead auswählen"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <div className="font-medium text-sm">
+                            {lead.anrede && (lead.anrede === 'herr' ? 'Hr.' : lead.anrede === 'frau' ? 'Fr.' : 'Divers')}{' '}
+                            {lead.vorname} {lead.nachname}
                           </div>
-                          <div className="flex items-center gap-1 text-xs">
-                            <Phone className="h-3 w-3" />
-                            <span className="truncate">{lead.telefon}</span>
+                          <div className="text-xs text-muted-foreground truncate max-w-[220px]">{lead.nachricht}</div>
+                          {(lead.plz || lead.ort) && (
+                            <div className="text-xs text-muted-foreground">{lead.plz} {lead.ort}</div>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-1 text-xs">
+                              <Mail className="h-3 w-3" />
+                              <span className="truncate">{lead.email}</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-xs">
+                              <Phone className="h-3 w-3" />
+                              <span className="truncate">{lead.telefon}</span>
+                            </div>
                           </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-xs text-muted-foreground">
+                            {details['Staatsangehörigkeit'] || '-'}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-xs text-muted-foreground">
+                            {details['Nettoeinkommen'] ? `${details['Nettoeinkommen']} €` : '-'}
+                          </div>
+                        </TableCell>
+                        <TableCell>
                         <div className="flex items-center gap-2">
                           <LeadLabelBadge label={lead.lead_label} />
                           <Select
@@ -562,8 +576,9 @@ const { toast } = useToast();
                           </div>
                         </div>
                       </TableCell>
-                    </TableRow>
-                  ))}
+                     </TableRow>
+                   );
+                 })}
                 </TableBody>
               </Table>
             </div>
