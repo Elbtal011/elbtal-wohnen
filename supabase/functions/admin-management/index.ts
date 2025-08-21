@@ -430,6 +430,56 @@ serve(async (req) => {
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
 
+      case 'get_members':
+        try {
+          // First get all profiles
+          const { data: profiles, error: profilesError } = await supabase
+            .from('profiles')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+          if (profilesError) throw profilesError;
+
+          // Get emails from auth.users for each profile using service role
+          const membersWithEmails = [];
+          
+          for (const profile of profiles || []) {
+            try {
+              const { data: userData, error: userError } = await supabase.auth.admin.getUserById(profile.user_id);
+              
+              if (!userError && userData.user) {
+                membersWithEmails.push({
+                  ...profile,
+                  email: userData.user.email || 'N/A'
+                });
+              } else {
+                // If we can't fetch user data, still include the profile without email
+                membersWithEmails.push({
+                  ...profile,
+                  email: 'N/A'
+                });
+              }
+            } catch (error) {
+              console.error('Error fetching user email for profile:', profile.id, error);
+              membersWithEmails.push({
+                ...profile,
+                email: 'N/A'
+              });
+            }
+          }
+
+          return new Response(
+            JSON.stringify({ members: membersWithEmails }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        } catch (error) {
+          console.error('Error fetching members:', error);
+          return new Response(
+            JSON.stringify({ error: 'Failed to fetch members' }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
       case 'create_contact_request': {
         // Validate required fields
         const required = ['vorname','nachname','email','telefon','nachricht']

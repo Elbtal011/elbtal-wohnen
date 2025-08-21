@@ -82,39 +82,23 @@ const MembersManagement = () => {
     try {
       setLoading(true);
       
-      // Fetch profiles with user email
-      const { data: profilesData, error: profilesError } = await supabase
-        .from('profiles')
-        .select(`
-          *,
-          user_id
-        `);
-
-      if (profilesError) throw profilesError;
-
-      // Get user emails from auth.users for each profile
-      const membersWithEmails: Member[] = [];
-      
-      for (const profile of profilesData || []) {
-        try {
-          const { data: userData, error: userError } = await supabase.auth.admin.getUserById(profile.user_id);
-          
-          if (!userError && userData.user) {
-            membersWithEmails.push({
-              ...profile,
-              email: userData.user.email || 'N/A'
-            });
-          }
-        } catch (error) {
-          // If we can't fetch user data, still include the profile without email
-          membersWithEmails.push({
-            ...profile,
-            email: 'N/A'
-          });
-        }
+      // Get admin token from localStorage
+      const adminToken = localStorage.getItem('admin_token');
+      if (!adminToken) {
+        throw new Error('Admin token not found');
       }
 
-      setMembers(membersWithEmails);
+      // Call admin management function to get members
+      const { data, error } = await supabase.functions.invoke('admin-management', {
+        body: { 
+          action: 'get_members',
+          token: adminToken
+        }
+      });
+
+      if (error) throw error;
+
+      setMembers(data.members || []);
     } catch (error) {
       console.error('Error fetching members:', error);
       toast.error('Fehler beim Laden der Mitglieder');
