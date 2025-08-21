@@ -172,8 +172,32 @@ const UserProfile = () => {
         .from('profile-images')
         .getPublicUrl(fileName);
 
-      setProfileData(prev => ({ ...prev, profile_image_url: data.publicUrl }));
-      toast.success('Profilbild erfolgreich hochgeladen!');
+      const publicUrl = data.publicUrl;
+
+      // Persist the image URL in the user's profile
+      const { data: existing, error: selectError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (selectError) throw selectError;
+
+      if (existing?.id) {
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ profile_image_url: publicUrl })
+          .eq('id', existing.id);
+        if (updateError) throw updateError;
+      } else {
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert({ user_id: user.id, profile_image_url: publicUrl });
+        if (insertError) throw insertError;
+      }
+
+      setProfileData(prev => ({ ...prev, profile_image_url: publicUrl }));
+      toast.success('Profilbild erfolgreich hochgeladen und gespeichert!');
     } catch (error) {
       console.error('Error uploading image:', error);
       toast.error('Fehler beim Hochladen des Profilbilds');
