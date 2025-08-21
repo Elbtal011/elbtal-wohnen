@@ -154,34 +154,54 @@ serve(async (req) => {
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
         <div style="padding: 30px; background: #ffffff;">
           <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.5;">
-            Sehr geehrte Damen und Herren,
+            Sehr geehrte/r ${formData.vorname} ${formData.nachname},
           </p>
           
           <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.5;">
-            vielen Dank für Ihr Interesse an unserer Immobilie${formData.propertyTitle ? ` "<strong>${formData.propertyTitle}</strong>"` : ''}. 
-            Wir haben Ihre Anfrage erhalten und werden uns innerhalb der nächsten 24 Stunden bei Ihnen melden, 
-            um einen Besichtigungstermin zu vereinbaren oder Ihre Fragen zu beantworten.
+            Ihre Anfrage ist bei uns eingetroffen.
           </p>
           
           <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.5;">
-            In der Zwischenzeit können Sie gerne weitere Informationen zu unseren Immobilien auf unserer 
-            Website einsehen oder uns direkt unter +49 89 123 456 789 kontaktieren.
+            Damit wir Ihre Unterlagen vollständig prüfen und den Bewerbungsprozess reibungslos gestalten können, 
+            bitten wir Sie, sich in unserem Kundenportal zu registrieren:
+          </p>
+          
+          <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.5;">
+            <a href="https://amiel-immobilienverwaltung.lovableproject.com/auth" style="color: #2563eb; text-decoration: underline;">
+              Hier zur Registrierung klicken
+            </a>
+          </p>
+          
+          <p style="margin: 0 0 10px 0; font-size: 16px; line-height: 1.5;">
+            Nach erfolgreicher Registrierung laden Sie bitte die folgenden Unterlagen hoch:
+          </p>
+          
+          <ul style="margin: 0 0 20px 20px; font-size: 16px; line-height: 1.8;">
+            <li>Gehaltsnachweise der letzten 3 Monate</li>
+            <li>Kontoauszüge der letzten 3 Monate</li>
+            <li>Kopie Ihres gültigen Ausweises (Vorder- und Rückseite)</li>
+          </ul>
+          
+          <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.5;">
+            Da die Wohnungen auf große Nachfrage stoßen, empfehlen wir, die Unterlagen zeitnah hochzuladen.
+          </p>
+          
+          <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.5;">
+            Wir danken Ihnen für Ihre Mithilfe und freuen uns auf die weitere Bearbeitung Ihrer Anfrage.
           </p>
           
           <p style="margin: 20px 0; font-size: 16px; line-height: 1.5;">
             Mit freundlichen Grüßen<br>
-            Ihr Team der Amiel Immobilienverwaltung
+            Amiel Immobilienverwaltung
           </p>
         </div>
         
         <div style="background: #f8f9fa; padding: 20px; border-top: 1px solid #e9ecef; font-size: 14px; line-height: 1.4; color: #666;">
           <p style="margin: 0 0 10px 0; font-weight: bold; color: #333;">
-            Mit freundlichen Grüßen<br>
-            Amiel Immobilienverwaltung
+            Amiel Immobilienverwaltung GmbH
           </p>
           
           <p style="margin: 15px 0; color: #333;">
-            <strong>Amiel Immobilienverwaltung GmbH</strong><br>
             Leuchtenbergring 54<br>
             81677 München<br>
             Telefon: +49 89 123 456 789<br>
