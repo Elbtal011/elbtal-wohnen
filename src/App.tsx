@@ -15,6 +15,8 @@ import Datenschutz from "./pages/Datenschutz";
 import AGB from "./pages/AGB";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
+import Auth from "./pages/Auth";
+import UserProfile from "./pages/UserProfile";
 import NotFound from "./pages/NotFound";
 import ScrollToTop from "./components/ScrollToTop";
 
@@ -40,6 +42,8 @@ const App = () => (
           <Route path="/agb" element={<AGB />} />
           <Route path="/admin1244" element={<AdminLogin />} />
           <Route path="/admin1244/dashboard" element={<AdminDashboard />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/profile" element={<UserProfile />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

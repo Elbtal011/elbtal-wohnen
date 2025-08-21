@@ -22,7 +22,8 @@ import {
   ChevronDown,
   ChevronRight,
   CheckCircle,
-  UserCheck
+  UserCheck,
+  Users
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
@@ -81,6 +82,11 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, onTabChange, adm
       id: 'contacts',
       label: 'Anfragen',
       icon: MessageSquare,
+    },
+    {
+      id: 'members',
+      label: 'Mitglieder',
+      icon: Users,
     },
     {
       id: 'cities',

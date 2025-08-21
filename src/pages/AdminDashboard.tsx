@@ -8,6 +8,7 @@ import AdminHeader from '@/components/AdminHeader';
 import PropertiesManagement from '@/components/PropertiesManagement';
 import ContactRequestsManagement from '@/components/ContactRequestsManagement';
 import CitiesManagement from '@/components/CitiesManagement';
+import MembersManagement from '@/components/MembersManagement';
 import AdminOverview from '@/components/AdminOverview';
 import AnalyticsReporting from '@/components/AnalyticsReporting';
 import LeadsManagement from '@/components/LeadsManagement';
@@ -127,6 +128,8 @@ const AdminDashboard = () => {
         return <PropertiesManagement />;
       case 'contacts':
         return <ContactRequestsManagement />;
+      case 'members':
+        return <MembersManagement />;
       case 'leads':
         return <LeadsManagement />;
       case 'postident1':

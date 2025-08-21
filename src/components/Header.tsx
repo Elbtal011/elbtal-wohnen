@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, User, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -10,9 +11,20 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+  };
 
   return (
     <header className="bg-background border-b border-border sticky top-0 z-50 shadow-sm">
@@ -91,6 +103,39 @@ export const Header = () => {
             </NavigationMenuList>
           </NavigationMenu>
 
+          {/* Auth Section */}
+          <div className="hidden lg:flex items-center space-x-3">
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <User className="h-4 w-4 mr-2" />
+                    Mein Bereich
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile" className="w-full">
+                      <User className="h-4 w-4 mr-2" />
+                      Mein Profil
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Abmelden
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button asChild>
+                <Link to="/auth">
+                  <User className="h-4 w-4 mr-2" />
+                  Anmelden
+                </Link>
+              </Button>
+            )}
+          </div>
+
           {/* Mobile Menu Button */}
           <div
             className="lg:hidden cursor-pointer"
@@ -130,6 +175,30 @@ export const Header = () => {
               <Link to="/unternehmen" className="block px-3 py-2 text-base font-medium text-foreground hover:text-primary hover:bg-accent rounded-md">
                 Unternehmen
               </Link>
+              
+              {/* Mobile Auth Section */}
+              {user ? (
+                <div className="border-t border-border pt-2 mt-2 space-y-1">
+                  <Link to="/profile" className="block px-3 py-2 text-base font-medium text-foreground hover:text-primary hover:bg-accent rounded-md">
+                    <User className="h-4 w-4 mr-2 inline" />
+                    Mein Profil
+                  </Link>
+                  <button 
+                    onClick={handleLogout}
+                    className="block w-full text-left px-3 py-2 text-base font-medium text-foreground hover:text-primary hover:bg-accent rounded-md"
+                  >
+                    <LogOut className="h-4 w-4 mr-2 inline" />
+                    Abmelden
+                  </button>
+                </div>
+              ) : (
+                <div className="border-t border-border pt-2 mt-2">
+                  <Link to="/auth" className="block px-3 py-2 text-base font-medium text-foreground hover:text-primary hover:bg-accent rounded-md">
+                    <User className="h-4 w-4 mr-2 inline" />
+                    Anmelden
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         )}
