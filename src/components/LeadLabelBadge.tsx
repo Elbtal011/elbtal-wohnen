@@ -25,7 +25,7 @@ const LeadLabelBadge: React.FC<LeadLabelBadgeProps> = ({ label, className }) => 
   const variant = labelVariantMap[label] || "secondary";
 
   return (
-    <Badge variant={variant} className={["px-2 py-0.5", className].filter(Boolean).join(" ")}>{label}</Badge>
+    <Badge variant={variant} className={["px-3 py-1 text-xs", className].filter(Boolean).join(" ")}>{label}</Badge>
   );
 };
 
