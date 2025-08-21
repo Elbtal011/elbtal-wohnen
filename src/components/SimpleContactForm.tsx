@@ -63,7 +63,8 @@ const handleSubmit = async (e: React.FormEvent) => {
       plz,
       ort: '',
       nachricht: `${deineNachricht}\n\nGeburtsort: ${geburtsort}\nStaatsangehörigkeit: ${staatsangehoerigkeit}\nGeburtsdatum: ${geburtsdatum}${isDialog ? `\nEinzugsdatum: ${einzugsdatum}` : ''}\nNettoeinkommen: ${nettoeinkommen}`,
-      datenschutz: true
+      datenschutz: true,
+      formSource: isDialog ? 'property_details' : 'contact_page'
     };
 
     const { data, error } = await supabase.functions.invoke('contact-submit', {

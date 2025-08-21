@@ -146,8 +146,59 @@ serve(async (req) => {
       </div>
     `
 
-    // Send user confirmation email
-    const userEmailContent = `
+    // Determine email content based on form source
+    const formSource = formData.formSource || 'contact_page'
+    const isPropertyInquiry = formSource === 'property_details'
+    
+    const userEmailContent = isPropertyInquiry ? `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+        <div style="padding: 30px; background: #ffffff;">
+          <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.5;">
+            Sehr geehrte Damen und Herren,
+          </p>
+          
+          <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.5;">
+            vielen Dank für Ihr Interesse an unserer Immobilie${formData.propertyTitle ? ` "<strong>${formData.propertyTitle}</strong>"` : ''}. 
+            Wir haben Ihre Anfrage erhalten und werden uns innerhalb der nächsten 24 Stunden bei Ihnen melden, 
+            um einen Besichtigungstermin zu vereinbaren oder Ihre Fragen zu beantworten.
+          </p>
+          
+          <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.5;">
+            In der Zwischenzeit können Sie gerne weitere Informationen zu unseren Immobilien auf unserer 
+            Website einsehen oder uns direkt unter +49 89 123 456 789 kontaktieren.
+          </p>
+          
+          <p style="margin: 20px 0; font-size: 16px; line-height: 1.5;">
+            Mit freundlichen Grüßen<br>
+            Ihr Team der Amiel Immobilienverwaltung
+          </p>
+        </div>
+        
+        <div style="background: #f8f9fa; padding: 20px; border-top: 1px solid #e9ecef; font-size: 14px; line-height: 1.4; color: #666;">
+          <p style="margin: 0 0 10px 0; font-weight: bold; color: #333;">
+            Mit freundlichen Grüßen<br>
+            Amiel Immobilienverwaltung
+          </p>
+          
+          <p style="margin: 15px 0; color: #333;">
+            <strong>Amiel Immobilienverwaltung GmbH</strong><br>
+            Leuchtenbergring 54<br>
+            81677 München<br>
+            Telefon: +49 89 123 456 789<br>
+            E-Mail: info@amiel-immobilienverwaltung.de
+          </p>
+          
+          <p style="margin: 15px 0; font-size: 12px;">
+            Handelsregister: Amtsgericht München, HRB 90221<br>
+            USt-IdNr.: DE9741089
+          </p>
+          
+          <p style="margin: 15px 0 0 0; font-size: 12px; font-style: italic;">
+            Hinweis: Diese E-Mail und alle Anhänge sind vertraulich und ausschließlich für den bezeichneten Adressaten bestimmt.
+          </p>
+        </div>
+      </div>
+    ` : `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
         <div style="padding: 30px; background: #ffffff;">
           <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.5;">
