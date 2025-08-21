@@ -414,7 +414,7 @@ const { toast } = useToast();
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-10">
+                    <TableHead className="w-8">
                       <Checkbox
                         checked={filtered.length > 0 && filtered.every(l => selectedIds.has(l.id))}
                         onCheckedChange={(v) => {
@@ -425,14 +425,14 @@ const { toast } = useToast();
                         aria-label="Alle auswählen"
                       />
                     </TableHead>
-                    <TableHead className="min-w-[160px]">Name</TableHead>
-                    <TableHead className="min-w-[200px]">Kontakt</TableHead>
-                    <TableHead className="min-w-[120px]">Staatsangehörigkeit</TableHead>
-                    <TableHead className="min-w-[120px]">Nettoeinkommen</TableHead>
-                    <TableHead className="min-w-[160px]">Label</TableHead>
-                    <TableHead className="min-w-[100px]">Datum</TableHead>
-                    <TableHead className="min-w-[160px]">Immobilie</TableHead>
-                    <TableHead className="min-w-[140px]">Stage & Aktionen</TableHead>
+                    <TableHead className="min-w-[140px]">Lead</TableHead>
+                    <TableHead className="min-w-[160px] hidden md:table-cell">Kontakt</TableHead>
+                    <TableHead className="min-w-[80px] hidden lg:table-cell">Staat</TableHead>
+                    <TableHead className="min-w-[80px] hidden lg:table-cell">Einkommen</TableHead>
+                    <TableHead className="min-w-[100px] hidden sm:table-cell">Label</TableHead>
+                    <TableHead className="min-w-[70px] hidden sm:table-cell">Datum</TableHead>
+                    <TableHead className="min-w-[100px] hidden md:table-cell">Immobilie</TableHead>
+                    <TableHead className="min-w-[120px]">Aktionen</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -440,7 +440,7 @@ const { toast } = useToast();
                     const details = extractDetails(lead.nachricht);
                     return (
                       <TableRow key={lead.id} className={isSelected(lead.id) ? 'bg-muted/40' : ''}>
-                        <TableCell className="w-10">
+                        <TableCell className="w-8">
                           <Checkbox
                             checked={isSelected(lead.id)}
                             onCheckedChange={(v) => toggleSelect(lead.id, Boolean(v))}
@@ -448,20 +448,40 @@ const { toast } = useToast();
                           />
                         </TableCell>
                         <TableCell>
-                          <div className="font-medium text-sm">
-                            {lead.anrede && (lead.anrede === 'herr' ? 'Hr.' : lead.anrede === 'frau' ? 'Fr.' : 'Divers')}{' '}
-                            {lead.vorname} {lead.nachname}
+                          <div className="space-y-1">
+                            <div className="font-medium text-sm">
+                              {lead.anrede && (lead.anrede === 'herr' ? 'Hr.' : lead.anrede === 'frau' ? 'Fr.' : 'Divers')}{' '}
+                              {lead.vorname} {lead.nachname}
+                            </div>
+                            {/* Show contact info on small screens */}
+                            <div className="md:hidden space-y-1">
+                              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                <Mail className="h-3 w-3" />
+                                <span className="truncate">{lead.email}</span>
+                              </div>
+                              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                <Phone className="h-3 w-3" />
+                                <span className="truncate">{lead.telefon}</span>
+                              </div>
+                            </div>
+                            {/* Show extra info on very small screens */}
+                            <div className="sm:hidden text-xs text-muted-foreground space-y-0.5">
+                              {details['Staatsangehörigkeit'] && (
+                                <div>🌍 {details['Staatsangehörigkeit']}</div>
+                              )}
+                              {details['Nettoeinkommen'] && (
+                                <div>💰 {details['Nettoeinkommen']} €</div>
+                              )}
+                              <div>📅 {new Date(lead.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}</div>
+                              <div>🏠 {lead.property?.title || 'Allgemein'}</div>
+                            </div>
                           </div>
-                          <div className="text-xs text-muted-foreground truncate max-w-[220px]">{lead.nachricht}</div>
-                          {(lead.plz || lead.ort) && (
-                            <div className="text-xs text-muted-foreground">{lead.plz} {lead.ort}</div>
-                          )}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="hidden md:table-cell">
                           <div className="space-y-1">
                             <div className="flex items-center gap-1 text-xs">
                               <Mail className="h-3 w-3" />
-                              <span className="truncate">{lead.email}</span>
+                              <span className="truncate max-w-[140px]">{lead.email}</span>
                             </div>
                             <div className="flex items-center gap-1 text-xs">
                               <Phone className="h-3 w-3" />
@@ -469,113 +489,106 @@ const { toast } = useToast();
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell>
-                          <div className="text-xs text-muted-foreground">
+                        <TableCell className="hidden lg:table-cell">
+                          <div className="text-xs text-muted-foreground truncate">
                             {details['Staatsangehörigkeit'] || '-'}
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="hidden lg:table-cell">
                           <div className="text-xs text-muted-foreground">
-                            {details['Nettoeinkommen'] ? `${details['Nettoeinkommen']} €` : '-'}
+                            {details['Nettoeinkommen'] ? `${details['Nettoeinkommen']}€` : '-'}
                           </div>
                         </TableCell>
-                        <TableCell>
-                        <div className="flex items-center gap-2">
-                          <LeadLabelBadge label={lead.lead_label} />
-                          <Select
-                            value={lead.lead_label ?? 'none'}
-                            onValueChange={(v) => updateLabel(lead.id, v === 'none' ? null : v)}
-                          >
-                            <SelectTrigger className="w-36 text-xs">
-                              <SelectValue placeholder="Label setzen" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="none">Ohne Label</SelectItem>
-                              {Array.from(new Set([...DEFAULT_LABELS, ...uniqueLabels])).map(l => (
-                                <SelectItem key={l} value={l}>{l}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1 text-xs">
-                          <Calendar className="h-3 w-3" />
-                          {new Date(lead.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-xs truncate max-w-[180px]">{lead.property?.title || 'Allgemein'}</div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-col gap-2">
-                          {/* Current Stage Badge */}
-                          {lead.lead_stage && (
-                            <div className="flex items-center gap-1">
-                              <span className="text-xs text-muted-foreground">Stage:</span>
-                              <Badge 
-                                variant="secondary" 
-                                className={
-                                  lead.lead_stage === 'postident1' ? 'bg-orange-100 text-orange-800' :
-                                  lead.lead_stage === 'postident2' ? 'bg-blue-100 text-blue-800' :
-                                  lead.lead_stage === 'contract' ? 'bg-purple-100 text-purple-800' :
-                                  lead.lead_stage === 'signed' ? 'bg-green-100 text-green-800' :
-                                  lead.lead_stage === 'completed' ? 'bg-emerald-100 text-emerald-800' :
-                                  'bg-gray-100 text-gray-800'
-                                }
-                              >
-                                {lead.lead_stage === 'postident1' ? 'PostIdent 1' :
-                                 lead.lead_stage === 'postident2' ? 'PostIdent 2' :
-                                 lead.lead_stage === 'contract' ? 'Vertrag' :
-                                 lead.lead_stage === 'signed' ? 'Unterzeichnet' :
-                                 lead.lead_stage === 'completed' ? 'Abgeschlossen' :
-                                 lead.lead_stage}
-                              </Badge>
-                            </div>
-                          )}
-                          
-                          {/* Action Buttons */}
-                          <div className="flex gap-2">
-                            <Button variant="outline" size="sm" className="p-2" onClick={() => openDetails(lead)}>
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            
-                            {/* Next Step Button */}
-                            {!lead.lead_stage && (
-                              <Button 
-                                size="sm" 
-                                onClick={() => moveToPostIdent1(lead.id)}
-                                className="gap-1 text-xs"
-                              >
-                                <ArrowRight className="h-3 w-3" />
-                                PostIdent 1
-                              </Button>
-                            )}
-                            
-                            {lead.lead_stage === 'postident1' && (
-                              <Button 
-                                size="sm" 
-                                onClick={() => moveToPostIdent2(lead.id)}
-                                className="gap-1 text-xs bg-green-600 hover:bg-green-700"
-                              >
-                                <ArrowRight className="h-3 w-3" />
-                                PostIdent 2
-                              </Button>
-                            )}
-                            
-                            {lead.lead_stage === 'postident2' && (
-                              <Button 
-                                size="sm" 
-                                onClick={() => moveToContract(lead.id)}
-                                className="gap-1 text-xs bg-purple-600 hover:bg-purple-700"
-                              >
-                                <ArrowRight className="h-3 w-3" />
-                                Vertrag
-                              </Button>
-                            )}
+                        <TableCell className="hidden sm:table-cell">
+                          <div className="flex flex-col gap-1">
+                            <LeadLabelBadge label={lead.lead_label} />
+                            <Select
+                              value={lead.lead_label ?? 'none'}
+                              onValueChange={(v) => updateLabel(lead.id, v === 'none' ? null : v)}
+                            >
+                              <SelectTrigger className="w-24 h-7 text-xs">
+                                <SelectValue placeholder="Label" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">Ohne Label</SelectItem>
+                                {Array.from(new Set([...DEFAULT_LABELS, ...uniqueLabels])).map(l => (
+                                  <SelectItem key={l} value={l}>{l}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           </div>
-                        </div>
-                      </TableCell>
+                        </TableCell>
+                        <TableCell className="hidden sm:table-cell">
+                          <div className="flex items-center gap-1 text-xs">
+                            <Calendar className="h-3 w-3" />
+                            {new Date(lead.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}
+                          </div>
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell">
+                          <div className="text-xs truncate max-w-[100px]">{lead.property?.title || 'Allgemein'}</div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-col gap-1">
+                            {/* Current Stage Badge */}
+                            {lead.lead_stage && (
+                              <Badge variant="outline" className="text-xs px-1 py-0 w-fit">
+                                {lead.lead_stage === 'postident1' && 'P1'}
+                                {lead.lead_stage === 'postident2' && 'P2'} 
+                                {lead.lead_stage === 'contract' && 'Contract'}
+                                {!['postident1', 'postident2', 'contract'].includes(lead.lead_stage) && lead.lead_stage}
+                              </Badge>
+                            )}
+                            
+                            {/* Action Buttons - Compact */}
+                            <div className="flex flex-col gap-1">
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                onClick={() => openDetails(lead)}
+                                className="h-7 text-xs px-2"
+                              >
+                                <Eye className="h-3 w-3 mr-1" />
+                                <span className="hidden sm:inline">Details</span>
+                              </Button>
+                              
+                              {(!lead.lead_stage || lead.lead_stage === 'new') && (
+                                <Button 
+                                  size="sm" 
+                                  onClick={() => moveToPostIdent1(lead.id)}
+                                  className="h-7 text-xs px-2 bg-blue-600 hover:bg-blue-700"
+                                >
+                                  <ArrowRight className="h-3 w-3 mr-1" />
+                                  <span className="hidden sm:inline">PostIdent 1</span>
+                                  <span className="sm:hidden">P1</span>
+                                </Button>
+                              )}
+                              
+                              {lead.lead_stage === 'postident1' && (
+                                <Button 
+                                  size="sm" 
+                                  onClick={() => moveToPostIdent2(lead.id)}
+                                  className="h-7 text-xs px-2 bg-green-600 hover:bg-green-700"
+                                >
+                                  <ArrowRight className="h-3 w-3 mr-1" />
+                                  <span className="hidden sm:inline">PostIdent 2</span>
+                                  <span className="sm:hidden">P2</span>
+                                </Button>
+                              )}
+                              
+                              {lead.lead_stage === 'postident2' && (
+                                <Button 
+                                  size="sm" 
+                                  onClick={() => moveToContract(lead.id)}
+                                  className="h-7 text-xs px-2 bg-purple-600 hover:bg-purple-700"
+                                >
+                                  <ArrowRight className="h-3 w-3 mr-1" />
+                                  <span className="hidden sm:inline">Vertrag</span>
+                                  <span className="sm:hidden">Contract</span>
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        </TableCell>
                      </TableRow>
                    );
                  })}
