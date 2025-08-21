@@ -315,12 +315,6 @@ const MembersManagement = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-3">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={member.profile_image_url} />
-                          <AvatarFallback>
-                            <User className="h-4 w-4" />
-                          </AvatarFallback>
-                        </Avatar>
                         <div>
                           <div className="font-medium">
                             {member.anrede && `${member.anrede} `}
