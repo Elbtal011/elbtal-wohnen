@@ -81,32 +81,54 @@ const AdminDashboard = () => {
   }, [navigate, toast]);
 
   const handleLogout = async () => {
-    console.log('=== LOGOUT PROCESS ===');
+    console.log('=== LOGOUT PROCESS STARTED ===');
     
-    const token = localStorage.getItem('adminToken');
-    
-    // Logout on server
-    if (token) {
-      try {
-        await supabase.functions.invoke('admin-auth', {
-          body: { action: 'logout', token }
-        });
-        console.log('Server logout successful');
-      } catch (error) {
-        console.error('Server logout failed:', error);
+    try {
+      const token = localStorage.getItem('adminToken');
+      
+      // Try to logout on server, but don't block if it fails
+      if (token) {
+        try {
+          console.log('Attempting server logout...');
+          await supabase.functions.invoke('admin-auth', {
+            body: { action: 'logout', token }
+          });
+          console.log('Server logout successful');
+        } catch (error) {
+          console.error('Server logout failed (continuing anyway):', error);
+          // Don't throw here - we still want to clear local storage
+        }
       }
+      
+      // Always clear local storage regardless of server response
+      console.log('Clearing local storage...');
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('adminUser');
+      
+      // Show success message
+      toast({
+        title: "Abgemeldet",
+        description: "Sie wurden erfolgreich abgemeldet.",
+      });
+      
+      console.log('Redirecting to login...');
+      navigate('/admin1244');
+      
+    } catch (error) {
+      console.error('Unexpected error during logout:', error);
+      
+      // Even if something goes wrong, still try to clear and redirect
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('adminUser');
+      
+      toast({
+        title: "Abgemeldet", 
+        description: "Abmeldung abgeschlossen (mit Fehlern).",
+        variant: "destructive"
+      });
+      
+      navigate('/admin1244');
     }
-    
-    // Clear local storage
-    localStorage.removeItem('adminToken');
-    localStorage.removeItem('adminUser');
-    
-    toast({
-      title: "Abgemeldet",
-      description: "Sie wurden erfolgreich abgemeldet.",
-    });
-    
-    navigate('/admin1244');
   };
 
   if (isLoading) {
