@@ -255,6 +255,60 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          anrede: string | null
+          created_at: string
+          first_name: string | null
+          id: string
+          last_name: string | null
+          nettoeinkommen: number | null
+          nummer: string | null
+          ort: string | null
+          plz: string | null
+          profile_image_url: string | null
+          staatsangehoerigkeit: string | null
+          strasse: string | null
+          telefon: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          anrede?: string | null
+          created_at?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          nettoeinkommen?: number | null
+          nummer?: string | null
+          ort?: string | null
+          plz?: string | null
+          profile_image_url?: string | null
+          staatsangehoerigkeit?: string | null
+          strasse?: string | null
+          telefon?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          anrede?: string | null
+          created_at?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          nettoeinkommen?: number | null
+          nummer?: string | null
+          ort?: string | null
+          plz?: string | null
+          profile_image_url?: string | null
+          staatsangehoerigkeit?: string | null
+          strasse?: string | null
+          telefon?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       properties: {
         Row: {
           additional_costs_monthly: number | null
@@ -450,6 +504,39 @@ export type Database = {
           name?: string
           slug?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      user_documents: {
+        Row: {
+          content_type: string | null
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size: number | null
+          id: string
+          uploaded_at: string
+          user_id: string
+        }
+        Insert: {
+          content_type?: string | null
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          uploaded_at?: string
+          user_id: string
+        }
+        Update: {
+          content_type?: string | null
+          document_type?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          uploaded_at?: string
+          user_id?: string
         }
         Relationships: []
       }
