@@ -8,6 +8,15 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarUI } from '@/components/ui/calendar';
+import { 
+  Pagination, 
+  PaginationContent, 
+  PaginationEllipsis, 
+  PaginationItem, 
+  PaginationLink, 
+  PaginationNext, 
+  PaginationPrevious 
+} from '@/components/ui/pagination';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Calendar, Eye, Mail, Phone, Tag, Plus, Trash2, ArrowRight } from 'lucide-react';
@@ -44,11 +53,13 @@ const LeadsManagement: React.FC = () => {
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<Lead | null>(null);
   const [open, setOpen] = useState(false);
-const { toast } = useToast();
+  const { toast } = useToast();
   const [fromDate, setFromDate] = useState<Date | undefined>();
   const [toDate, setToDate] = useState<Date | undefined>();
   const [openAdd, setOpenAdd] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 15;
 
   const fetchLeads = async () => {
     try {
@@ -116,6 +127,16 @@ const { toast } = useToast();
       return matchesLabel && matchesSearch && fromOk && toOk;
     });
   }, [leads, labelFilter, search, fromDate, toDate]);
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedLeads = filtered.slice(startIndex, startIndex + itemsPerPage);
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [labelFilter, search, fromDate, toDate]);
 
   const extractDetails = (msg?: string) => {
     const res: Record<string, string> = {};
@@ -405,7 +426,12 @@ const { toast } = useToast();
       <Card>
         <CardHeader>
           <CardTitle>
-            {filtered.length} Lead{filtered.length !== 1 ? 's' : ''}
+            {filtered.length} Lead{filtered.length !== 1 ? 's' : ''} 
+            {totalPages > 1 && (
+              <span className="text-muted-foreground font-normal text-base ml-2">
+                (Seite {currentPage} von {totalPages})
+              </span>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -435,8 +461,8 @@ const { toast } = useToast();
                     <TableHead className="min-w-[120px]">Aktionen</TableHead>
                   </TableRow>
                 </TableHeader>
-                <TableBody>
-                  {filtered.map((lead) => {
+                 <TableBody>
+                   {paginatedLeads.map((lead) => {
                     const details = extractDetails(lead.nachricht);
                     return (
                       <TableRow key={lead.id} className={isSelected(lead.id) ? 'bg-muted/40' : ''}>
@@ -594,14 +620,77 @@ const { toast } = useToast();
                  })}
                 </TableBody>
               </Table>
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <Tag className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Keine Leads gefunden</h3>
-              <p className="text-muted-foreground">Es wurden noch keine Leads erfasst.</p>
-            </div>
-          )}
+             </div>
+           ) : (
+             <div className="text-center py-8">
+               <Tag className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+               <h3 className="text-lg font-semibold mb-2">Keine Leads gefunden</h3>
+               <p className="text-muted-foreground">Es wurden noch keine Leads erfasst.</p>
+             </div>
+           )}
+           
+           {/* Pagination */}
+           {totalPages > 1 && (
+             <div className="mt-6 flex justify-center">
+               <Pagination>
+                 <PaginationContent>
+                   <PaginationItem>
+                     <PaginationPrevious 
+                       href="#"
+                       onClick={(e) => {
+                         e.preventDefault();
+                         if (currentPage > 1) setCurrentPage(currentPage - 1);
+                       }}
+                       className={currentPage <= 1 ? 'pointer-events-none opacity-50' : ''}
+                     />
+                   </PaginationItem>
+                   
+                   {/* Page numbers */}
+                   {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => {
+                     // Show first page, current page ±1, and last page
+                     if (
+                       page === 1 || 
+                       page === totalPages || 
+                       Math.abs(page - currentPage) <= 1
+                     ) {
+                       return (
+                         <PaginationItem key={page}>
+                           <PaginationLink
+                             href="#"
+                             onClick={(e) => {
+                               e.preventDefault();
+                               setCurrentPage(page);
+                             }}
+                             isActive={page === currentPage}
+                           >
+                             {page}
+                           </PaginationLink>
+                         </PaginationItem>
+                       );
+                     } else if (page === currentPage - 2 || page === currentPage + 2) {
+                       return (
+                         <PaginationItem key={page}>
+                           <PaginationEllipsis />
+                         </PaginationItem>
+                       );
+                     }
+                     return null;
+                   })}
+                   
+                   <PaginationItem>
+                     <PaginationNext 
+                       href="#"
+                       onClick={(e) => {
+                         e.preventDefault();
+                         if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+                       }}
+                       className={currentPage >= totalPages ? 'pointer-events-none opacity-50' : ''}
+                     />
+                   </PaginationItem>
+                 </PaginationContent>
+               </Pagination>
+             </div>
+           )}
         </CardContent>
       </Card>
 
