@@ -109,14 +109,12 @@ export const Header = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm">
-                    <User className="h-4 w-4 mr-2" />
                     Mein Bereich
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem asChild>
-                    <Link to="/profile" className="w-full">
-                      <User className="h-4 w-4 mr-2" />
+                  <Link to="/profile" className="w-full">
                       Mein Profil
                     </Link>
                   </DropdownMenuItem>
@@ -129,7 +127,6 @@ export const Header = () => {
             ) : (
               <Button asChild>
                 <Link to="/auth">
-                  <User className="h-4 w-4 mr-2" />
                   Anmelden
                 </Link>
               </Button>
@@ -180,7 +177,6 @@ export const Header = () => {
               {user ? (
                 <div className="border-t border-border pt-2 mt-2 space-y-1">
                   <Link to="/profile" className="block px-3 py-2 text-base font-medium text-foreground hover:text-primary hover:bg-accent rounded-md">
-                    <User className="h-4 w-4 mr-2 inline" />
                     Mein Profil
                   </Link>
                   <button 
@@ -194,7 +190,6 @@ export const Header = () => {
               ) : (
                 <div className="border-t border-border pt-2 mt-2">
                   <Link to="/auth" className="block px-3 py-2 text-base font-medium text-foreground hover:text-primary hover:bg-accent rounded-md">
-                    <User className="h-4 w-4 mr-2 inline" />
                     Anmelden
                   </Link>
                 </div>
