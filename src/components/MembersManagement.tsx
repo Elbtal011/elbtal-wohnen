@@ -83,7 +83,7 @@ const MembersManagement = () => {
       setLoading(true);
       
       // Get admin token from localStorage
-      const adminToken = localStorage.getItem('admin_token');
+      const adminToken = localStorage.getItem('adminToken');
       if (!adminToken) {
         throw new Error('Admin token not found');
       }
