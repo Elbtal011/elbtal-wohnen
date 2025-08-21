@@ -19,13 +19,13 @@ const labelVariantMap: Record<string, BadgeProps["variant"]> = {
 
 const LeadLabelBadge: React.FC<LeadLabelBadgeProps> = ({ label, className }) => {
   if (!label) {
-    return <Badge variant="outline" className={className}>Ohne Label</Badge>;
+    return <Badge variant="outline" className={`h-7 text-xs px-2 w-fit ${className || ''}`}>Ohne Label</Badge>;
   }
 
   const variant = labelVariantMap[label] || "secondary";
 
   return (
-    <Badge variant={variant} className={["px-3 py-1 text-xs", className].filter(Boolean).join(" ")}>{label}</Badge>
+    <Badge variant={variant} className={`h-7 text-xs px-2 w-fit ${className || ''}`}>{label}</Badge>
   );
 };
 
