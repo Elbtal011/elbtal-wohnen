@@ -532,9 +532,9 @@ const LeadsManagement: React.FC = () => {
                               value={lead.lead_label ?? 'none'}
                               onValueChange={(v) => updateLabel(lead.id, v === 'none' ? null : v)}
                             >
-                              <SelectTrigger className="w-24 h-7 text-xs">
-                                <SelectValue placeholder="Label" />
-                              </SelectTrigger>
+                               <SelectTrigger className="w-20 h-6 text-xs px-2">
+                                 <SelectValue placeholder="Label" />
+                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="none">Ohne Label</SelectItem>
                                 {Array.from(new Set([...DEFAULT_LABELS, ...uniqueLabels])).map(l => (
