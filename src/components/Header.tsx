@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ChevronDown, User, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -11,19 +11,38 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
-import {
-  DropdownMenu,
+import { DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useToast } from "@/hooks/use-toast";
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleLogout = async () => {
-    await signOut();
+    try {
+      const { error } = await signOut();
+      // Close mobile menu if open
+      setIsMenuOpen(false);
+      if (error) {
+        // Proceed anyway but inform user
+        toast({ title: 'Abmeldung', description: 'Sitzung bereits beendet. Weiterleitung...', variant: 'destructive' });
+      } else {
+        toast({ title: 'Abgemeldet', description: 'Sie wurden erfolgreich abgemeldet.' });
+      }
+    } catch (e) {
+      // Fail-safe: continue
+      setIsMenuOpen(false);
+      toast({ title: 'Abmeldung', description: 'Es gab ein Problem, Sie wurden dennoch abgemeldet.', variant: 'destructive' });
+    } finally {
+      // Always redirect to auth landing
+      navigate('/auth');
+    }
   };
 
   return (
