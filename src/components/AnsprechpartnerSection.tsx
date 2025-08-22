@@ -1,6 +1,5 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Phone, Mail } from "lucide-react";
 import ContactForm from "@/components/SimpleContactForm";
 
 const ansprechpartner = [
@@ -74,16 +73,6 @@ export const AnsprechpartnerSection = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full"
-                    onClick={() => window.location.href = `tel:${person.phone}`}
-                  >
-                    <Phone className="h-4 w-4 mr-2" />
-                    Anrufen
-                  </Button>
-                  
                   <ContactForm
                     isDialog={true}
                     trigger={
