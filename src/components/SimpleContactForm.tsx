@@ -247,32 +247,46 @@ const handleSubmit = async (e: React.FormEvent) => {
         </div>
       </div>
 
-      {isDialog && (
+      {isDialog ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="einzugsdatum">Einzugsdatum *</Label>
+            <Input
+              id="einzugsdatum"
+              type="date"
+              value={einzugsdatum}
+              onChange={(e) => setEinzugsdatum(e.target.value)}
+              required
+              className="mt-2"
+            />
+          </div>
+          <div>
+            <Label htmlFor="deineNachricht">Deine Nachricht *</Label>
+            <Textarea
+              id="deineNachricht"
+              value={deineNachricht}
+              onChange={(e) => setDeineNachricht(e.target.value)}
+              required
+              placeholder="Beschreiben Sie Ihr Anliegen..."
+              className="mt-2"
+              rows={4}
+            />
+          </div>
+        </div>
+      ) : (
         <div>
-          <Label htmlFor="einzugsdatum">Einzugsdatum *</Label>
-          <Input
-            id="einzugsdatum"
-            type="date"
-            value={einzugsdatum}
-            onChange={(e) => setEinzugsdatum(e.target.value)}
+          <Label htmlFor="deineNachricht">Deine Nachricht *</Label>
+          <Textarea
+            id="deineNachricht"
+            value={deineNachricht}
+            onChange={(e) => setDeineNachricht(e.target.value)}
             required
+            placeholder="Beschreiben Sie Ihr Anliegen..."
             className="mt-2"
+            rows={4}
           />
         </div>
       )}
-
-      <div>
-        <Label htmlFor="deineNachricht">Deine Nachricht *</Label>
-        <Textarea
-          id="deineNachricht"
-          value={deineNachricht}
-          onChange={(e) => setDeineNachricht(e.target.value)}
-          required
-          placeholder="Beschreiben Sie Ihr Anliegen..."
-          className="mt-2"
-          rows={4}
-        />
-      </div>
 
       <div className="text-sm leading-relaxed">
         Mit dem Absenden der Anfrage erkläre ich mich damit einverstanden, dass meine angegebenen personenbezogenen Daten gemäß der Datenschutzerklärung verarbeitet und zum Zweck der Bearbeitung meiner Anfrage gespeichert werden.
