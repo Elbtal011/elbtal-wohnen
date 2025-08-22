@@ -44,7 +44,20 @@ interface Lead {
   ort?: string | null;
 }
 
-const DEFAULT_LABELS = ['Cold', 'Warm', 'Hot Lead', 'VIP', 'Follow-Up', 'Unqualified', 'Converted'];
+const DEFAULT_LABELS = [
+  'Cold', 
+  'Warm', 
+  'Hot Lead', 
+  'VIP', 
+  'Follow-Up', 
+  'Unqualified', 
+  'Converted',
+  'Auf Unterlagen warten',
+  'Unterlagen erhalten - Kunde wartet auf PI',
+  'Vertrag erstellen',
+  'Besichtigungstermin vereinbaren',
+  'Keine Rückmeldung'
+];
 
 const LeadsManagement: React.FC = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
