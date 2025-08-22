@@ -81,7 +81,7 @@ export const AnsprechpartnerSection = () => {
                     onClick={() => window.location.href = `tel:${person.phone}`}
                   >
                     <Phone className="h-4 w-4 mr-2" />
-                    {person.phone}
+                    Anrufen
                   </Button>
                   
                   <ContactForm
