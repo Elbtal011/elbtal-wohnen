@@ -34,6 +34,7 @@ const [email, setEmail] = useState('');
 const [telefon, setTelefon] = useState('');
 const [adresse, setAdresse] = useState('');
 const [plz, setPlz] = useState('');
+const [ort, setOrt] = useState('');
 const [geburtsort, setGeburtsort] = useState('');
 const [staatsangehoerigkeit, setStaatsangehoerigkeit] = useState('');
 const [geburtsdatum, setGeburtsdatum] = useState('');
@@ -61,7 +62,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       strasse: adresse,
       nummer: '',
       plz,
-      ort: '',
+      ort: ort,
       nachricht: `${deineNachricht}\n\nGeburtsort: ${geburtsort}\nStaatsangehörigkeit: ${staatsangehoerigkeit}\nGeburtsdatum: ${geburtsdatum}${isDialog ? `\nEinzugsdatum: ${einzugsdatum}` : ''}\nNettoeinkommen: ${nettoeinkommen}`,
       datenschutz: true,
       formSource: isDialog ? 'property_details' : 'contact_page'
@@ -87,6 +88,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     setTelefon('');
     setAdresse('');
     setPlz('');
+    setOrt('');
     setGeburtsort('');
     setStaatsangehoerigkeit('');
     setGeburtsdatum('');
@@ -161,23 +163,34 @@ const handleSubmit = async (e: React.FormEvent) => {
         </div>
       </div>
 
+      <div>
+        <Label htmlFor="adresse">Adresse *</Label>
+        <Input
+          id="adresse"
+          value={adresse}
+          onChange={(e) => setAdresse(e.target.value)}
+          required
+          className="mt-2"
+        />
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="adresse">Adresse *</Label>
-          <Input
-            id="adresse"
-            value={adresse}
-            onChange={(e) => setAdresse(e.target.value)}
-            required
-            className="mt-2"
-          />
-        </div>
         <div>
           <Label htmlFor="plz">Postleitzahl *</Label>
           <Input
             id="plz"
             value={plz}
             onChange={(e) => setPlz(e.target.value)}
+            required
+            className="mt-2"
+          />
+        </div>
+        <div>
+          <Label htmlFor="ort">Ort *</Label>
+          <Input
+            id="ort"
+            value={ort}
+            onChange={(e) => setOrt(e.target.value)}
             required
             className="mt-2"
           />

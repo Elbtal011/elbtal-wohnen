@@ -14,6 +14,7 @@ interface ContactFormData {
   nachname: string;
   adresse: string;
   plz: string;
+  ort: string;
   geburtsort: string;
   staatsangehoerigkeit: string;
   geburtsdatum: string;
@@ -44,6 +45,7 @@ const [formData, setFormData] = useState<ContactFormData>({
   nachname: '',
   adresse: '',
   plz: '',
+  ort: '',
   geburtsort: '',
   staatsangehoerigkeit: '',
   geburtsdatum: '',
@@ -77,7 +79,7 @@ const [formData, setFormData] = useState<ContactFormData>({
         strasse: formData.adresse,
         nummer: '',
         plz: formData.plz,
-        ort: '',
+        ort: formData.ort,
         nachricht: `Geburtsort: ${formData.geburtsort}\nStaatsangehörigkeit: ${formData.staatsangehoerigkeit}\nGeburtsdatum: ${formData.geburtsdatum}\nEinzugsdatum: ${formData.einzugsdatum}\nNettoeinkommen: ${formData.nettoeinkommen}`,
         datenschutz: true
       };
@@ -101,6 +103,7 @@ const [formData, setFormData] = useState<ContactFormData>({
         nachname: '',
         adresse: '',
         plz: '',
+        ort: '',
         geburtsort: '',
         staatsangehoerigkeit: '',
         geburtsdatum: '',
@@ -151,23 +154,34 @@ const [formData, setFormData] = useState<ContactFormData>({
         </div>
       </div>
 
+      <div>
+        <Label htmlFor="adresse">Adresse *</Label>
+        <Input
+          id="adresse"
+          value={formData.adresse}
+          onChange={(e) => handleInputChange('adresse', e.target.value)}
+          required
+          className="mt-2"
+        />
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="adresse">Adresse *</Label>
-          <Input
-            id="adresse"
-            value={formData.adresse}
-            onChange={(e) => handleInputChange('adresse', e.target.value)}
-            required
-            className="mt-2"
-          />
-        </div>
         <div>
           <Label htmlFor="plz">Postleitzahl *</Label>
           <Input
             id="plz"
             value={formData.plz}
             onChange={(e) => handleInputChange('plz', e.target.value)}
+            required
+            className="mt-2"
+          />
+        </div>
+        <div>
+          <Label htmlFor="ort">Ort *</Label>
+          <Input
+            id="ort"
+            value={formData.ort}
+            onChange={(e) => handleInputChange('ort', e.target.value)}
             required
             className="mt-2"
           />
