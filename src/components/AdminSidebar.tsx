@@ -130,23 +130,22 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, onTabChange, adm
         <SidebarGroup className="flex-1">
           <SidebarGroupContent>
             <SidebarMenu className="space-y-2 px-2">
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.id}>
-                  <SidebarMenuButton
-                    onClick={() => handleTabChange(item.id)}
-                    className={`w-full flex items-center gap-4 px-6 py-4 rounded-lg transition-all duration-200 font-medium ${
-                      activeTab === item.id 
-                        ? 'bg-primary text-primary-foreground shadow-md' 
-                        : 'hover:bg-muted hover:shadow-sm'
-                    }`}
-                  >
-                    <item.icon className="h-6 w-6" />
-                    <span className="text-sm">{item.label}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-              
-              {/* Leads with dropdown */}
+              {/* Overview first */}
+              <SidebarMenuItem key="overview">
+                <SidebarMenuButton
+                  onClick={() => handleTabChange('overview')}
+                  className={`w-full flex items-center gap-4 px-6 py-4 rounded-lg transition-all duration-200 font-medium ${
+                    activeTab === 'overview' 
+                      ? 'bg-primary text-primary-foreground shadow-md' 
+                      : 'hover:bg-muted hover:shadow-sm'
+                  }`}
+                >
+                  <LayoutDashboard className="h-6 w-6" />
+                  <span className="text-sm">Übersicht</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              {/* Leads with dropdown - moved to second position */}
               <SidebarMenuItem>
                 <SidebarMenuButton
                   onClick={handleLeadsClick}
@@ -184,6 +183,23 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, onTabChange, adm
                   </div>
                 )}
               </SidebarMenuItem>
+
+              {/* Rest of the menu items (excluding overview) */}
+              {menuItems.filter(item => item.id !== 'overview').map((item) => (
+                <SidebarMenuItem key={item.id}>
+                  <SidebarMenuButton
+                    onClick={() => handleTabChange(item.id)}
+                    className={`w-full flex items-center gap-4 px-6 py-4 rounded-lg transition-all duration-200 font-medium ${
+                      activeTab === item.id 
+                        ? 'bg-primary text-primary-foreground shadow-md' 
+                        : 'hover:bg-muted hover:shadow-sm'
+                    }`}
+                  >
+                    <item.icon className="h-6 w-6" />
+                    <span className="text-sm">{item.label}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
