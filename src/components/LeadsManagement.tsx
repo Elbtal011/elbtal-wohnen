@@ -42,6 +42,7 @@ interface Lead {
   nummer?: string | null;
   plz?: string | null;
   ort?: string | null;
+  isRegistered?: boolean;
 }
 
 const DEFAULT_LABELS = [
@@ -61,6 +62,7 @@ const DEFAULT_LABELS = [
 
 const LeadsManagement: React.FC = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
+  const [registeredEmails, setRegisteredEmails] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [labelFilter, setLabelFilter] = useState<string>('all');
   const [search, setSearch] = useState('');
@@ -79,11 +81,35 @@ const LeadsManagement: React.FC = () => {
       const token = localStorage.getItem('adminToken');
       if (!token) return;
 
-      const { data, error } = await supabase.functions.invoke('admin-management', {
-        body: { action: 'get_contact_requests', token },
+      // Fetch both leads and registered users
+      const [leadsResult, membersResult] = await Promise.all([
+        supabase.functions.invoke('admin-management', {
+          body: { action: 'get_contact_requests', token },
+        }),
+        supabase.functions.invoke('admin-management', {
+          body: { action: 'get_members', token },
+        })
+      ]);
+
+      if (leadsResult.error) throw leadsResult.error;
+      if (membersResult.error) throw membersResult.error;
+
+      // Create a set of registered emails for quick lookup
+      const memberEmails = new Set<string>();
+      (membersResult.data?.members || []).forEach((member: any) => {
+        if (member.email && typeof member.email === 'string') {
+          memberEmails.add(member.email.toLowerCase());
+        }
       });
-      if (error) throw error;
-      setLeads(data?.requests || []);
+      setRegisteredEmails(memberEmails);
+
+      // Add registration status to leads
+      const leadsWithStatus = (leadsResult.data?.requests || []).map((lead: Lead) => ({
+        ...lead,
+        isRegistered: memberEmails.has(lead.email?.toLowerCase())
+      }));
+
+      setLeads(leadsWithStatus);
     } catch (e) {
       console.error('Error fetching leads:', e);
       toast({ title: 'Fehler', description: 'Leads konnten nicht geladen werden.', variant: 'destructive' });
@@ -486,12 +512,20 @@ const LeadsManagement: React.FC = () => {
                             aria-label="Lead auswählen"
                           />
                         </TableCell>
-                        <TableCell>
-                          <div className="space-y-1">
-                            <div className="font-medium text-sm">
-                              {lead.anrede && (lead.anrede === 'herr' ? 'Hr.' : lead.anrede === 'frau' ? 'Fr.' : 'Divers')}{' '}
-                              {lead.vorname} {lead.nachname}
-                            </div>
+                         <TableCell>
+                           <div className="space-y-1">
+                             <div className="font-medium text-sm">
+                               {lead.anrede && (lead.anrede === 'herr' ? 'Hr.' : lead.anrede === 'frau' ? 'Fr.' : 'Divers')}{' '}
+                               {lead.vorname} {lead.nachname}
+                             </div>
+                             <div className="flex items-center gap-2">
+                               <Badge 
+                                 variant={lead.isRegistered ? "default" : "secondary"} 
+                                 className={`text-xs px-2 py-0 ${lead.isRegistered ? 'bg-green-100 text-green-800 border-green-200' : 'bg-gray-100 text-gray-600 border-gray-200'}`}
+                               >
+                                 {lead.isRegistered ? '✓ Registriert' : '○ Unregistriert'}
+                               </Badge>
+                             </div>
                             {/* Show contact info on small screens */}
                             <div className="md:hidden space-y-1">
                               <div className="flex items-center gap-1 text-xs text-muted-foreground">
