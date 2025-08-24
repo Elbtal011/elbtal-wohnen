@@ -22,7 +22,7 @@ const AdminDashboard = () => {
   const [adminUser, setAdminUser] = useState<any>(null);
   const [backupData, setBackupData] = useState({
     backups: [],
-    isLoading: false,
+    isLoading: true,
     downloadProgress: {}
   });
   const navigate = useNavigate();

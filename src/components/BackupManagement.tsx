@@ -112,15 +112,14 @@ const BackupManagement: React.FC<BackupManagementProps> = ({ backupData, setBack
 
   const createDailyBackup = async () => {
     try {
-      const backup = await makeSimulatedBackup();
-      backup.backup_type = 'daily';
-      setBackupData(prev => ({
-        ...prev,
-        backups: [backup, ...prev.backups].slice(0, 10)
-      }));
+      const { data, error } = await supabase.functions.invoke('backup-system', {
+        body: { action: 'create_simulated_backup', backup_type: 'daily' }
+      });
+      if (error) throw error;
+      await loadBackups();
       toast({ 
         title: 'Daily backup created', 
-        description: `Auto-backup: ${backup.file_name}` 
+        description: `Auto-backup gespeichert.` 
       });
     } catch (error) {
       console.error('Failed to create daily backup:', error);
@@ -167,30 +166,28 @@ const BackupManagement: React.FC<BackupManagementProps> = ({ backupData, setBack
         description: 'Switched to GitHub ZIP fallback.',
         variant: 'destructive',
       });
-    } finally {
-      if (!fallbackMode) {
-        setBackupData(prev => ({ ...prev, isLoading: false }));
-      }
-    }
+  } finally {
+    setBackupData(prev => ({ ...prev, isLoading: false }));
+  }
   };
 
 const createBackup = async () => {
-    if (fallbackMode) {
-      setIsCreatingBackup(true);
-      try {
-        const newBackup = await makeSimulatedBackup();
-        setBackupData(prev => ({
-          ...prev,
-          backups: [newBackup, ...prev.backups].slice(0, 10)
-        }));
-        toast({ title: 'Simulated backup created', description: `Created: ${newBackup.file_name}` });
-      } catch (error) {
-        toast({ title: 'Error', description: 'Failed to create backup', variant: 'destructive' });
-      } finally {
-        setIsCreatingBackup(false);
-      }
-      return;
+  if (fallbackMode) {
+    setIsCreatingBackup(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('backup-system', {
+        body: { action: 'create_simulated_backup', backup_type: 'manual' }
+      });
+      if (error) throw error;
+      await loadBackups();
+      toast({ title: 'Backup gespeichert', description: `Simuliertes Backup wurde in der Datenbank gespeichert.` });
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to create backup', variant: 'destructive' });
+    } finally {
+      setIsCreatingBackup(false);
     }
+    return;
+  }
 
     setIsCreatingBackup(true);
     try {
@@ -214,12 +211,12 @@ const createBackup = async () => {
       // Switch to fallback mode automatically if server create fails
       setFallbackMode(true);
       try {
-        const newBackup = await makeSimulatedBackup();
-        setBackupData(prev => ({
-          ...prev,
-          backups: [newBackup, ...prev.backups]
-        }));
-        toast({ title: 'Switched to fallback', description: `Created: ${newBackup.file_name}` });
+        const { data, error: simErr } = await supabase.functions.invoke('backup-system', {
+          body: { action: 'create_simulated_backup', backup_type: 'manual' }
+        });
+        if (simErr) throw simErr;
+        await loadBackups();
+        toast({ title: 'Switched to fallback', description: `Simuliertes Backup wurde gespeichert.` });
       } catch (fallbackError) {
         toast({ title: 'Error', description: 'Failed to create backup', variant: 'destructive' });
       }

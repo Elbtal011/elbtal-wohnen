@@ -2,6 +2,8 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.53.0?target
 // Import ZIP utilities (Deno-compatible)
 import JSZip from 'https://esm.sh/jszip@3.10.1?target=deno';
 
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
+const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -29,11 +31,46 @@ Deno.serve(async (req) => {
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
   try {
-    const { action, backup_id } = await req.json();
+    const body = await req.json();
+    const { action, backup_id, backup_type } = body;
 
     switch (action) {
       case 'create_backup':
         return await createBackup(supabase);
+      case 'create_simulated_backup': {
+        // Create a lightweight backup record that points to GitHub ZIP
+        const GITHUB_ZIP_URL = 'https://github.com/Elbtal011/elbtal-wohnen/archive/refs/heads/main.zip';
+        let fileSize: number | null = null;
+        try {
+          const head = await fetch(GITHUB_ZIP_URL, { method: 'HEAD' });
+          const cl = head.headers.get('content-length');
+          if (cl) fileSize = parseInt(cl);
+        } catch (_) {
+          fileSize = null;
+        }
+        const now = new Date();
+        const pad = (n: number) => String(n).padStart(2, '0');
+        const fileName = `amiel-${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}.zip`;
+        const { data: rec, error: recErr } = await supabase
+          .from('backup_records')
+          .insert({
+            file_name: fileName,
+            file_path: 'github://Elbtal011/elbtal-wohnen#main',
+            file_size: fileSize,
+            backup_type: backup_type || 'manual',
+            includes_database: true,
+            includes_storage: false,
+            metadata: { source: 'github', url: GITHUB_ZIP_URL }
+          })
+          .select()
+          .single();
+        if (recErr) {
+          return new Response(JSON.stringify({ success: false, error: recErr.message }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+        }
+        // Keep only the 10 most recent
+        await supabase.rpc('cleanup_old_backups');
+        return new Response(JSON.stringify({ success: true, backup_id: rec.id }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
       case 'list_backups':
         return await listBackups(supabase);
       case 'download_backup':
@@ -49,7 +86,7 @@ Deno.serve(async (req) => {
   } catch (error) {
     console.error('Backup system error:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: (error as any).message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
@@ -91,7 +128,7 @@ async function createBackup(supabase: any): Promise<Response> {
       database_tables_included: ['properties', 'contact_requests', 'cities', 'property_types', 'profiles', 'admin_users', 'admin_sessions', 'lead_documents', 'user_documents', 'backup_records', 'audit_log'],
       storage_buckets_included: buckets,
       total_files_included: totalFilesAdded,
-      supabase_project_id: supabaseUrl.split('//')[1].split('.')[0]
+      supabase_project_id: SUPABASE_URL.split('//')[1].split('.')[0]
     };
 
     zip.file('backup-info.json', JSON.stringify(metadata, null, 2));
@@ -349,7 +386,15 @@ async function downloadBackup(supabase: any, backupId: string): Promise<Response
     );
   }
 
-  // Generate signed URL for download
+  // If this is a simulated (GitHub) backup, return external URL
+  if ((backup.file_path && backup.file_path.startsWith('github://')) || (backup.metadata && backup.metadata.source === 'github')) {
+    return new Response(
+      JSON.stringify({ download_url: backup.metadata?.url, file_name: backup.file_name, file_size: backup.file_size }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+
+  // Generate signed URL for storage download
   const { data: signedUrl, error: urlError } = await supabase.storage
     .from('backups')
     .createSignedUrl(backup.file_path, 3600); // 1 hour expiry
@@ -386,13 +431,18 @@ async function deleteBackup(supabase: any, backupId: string): Promise<Response> 
     );
   }
 
-  // Delete file from storage
-  const { error: deleteError } = await supabase.storage
-    .from('backups')
-    .remove([backup.file_path]);
+  // Delete file from storage only for real backups
+  const isGithub = (backup.file_path && backup.file_path.startsWith('github://')) || (backup.metadata && backup.metadata.source === 'github');
+  if (!isGithub) {
+    const { error: deleteError } = await supabase.storage
+      .from('backups')
+      .remove([backup.file_path]);
 
-  if (deleteError) {
-    console.warn('Failed to delete backup file:', deleteError);
+    if (deleteError) {
+      console.warn('Failed to delete backup file:', deleteError);
+    }
+  } else {
+    console.log('Skipping storage delete for simulated GitHub backup');
   }
 
   // Delete backup record
