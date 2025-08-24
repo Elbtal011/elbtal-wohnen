@@ -1,6 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.53.0';
-// Import ZIP utilities
-import JSZip from 'https://esm.sh/jszip@3.10.1';
+// Import ZIP utilities (Deno-compatible)
+import JSZip from 'https://deno.land/x/jszip@0.11.0/mod.ts';
+
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -104,9 +105,10 @@ async function createBackup(supabase: any): Promise<Response> {
     console.log(`ZIP file generated, size: ${zipBlob.length} bytes`);
 
     // 5. Upload to storage
+    const zipFile = new Blob([zipBlob], { type: 'application/zip' });
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('backups')
-      .upload(backupPath, zipBlob, {
+      .upload(backupPath, zipFile, {
         contentType: 'application/zip',
         upsert: false
       });
