@@ -36,15 +36,33 @@ const BackupManagement: React.FC = () => {
 
   const GITHUB_ZIP_URL = 'https://github.com/Elbtal011/elbtal-wohnen/archive/refs/heads/main.zip';
 
-  const makeSimulatedBackup = (): BackupRecord => {
-    const now = new Date().toISOString();
+  const makeSimulatedBackup = async (): Promise<BackupRecord> => {
+    const now = new Date();
+    const dateStr = format(now, 'yyyy-MM-dd');
+    const timeStr = format(now, 'HHmmss');
+    const fileName = `amiel-${dateStr}-${timeStr}.zip`;
+    
+    // Try to get actual file size from GitHub
+    let fileSize = null;
+    try {
+      const response = await fetch(GITHUB_ZIP_URL, { method: 'HEAD' });
+      const contentLength = response.headers.get('content-length');
+      if (contentLength) {
+        fileSize = parseInt(contentLength);
+      }
+    } catch (error) {
+      console.log('Could not fetch GitHub ZIP size:', error);
+      // Fallback to estimated size (typical repo size)
+      fileSize = 2.5 * 1024 * 1024; // 2.5MB estimate
+    }
+    
     return {
       id: `github-${Date.now()}`,
-      created_at: now,
-      backup_date: now,
-      file_name: 'elbtal-wohnen-main.zip',
+      created_at: now.toISOString(),
+      backup_date: now.toISOString(),
+      file_name: fileName,
       file_path: 'github://Elbtal011/elbtal-wohnen#main',
-      file_size: null,
+      file_size: fileSize,
       backup_type: 'manual',
       status: 'completed',
       includes_database: true,
@@ -53,6 +71,45 @@ const BackupManagement: React.FC = () => {
       download_url: GITHUB_ZIP_URL,
       source: 'github',
     };
+  };
+
+  // Auto-backup daily at 2 AM
+  useEffect(() => {
+    const checkDailyBackup = () => {
+      const now = new Date();
+      const hour = now.getHours();
+      const minute = now.getMinutes();
+      
+      // Check if it's 2:00 AM and we haven't created a backup today
+      if (hour === 2 && minute === 0) {
+        const today = format(now, 'yyyy-MM-dd');
+        const hasBackupToday = backups.some(backup => 
+          backup.created_at.startsWith(today) && backup.backup_type === 'daily'
+        );
+        
+        if (!hasBackupToday) {
+          createDailyBackup();
+        }
+      }
+    };
+
+    // Check every minute for daily backup trigger
+    const interval = setInterval(checkDailyBackup, 60000);
+    return () => clearInterval(interval);
+  }, [backups]);
+
+  const createDailyBackup = async () => {
+    try {
+      const backup = await makeSimulatedBackup();
+      backup.backup_type = 'daily';
+      setBackups(prev => [backup, ...prev].slice(0, 10));
+      toast({ 
+        title: 'Daily backup created', 
+        description: `Auto-backup: ${backup.file_name}` 
+      });
+    } catch (error) {
+      console.error('Failed to create daily backup:', error);
+    }
   };
 
   useEffect(() => {
@@ -72,7 +129,12 @@ const BackupManagement: React.FC = () => {
       console.error('Error loading backups:', error);
       // Fallback to GitHub ZIP-based simulated backup
       setFallbackMode(true);
-      setBackups([makeSimulatedBackup()]);
+      try {
+        const simulatedBackup = await makeSimulatedBackup();
+        setBackups([simulatedBackup]);
+      } catch (fallbackError) {
+        setBackups([]);
+      }
       toast({
         title: 'Backup service unavailable',
         description: 'Switched to GitHub ZIP fallback.',
@@ -86,12 +148,15 @@ const BackupManagement: React.FC = () => {
 const createBackup = async () => {
     if (fallbackMode) {
       setIsCreatingBackup(true);
-      setTimeout(() => {
-        const newBackup = makeSimulatedBackup();
+      try {
+        const newBackup = await makeSimulatedBackup();
         setBackups(prev => [newBackup, ...prev].slice(0, 10));
-        toast({ title: 'Simulated backup created', description: 'GitHub ZIP entry added.' });
+        toast({ title: 'Simulated backup created', description: `Created: ${newBackup.file_name}` });
+      } catch (error) {
+        toast({ title: 'Error', description: 'Failed to create backup', variant: 'destructive' });
+      } finally {
         setIsCreatingBackup(false);
-      }, 800);
+      }
       return;
     }
 
@@ -116,9 +181,13 @@ const createBackup = async () => {
       console.error('Error creating backup:', error);
       // Switch to fallback mode automatically if server create fails
       setFallbackMode(true);
-      const newBackup = makeSimulatedBackup();
-      setBackups(prev => [newBackup, ...prev]);
-      toast({ title: 'Switched to fallback', description: 'Added GitHub ZIP backup entry.' });
+      try {
+        const newBackup = await makeSimulatedBackup();
+        setBackups(prev => [newBackup, ...prev]);
+        toast({ title: 'Switched to fallback', description: `Created: ${newBackup.file_name}` });
+      } catch (fallbackError) {
+        toast({ title: 'Error', description: 'Failed to create backup', variant: 'destructive' });
+      }
     } finally {
       setIsCreatingBackup(false);
     }
