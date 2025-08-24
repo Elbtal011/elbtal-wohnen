@@ -103,6 +103,48 @@ export type Database = {
         }
         Relationships: []
       }
+      backup_records: {
+        Row: {
+          backup_date: string
+          backup_type: string
+          created_at: string
+          file_name: string
+          file_path: string
+          file_size: number | null
+          id: string
+          includes_database: boolean
+          includes_storage: boolean
+          metadata: Json | null
+          status: string
+        }
+        Insert: {
+          backup_date?: string
+          backup_type?: string
+          created_at?: string
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          includes_database?: boolean
+          includes_storage?: boolean
+          metadata?: Json | null
+          status?: string
+        }
+        Update: {
+          backup_date?: string
+          backup_type?: string
+          created_at?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          includes_database?: boolean
+          includes_storage?: boolean
+          metadata?: Json | null
+          status?: string
+        }
+        Relationships: []
+      }
       cities: {
         Row: {
           created_at: string
@@ -545,6 +587,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_old_backups: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       get_contact_requests_secure: {
         Args: { admin_token: string }
         Returns: {
