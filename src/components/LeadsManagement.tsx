@@ -612,7 +612,7 @@ const LeadsManagement: React.FC = () => {
                         <TableCell>
                            <div className="flex flex-col gap-1">
                              {/* Action Buttons - Compact */}
-                            <div className="flex flex-col gap-1">
+                             <div className="flex flex-col gap-2">
                               <Button 
                                 size="sm" 
                                 variant="outline" 
