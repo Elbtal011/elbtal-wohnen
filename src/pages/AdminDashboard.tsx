@@ -20,6 +20,11 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [isLoading, setIsLoading] = useState(true);
   const [adminUser, setAdminUser] = useState<any>(null);
+  const [backupData, setBackupData] = useState({
+    backups: [],
+    isLoading: false,
+    downloadProgress: {}
+  });
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -164,7 +169,10 @@ const AdminDashboard = () => {
       case 'analytics':
         return <AnalyticsReporting />;
       case 'backup':
-        return <BackupManagement />;
+        return <BackupManagement 
+          backupData={backupData} 
+          setBackupData={setBackupData} 
+        />;
       default:
         return <AdminOverview onTabChange={setActiveTab} />;
     }

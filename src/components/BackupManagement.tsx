@@ -26,9 +26,21 @@ interface BackupRecord {
   source?: 'github' | 'supabase';
 }
 
-const BackupManagement: React.FC = () => {
-  const [backups, setBackups] = useState<BackupRecord[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+interface BackupManagementProps {
+  backupData: {
+    backups: BackupRecord[];
+    isLoading: boolean;
+    downloadProgress: Record<string, number>;
+  };
+  setBackupData: React.Dispatch<React.SetStateAction<{
+    backups: BackupRecord[];
+    isLoading: boolean;
+    downloadProgress: Record<string, number>;
+  }>>;
+}
+
+const BackupManagement: React.FC<BackupManagementProps> = ({ backupData, setBackupData }) => {
+  const { backups, isLoading, downloadProgress } = backupData;
   const [isCreatingBackup, setIsCreatingBackup] = useState(false);
   const [downloadingIds, setDownloadingIds] = useState<Set<string>>(new Set());
   const [fallbackMode, setFallbackMode] = useState(false);
@@ -102,7 +114,10 @@ const BackupManagement: React.FC = () => {
     try {
       const backup = await makeSimulatedBackup();
       backup.backup_type = 'daily';
-      setBackups(prev => [backup, ...prev].slice(0, 10));
+      setBackupData(prev => ({
+        ...prev,
+        backups: [backup, ...prev.backups].slice(0, 10)
+      }));
       toast({ 
         title: 'Daily backup created', 
         description: `Auto-backup: ${backup.file_name}` 
@@ -124,16 +139,28 @@ const BackupManagement: React.FC = () => {
 
       if (error) throw error;
 
-      setBackups(data.backups || []);
+      setBackupData(prev => ({
+        ...prev,
+        backups: data.backups || [],
+        isLoading: false
+      }));
     } catch (error) {
       console.error('Error loading backups:', error);
       // Fallback to GitHub ZIP-based simulated backup
       setFallbackMode(true);
       try {
         const simulatedBackup = await makeSimulatedBackup();
-        setBackups([simulatedBackup]);
+        setBackupData(prev => ({
+          ...prev,
+          backups: [simulatedBackup],
+          isLoading: false
+        }));
       } catch (fallbackError) {
-        setBackups([]);
+        setBackupData(prev => ({
+          ...prev,
+          backups: [],
+          isLoading: false
+        }));
       }
       toast({
         title: 'Backup service unavailable',
@@ -141,7 +168,9 @@ const BackupManagement: React.FC = () => {
         variant: 'destructive',
       });
     } finally {
-      setIsLoading(false);
+      if (!fallbackMode) {
+        setBackupData(prev => ({ ...prev, isLoading: false }));
+      }
     }
   };
 
@@ -150,7 +179,10 @@ const createBackup = async () => {
       setIsCreatingBackup(true);
       try {
         const newBackup = await makeSimulatedBackup();
-        setBackups(prev => [newBackup, ...prev].slice(0, 10));
+        setBackupData(prev => ({
+          ...prev,
+          backups: [newBackup, ...prev.backups].slice(0, 10)
+        }));
         toast({ title: 'Simulated backup created', description: `Created: ${newBackup.file_name}` });
       } catch (error) {
         toast({ title: 'Error', description: 'Failed to create backup', variant: 'destructive' });
@@ -183,7 +215,10 @@ const createBackup = async () => {
       setFallbackMode(true);
       try {
         const newBackup = await makeSimulatedBackup();
-        setBackups(prev => [newBackup, ...prev]);
+        setBackupData(prev => ({
+          ...prev,
+          backups: [newBackup, ...prev.backups]
+        }));
         toast({ title: 'Switched to fallback', description: `Created: ${newBackup.file_name}` });
       } catch (fallbackError) {
         toast({ title: 'Error', description: 'Failed to create backup', variant: 'destructive' });
@@ -246,7 +281,10 @@ const downloadBackup = async (backupId: string, fileName: string) => {
 
 const deleteBackup = async (backupId: string) => {
     if (fallbackMode) {
-      setBackups(prev => prev.filter(b => b.id !== backupId));
+      setBackupData(prev => ({
+        ...prev,
+        backups: prev.backups.filter(b => b.id !== backupId)
+      }));
       toast({ title: 'Deleted', description: 'Removed simulated backup.' });
       return;
     }
