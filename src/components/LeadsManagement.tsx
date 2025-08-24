@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/pagination';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Calendar, Eye, Mail, Phone, Tag, Plus, Trash2, ArrowRight } from 'lucide-react';
+import { Calendar, Eye, Mail, Phone, Tag, Plus, Trash2, ArrowRight, Download, FileText } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import LeadLabelBadge from '@/components/LeadLabelBadge';
 import AddLeadDialog from '@/components/AddLeadDialog';
@@ -43,6 +43,15 @@ interface Lead {
   plz?: string | null;
   ort?: string | null;
   isRegistered?: boolean;
+  user_id?: string | null;
+}
+
+interface UserDocument {
+  id: string;
+  document_type: string;
+  file_name: string;
+  file_path: string;
+  uploaded_at: string;
 }
 
 const DEFAULT_LABELS = [
@@ -75,6 +84,8 @@ const LeadsManagement: React.FC = () => {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 15;
+  const [userDocuments, setUserDocuments] = useState<UserDocument[]>([]);
+  const [loadingDocuments, setLoadingDocuments] = useState(false);
 
   const fetchLeads = async () => {
     try {
@@ -103,11 +114,17 @@ const LeadsManagement: React.FC = () => {
       });
       setRegisteredEmails(memberEmails);
 
-      // Add registration status to leads
-      const leadsWithStatus = (leadsResult.data?.requests || []).map((lead: Lead) => ({
-        ...lead,
-        isRegistered: memberEmails.has(lead.email?.toLowerCase())
-      }));
+      // Add registration status and user_id to leads
+      const leadsWithStatus = (leadsResult.data?.requests || []).map((lead: Lead) => {
+        const member = (membersResult.data?.members || []).find((m: any) => 
+          m.email && lead.email && m.email.toLowerCase() === lead.email.toLowerCase()
+        );
+        return {
+          ...lead,
+          isRegistered: memberEmails.has(lead.email?.toLowerCase()),
+          user_id: member ? member.user_id : null
+        };
+      });
 
       setLeads(leadsWithStatus);
     } catch (e) {
@@ -375,9 +392,81 @@ const LeadsManagement: React.FC = () => {
     }
   };
 
+  const fetchUserDocuments = async (userId: string) => {
+    try {
+      setLoadingDocuments(true);
+      const adminToken = localStorage.getItem('adminToken');
+      if (!adminToken) throw new Error('Admin token not found');
+
+      const { data, error } = await supabase.functions.invoke('admin-management', {
+        body: {
+          action: 'get_user_documents',
+          token: adminToken,
+          user_id: userId
+        }
+      });
+
+      if (error) throw error;
+      setUserDocuments(data.documents || []);
+    } catch (error) {
+      console.error('Error fetching user documents:', error);
+      toast({ title: 'Fehler', description: 'Dokumente konnten nicht geladen werden.', variant: 'destructive' });
+    } finally {
+      setLoadingDocuments(false);
+    }
+  };
+
+  const downloadDocument = async (filePath: string, fileName: string) => {
+    try {
+      const adminToken = localStorage.getItem('adminToken');
+      if (!adminToken) throw new Error('Admin token not found');
+
+      const { data, error } = await supabase.functions.invoke('admin-management', {
+        body: {
+          action: 'get_user_document_download_url',
+          token: adminToken,
+          filePath: filePath
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.url) {
+        const a = document.createElement('a');
+        a.href = data.url;
+        a.download = fileName;
+        a.click();
+      } else {
+        throw new Error('No download URL received');
+      }
+    } catch (error) {
+      console.error('Error downloading document:', error);
+      toast({ title: 'Fehler', description: 'Fehler beim Herunterladen des Dokuments', variant: 'destructive' });
+    }
+  };
+
+  const getDocumentTypeLabel = (type: string) => {
+    switch (type) {
+      case 'gehaltsnachweis':
+        return 'Gehaltsnachweise';
+      case 'kontoauszug':
+        return 'Kontoauszug';
+      case 'personalausweis':
+        return 'Personalausweis/Reisepass';
+      default:
+        return type;
+    }
+  };
+
   const openDetails = (lead: Lead) => {
     setSelected(lead);
     setOpen(true);
+    // Fetch documents if user is registered
+    if (lead.isRegistered && lead.user_id) {
+      fetchUserDocuments(lead.user_id);
+    } else {
+      setUserDocuments([]);
+    }
   };
 
   if (isLoading) {
@@ -741,47 +830,129 @@ const LeadsManagement: React.FC = () => {
       </Card>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-5xl max-h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>Lead Details</DialogTitle>
             <DialogDescription>Vollständige Informationen zum Lead</DialogDescription>
           </DialogHeader>
           {selected && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-                <div className="space-y-2">
-                  <div><strong>Name:</strong> {selected.anrede && (selected.anrede === 'herr' ? 'Herr' : selected.anrede === 'frau' ? 'Frau' : 'Divers')} {selected.vorname} {selected.nachname}</div>
-                  <div><strong>E‑Mail:</strong> <a className="text-primary hover:underline" href={`mailto:${selected.email}`}>{selected.email}</a></div>
-                  <div><strong>Telefon:</strong> <a className="text-primary hover:underline" href={`tel:${selected.telefon}`}>{selected.telefon}</a></div>
-                  {selected.strasse || selected.plz || selected.ort ? (
-                    <div>
-                      <strong>Adresse:</strong>
-                      <div>{selected.strasse} {selected.nummer}</div>
-                      <div>{selected.plz} {selected.ort}</div>
+            <div className="flex-1 overflow-hidden">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
+                {/* Left Column: Lead Information */}
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 gap-4 text-sm">
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <strong>Name:</strong> 
+                        {selected.anrede && (selected.anrede === 'herr' ? 'Herr' : selected.anrede === 'frau' ? 'Frau' : 'Divers')} {selected.vorname} {selected.nachname}
+                        {selected.isRegistered && (
+                          <Badge variant="secondary" className="text-xs">
+                            ✓ Registriert
+                          </Badge>
+                        )}
+                      </div>
+                      <div><strong>E‑Mail:</strong> <a className="text-primary hover:underline" href={`mailto:${selected.email}`}>{selected.email}</a></div>
+                      <div><strong>Telefon:</strong> <a className="text-primary hover:underline" href={`tel:${selected.telefon}`}>{selected.telefon}</a></div>
+                      {selected.strasse || selected.plz || selected.ort ? (
+                        <div>
+                          <strong>Adresse:</strong>
+                          <div className="ml-2 text-muted-foreground">
+                            {selected.strasse} {selected.nummer}<br />
+                            {selected.plz} {selected.ort}
+                          </div>
+                        </div>
+                      ) : null}
                     </div>
-                  ) : null}
+                    <div className="space-y-3 pt-4 border-t">
+                      <div><strong>Datum:</strong> {new Date(selected.created_at).toLocaleString('de-DE')}</div>
+                      <div><strong>Immobilie:</strong> {selected.property?.title || 'Allgemein'}</div>
+                      <div className="flex items-center gap-2"><strong>Label:</strong> <LeadLabelBadge label={selected.lead_label} /></div>
+                      {(() => { const det = extractDetails(selected.nachricht); return (
+                        <>
+                          {det['Geburtsdatum'] && <div><strong>Geburtsdatum:</strong> {det['Geburtsdatum']}</div>}
+                          {det['Einzugsdatum'] && <div><strong>Einzugsdatum:</strong> {det['Einzugsdatum']}</div>}
+                          {det['Nettoeinkommen'] && <div><strong>Nettoeinkommen:</strong> {det['Nettoeinkommen']} €</div>}
+                          {det['Geburtsort'] && <div><strong>Geburtsort:</strong> {det['Geburtsort']}</div>}
+                          {det['Staatsangehörigkeit'] && <div><strong>Staatsangehörigkeit:</strong> {det['Staatsangehörigkeit']}</div>}
+                        </>
+                      ); })()}
+                    </div>
+                  </div>
+                  {selected.nachricht && (
+                    <div className="pt-4 border-t">
+                      <h4 className="font-semibold mb-3 flex items-center gap-2">
+                        <Mail className="h-4 w-4" />
+                        Nachricht
+                      </h4>
+                      <div className="bg-muted/50 rounded-lg p-4 max-h-48 overflow-y-auto">
+                        <p className="whitespace-pre-wrap text-sm leading-relaxed">{selected.nachricht}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <div className="space-y-2">
-                  <div><strong>Datum:</strong> {new Date(selected.created_at).toLocaleString('de-DE')}</div>
-                  <div><strong>Immobilie:</strong> {selected.property?.title || 'Allgemein'}</div>
-                  <div className="flex items-center gap-2"><strong>Label:</strong> <LeadLabelBadge label={selected.lead_label} /></div>
-                  {(() => { const det = extractDetails(selected.nachricht); return (
-                    <>
-                      {det['Geburtsdatum'] && <div><strong>Geburtsdatum:</strong> {det['Geburtsdatum']}</div>}
-                      {det['Einzugsdatum'] && <div><strong>Einzugsdatum:</strong> {det['Einzugsdatum']}</div>}
-                      {det['Nettoeinkommen'] && <div><strong>Nettoeinkommen:</strong> {det['Nettoeinkommen']} €</div>}
-                      {det['Geburtsort'] && <div><strong>Geburtsort:</strong> {det['Geburtsort']}</div>}
-                      {det['Staatsangehörigkeit'] && <div><strong>Staatsangehörigkeit:</strong> {det['Staatsangehörigkeit']}</div>}
-                    </>
-                  ); })()}
+
+                {/* Right Column: Documents */}
+                <div className="space-y-6">
+                  <div className="border-l pl-8 h-full">
+                    <h4 className="font-semibold mb-4 flex items-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      Hochgeladene Dokumente
+                    </h4>
+                    
+                    {!selected.isRegistered ? (
+                      <div className="flex items-center justify-center h-32 text-center">
+                        <div>
+                          <FileText className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                          <p className="text-sm text-muted-foreground">
+                            Dieser Lead ist nicht registriert.<br />
+                            Keine Dokumente verfügbar.
+                          </p>
+                        </div>
+                      </div>
+                    ) : loadingDocuments ? (
+                      <div className="flex items-center justify-center h-32">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+                        <p className="ml-3 text-sm text-muted-foreground">Dokumente werden geladen...</p>
+                      </div>
+                    ) : userDocuments.length === 0 ? (
+                      <div className="flex items-center justify-center h-32 text-center">
+                        <div>
+                          <FileText className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                          <p className="text-sm text-muted-foreground">
+                            Keine Dokumente hochgeladen
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-2">
+                        {userDocuments.map((doc) => (
+                          <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium text-sm">{getDocumentTypeLabel(doc.document_type)}</div>
+                              <div className="text-sm text-muted-foreground truncate">{doc.file_name}</div>
+                              <div className="text-xs text-muted-foreground mt-1">
+                                {new Date(doc.uploaded_at).toLocaleDateString('de-DE', {
+                                  day: '2-digit',
+                                  month: '2-digit', 
+                                  year: 'numeric'
+                                })}
+                              </div>
+                            </div>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => downloadDocument(doc.file_path, doc.file_name)}
+                              className="ml-3 shrink-0"
+                            >
+                              <Download className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-              {selected.nachricht && (
-                <div>
-                  <h4 className="font-semibold mb-2">Nachricht</h4>
-                  <p className="whitespace-pre-wrap text-sm leading-relaxed">{selected.nachricht}</p>
-                </div>
-              )}
             </div>
           )}
         </DialogContent>
