@@ -43,7 +43,6 @@ interface Lead {
   plz?: string | null;
   ort?: string | null;
   isRegistered?: boolean;
-  hasDocuments?: boolean;
 }
 
 const DEFAULT_LABELS = [
@@ -64,7 +63,6 @@ const DEFAULT_LABELS = [
 const LeadsManagement: React.FC = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [registeredEmails, setRegisteredEmails] = useState<Set<string>>(new Set());
-  const [emailsWithDocuments, setEmailsWithDocuments] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [labelFilter, setLabelFilter] = useState<string>('all');
   const [search, setSearch] = useState('');
@@ -83,24 +81,20 @@ const LeadsManagement: React.FC = () => {
       const token = localStorage.getItem('adminToken');
       if (!token) return;
 
-      // Fetch leads, registered users, and users with documents
-      const [leadsResult, membersResult, docsResult] = await Promise.all([
+      // Fetch both leads and registered users
+      const [leadsResult, membersResult] = await Promise.all([
         supabase.functions.invoke('admin-management', {
           body: { action: 'get_contact_requests', token },
         }),
         supabase.functions.invoke('admin-management', {
           body: { action: 'get_members', token },
-        }),
-        supabase.functions.invoke('admin-management', {
-          body: { action: 'get_users_with_documents', token },
         })
       ]);
 
       if (leadsResult.error) throw leadsResult.error;
       if (membersResult.error) throw membersResult.error;
-      if (docsResult.error) throw docsResult.error;
 
-      // Create sets for quick lookup
+      // Create a set of registered emails for quick lookup
       const memberEmails = new Set<string>();
       (membersResult.data?.members || []).forEach((member: any) => {
         if (member.email && typeof member.email === 'string') {
@@ -109,19 +103,10 @@ const LeadsManagement: React.FC = () => {
       });
       setRegisteredEmails(memberEmails);
 
-      const docEmails = new Set<string>();
-      (docsResult.data?.emails || []).forEach((email: string) => {
-        if (email && typeof email === 'string') {
-          docEmails.add(email.toLowerCase());
-        }
-      });
-      setEmailsWithDocuments(docEmails);
-
-      // Add registration and document status to leads
+      // Add registration status to leads
       const leadsWithStatus = (leadsResult.data?.requests || []).map((lead: Lead) => ({
         ...lead,
-        isRegistered: memberEmails.has(lead.email?.toLowerCase()),
-        hasDocuments: docEmails.has(lead.email?.toLowerCase())
+        isRegistered: memberEmails.has(lead.email?.toLowerCase())
       }));
 
       setLeads(leadsWithStatus);
@@ -540,15 +525,6 @@ const LeadsManagement: React.FC = () => {
                                 >
                                   {lead.isRegistered ? '✓ Registriert' : '○ Unregistriert'}
                                 </Badge>
-                                {/* Documents Badge */}
-                                {lead.isRegistered && lead.hasDocuments && (
-                                  <Badge 
-                                    variant="outline" 
-                                    className="text-xs px-2 py-0 bg-purple-50 text-purple-700 border-purple-200"
-                                  >
-                                    📄 Dokumente vorhanden
-                                  </Badge>
-                                )}
                                 {/* Current Stage Badge */}
                                 {lead.lead_stage && (
                                   <Badge variant="outline" className="text-xs px-2 py-0 bg-blue-50 text-blue-700 border-blue-200">

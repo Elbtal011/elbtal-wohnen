@@ -803,51 +803,7 @@ serve(async (req) => {
           JSON.stringify({ success: true, message: 'All properties deleted successfully' }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
-        
-      case 'get_users_with_documents': {
-        // Get all users who have uploaded documents
-        const { data: usersWithDocs, error: usersDocsError } = await supabase
-          .from('user_documents')
-          .select('user_id')
-          .neq('user_id', null);
 
-        if (usersDocsError) {
-          console.error('Error fetching users with documents:', usersDocsError);
-          return new Response(JSON.stringify({ error: 'Failed to fetch users with documents' }), {
-            status: 500,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-          });
-        }
-
-        // Get unique user IDs who have documents
-        const userIdsWithDocs = [...new Set(usersWithDocs?.map(doc => doc.user_id) || [])];
-
-        // Get auth users to get emails
-        const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
-
-        if (authError) {
-          console.error('Error fetching auth users:', authError);
-          return new Response(JSON.stringify({ error: 'Failed to fetch auth users' }), {
-            status: 500,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-          });
-        }
-
-        // Create a map of user_id -> email
-        const userEmailMap = new Map();
-        authUsers.users.forEach(user => {
-          userEmailMap.set(user.id, user.email);
-        });
-
-        // Return emails of users who have documents
-        const emailsWithDocs = userIdsWithDocs
-          .map(userId => userEmailMap.get(userId))
-          .filter(email => email);
-
-        return new Response(JSON.stringify({ emails: emailsWithDocs }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
-      }
       default:
         return new Response(
           JSON.stringify({ error: 'Invalid action' }),
