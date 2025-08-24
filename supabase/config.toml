@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.csv-upload]
 verify_jwt = false
+
+[functions.backup-system]
+verify_jwt = false

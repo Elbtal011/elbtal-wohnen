@@ -23,7 +23,8 @@ import {
   ChevronRight,
   CheckCircle,
   UserCheck,
-  Users
+  Users,
+  Database
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
@@ -97,6 +98,11 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, onTabChange, adm
       id: 'analytics',
       label: 'Analytics',
       icon: BarChart3,
+    },
+    {
+      id: 'backup',
+      label: 'Backup',
+      icon: Database,
     },
   ];
 

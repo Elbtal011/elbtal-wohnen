@@ -11,6 +11,7 @@ import CitiesManagement from '@/components/CitiesManagement';
 import MembersManagement from '@/components/MembersManagement';
 import AdminOverview from '@/components/AdminOverview';
 import AnalyticsReporting from '@/components/AnalyticsReporting';
+import BackupManagement from '@/components/BackupManagement';
 import LeadsManagement from '@/components/LeadsManagement';
 import PostIdent1Management from '@/components/PostIdent1Management';
 import PostIdent2Management from '@/components/PostIdent2Management';
@@ -162,6 +163,8 @@ const AdminDashboard = () => {
         return <CitiesManagement />;
       case 'analytics':
         return <AnalyticsReporting />;
+      case 'backup':
+        return <BackupManagement />;
       default:
         return <AdminOverview onTabChange={setActiveTab} />;
     }
