@@ -401,32 +401,41 @@ const MembersManagement = () => {
                               <FileText className="h-4 w-4" />
                             </Button>
                           </DialogTrigger>
-                          <DialogContent>
+                          <DialogContent className="max-w-4xl max-h-[80vh] flex flex-col">
                             <DialogHeader>
                               <DialogTitle>Dokumente von {member.first_name} {member.last_name}</DialogTitle>
                             </DialogHeader>
-                            <div className="space-y-4">
+                            <div className="flex-1 overflow-hidden">
                               {userDocuments.length === 0 ? (
-                                <p className="text-muted-foreground">Keine Dokumente hochgeladen</p>
+                                <div className="flex items-center justify-center h-32">
+                                  <p className="text-muted-foreground">Keine Dokumente hochgeladen</p>
+                                </div>
                               ) : (
-                                userDocuments.map((doc) => (
-                                  <div key={doc.id} className="flex items-center justify-between p-3 border rounded">
-                                    <div>
-                                      <div className="font-medium">{getDocumentTypeLabel(doc.document_type)}</div>
-                                      <div className="text-sm text-muted-foreground">{doc.file_name}</div>
-                                      <div className="text-xs text-muted-foreground">
-                                        {new Date(doc.uploaded_at).toLocaleDateString()}
+                                <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
+                                  {userDocuments.map((doc) => (
+                                    <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                                      <div className="flex-1 min-w-0">
+                                        <div className="font-medium text-sm">{getDocumentTypeLabel(doc.document_type)}</div>
+                                        <div className="text-sm text-muted-foreground truncate">{doc.file_name}</div>
+                                        <div className="text-xs text-muted-foreground mt-1">
+                                          {new Date(doc.uploaded_at).toLocaleDateString('de-DE', {
+                                            day: '2-digit',
+                                            month: '2-digit', 
+                                            year: 'numeric'
+                                          })}
+                                        </div>
                                       </div>
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => downloadDocument(doc.file_path, doc.file_name)}
+                                        className="ml-3 shrink-0"
+                                      >
+                                        <Download className="h-4 w-4" />
+                                      </Button>
                                     </div>
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() => downloadDocument(doc.file_path, doc.file_name)}
-                                    >
-                                      <Download className="h-4 w-4" />
-                                    </Button>
-                                  </div>
-                                ))
+                                  ))}
+                                </div>
                               )}
                             </div>
                           </DialogContent>
