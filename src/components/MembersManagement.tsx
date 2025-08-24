@@ -206,18 +206,29 @@ const MembersManagement = () => {
 
   const downloadDocument = async (filePath: string, fileName: string) => {
     try {
-      const { data, error } = await supabase.storage
-        .from('user-documents')
-        .download(filePath);
+      const adminToken = localStorage.getItem('adminToken');
+      if (!adminToken) {
+        throw new Error('Admin token not found');
+      }
+
+      const { data, error } = await supabase.functions.invoke('admin-management', {
+        body: {
+          action: 'get_user_document_download_url',
+          token: adminToken,
+          filePath: filePath
+        }
+      });
 
       if (error) throw error;
 
-      const url = URL.createObjectURL(data);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = fileName;
-      a.click();
-      URL.revokeObjectURL(url);
+      if (data.url) {
+        const a = document.createElement('a');
+        a.href = data.url;
+        a.download = fileName;
+        a.click();
+      } else {
+        throw new Error('No download URL received');
+      }
     } catch (error) {
       console.error('Error downloading document:', error);
       toast.error('Fehler beim Herunterladen des Dokuments');
