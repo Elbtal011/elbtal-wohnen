@@ -109,14 +109,21 @@ const MembersManagement = () => {
 
   const fetchUserDocuments = async (userId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('user_documents')
-        .select('*')
-        .eq('user_id', userId)
-        .order('uploaded_at', { ascending: false });
+      const adminToken = localStorage.getItem('adminToken');
+      if (!adminToken) {
+        throw new Error('Admin token not found');
+      }
+
+      const { data, error } = await supabase.functions.invoke('admin-management', {
+        body: {
+          action: 'get_user_documents',
+          token: adminToken,
+          user_id: userId
+        }
+      });
 
       if (error) throw error;
-      setUserDocuments(data || []);
+      setUserDocuments(data.documents || []);
     } catch (error) {
       console.error('Error fetching user documents:', error);
       toast.error('Fehler beim Laden der Dokumente');

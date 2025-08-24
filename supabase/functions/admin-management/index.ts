@@ -759,6 +759,30 @@ serve(async (req) => {
           );
         }
 
+      case 'get_user_documents':
+        try {
+          const { user_id } = data;
+          
+          const { data: documents, error: docsError } = await supabase
+            .from('user_documents')
+            .select('*')
+            .eq('user_id', user_id)
+            .order('uploaded_at', { ascending: false });
+
+          if (docsError) throw docsError;
+
+          return new Response(
+            JSON.stringify({ documents }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        } catch (error) {
+          console.error('Get user documents error:', error);
+          return new Response(
+            JSON.stringify({ error: 'Failed to get user documents', details: error.message }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
       case 'bulk_delete_properties':
         const { error: bulkDeleteError } = await supabase
           .from('properties')
