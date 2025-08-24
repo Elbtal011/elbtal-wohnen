@@ -518,14 +518,23 @@ const LeadsManagement: React.FC = () => {
                                {lead.anrede && (lead.anrede === 'herr' ? 'Hr.' : lead.anrede === 'frau' ? 'Fr.' : 'Divers')}{' '}
                                {lead.vorname} {lead.nachname}
                              </div>
-                             <div className="flex items-center gap-2">
-                               <Badge 
-                                 variant={lead.isRegistered ? "default" : "secondary"} 
-                                 className={`text-xs px-2 py-0 ${lead.isRegistered ? 'bg-green-100 text-green-800 border-green-200' : 'bg-gray-100 text-gray-600 border-gray-200'}`}
-                               >
-                                 {lead.isRegistered ? '✓ Registriert' : '○ Unregistriert'}
-                               </Badge>
-                             </div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <Badge 
+                                  variant={lead.isRegistered ? "default" : "secondary"} 
+                                  className={`text-xs px-2 py-0 ${lead.isRegistered ? 'bg-green-100 text-green-800 border-green-200' : 'bg-gray-100 text-gray-600 border-gray-200'}`}
+                                >
+                                  {lead.isRegistered ? '✓ Registriert' : '○ Unregistriert'}
+                                </Badge>
+                                {/* Current Stage Badge */}
+                                {lead.lead_stage && (
+                                  <Badge variant="outline" className="text-xs px-2 py-0 bg-blue-50 text-blue-700 border-blue-200">
+                                    {lead.lead_stage === 'postident1' && 'PostIdent 1'}
+                                    {lead.lead_stage === 'postident2' && 'PostIdent 2'} 
+                                    {lead.lead_stage === 'contract' && 'Vertrag'}
+                                    {!['postident1', 'postident2', 'contract'].includes(lead.lead_stage) && lead.lead_stage}
+                                  </Badge>
+                                )}
+                              </div>
                             {/* Show contact info on small screens */}
                             <div className="md:hidden space-y-1">
                               <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -601,18 +610,8 @@ const LeadsManagement: React.FC = () => {
                           <div className="text-xs truncate max-w-[100px]">{lead.property?.title || 'Allgemein'}</div>
                         </TableCell>
                         <TableCell>
-                          <div className="flex flex-col gap-1">
-                            {/* Current Stage Badge */}
-                            {lead.lead_stage && (
-                              <Badge variant="outline" className="text-xs px-1 py-0 w-fit">
-                                {lead.lead_stage === 'postident1' && 'P1'}
-                                {lead.lead_stage === 'postident2' && 'P2'} 
-                                {lead.lead_stage === 'contract' && 'Contract'}
-                                {!['postident1', 'postident2', 'contract'].includes(lead.lead_stage) && lead.lead_stage}
-                              </Badge>
-                            )}
-                            
-                            {/* Action Buttons - Compact */}
+                           <div className="flex flex-col gap-1">
+                             {/* Action Buttons - Compact */}
                             <div className="flex flex-col gap-1">
                               <Button 
                                 size="sm" 
