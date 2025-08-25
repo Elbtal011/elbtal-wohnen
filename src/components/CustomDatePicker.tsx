@@ -91,6 +91,15 @@ const CustomDatePicker = ({
     setIsOpen(false);
   };
 
+  // Helper to disable past dates for move-in dates
+  const isPastDate = (date: Date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const compareDate = new Date(date);
+    compareDate.setHours(0, 0, 0, 0);
+    return compareDate < today;
+  };
+
   const isSelected = (date: Date) => {
     if (!value) return false;
     return date.toDateString() === value.toDateString();

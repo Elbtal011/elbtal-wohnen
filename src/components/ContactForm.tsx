@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Send, X } from 'lucide-react';
+import CustomDatePicker from '@/components/CustomDatePicker';
 
 interface ContactFormData {
   vorname: string;
@@ -214,25 +215,35 @@ const [formData, setFormData] = useState<ContactFormData>({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <Label htmlFor="geburtsdatum">Geburtsdatum *</Label>
-          <Input
-            id="geburtsdatum"
-            type="date"
-            value={formData.geburtsdatum}
-            onChange={(e) => handleInputChange('geburtsdatum', e.target.value)}
-            required
-            className="mt-2"
-          />
+          <div className="mt-2">
+            <CustomDatePicker
+              value={formData.geburtsdatum ? new Date(formData.geburtsdatum) : undefined}
+              onChange={(date) => handleInputChange('geburtsdatum', date ? date.toISOString().split('T')[0] : '')}
+              placeholder="Geburtsdatum wählen"
+              fromYear={1940}
+              toYear={2010}
+              disabled={(date) => date > new Date()}
+            />
+          </div>
         </div>
         <div>
           <Label htmlFor="einzugsdatum">Einzugsdatum *</Label>
-          <Input
-            id="einzugsdatum"
-            type="date"
-            value={formData.einzugsdatum}
-            onChange={(e) => handleInputChange('einzugsdatum', e.target.value)}
-            required
-            className="mt-2"
-          />
+          <div className="mt-2">
+            <CustomDatePicker
+              value={formData.einzugsdatum ? new Date(formData.einzugsdatum) : undefined}
+              onChange={(date) => handleInputChange('einzugsdatum', date ? date.toISOString().split('T')[0] : '')}
+              placeholder="Einzugsdatum wählen"
+              fromYear={2024}
+              toYear={2030}
+              disabled={(date) => {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const compareDate = new Date(date);
+                compareDate.setHours(0, 0, 0, 0);
+                return compareDate < today;
+              }}
+            />
+          </div>
         </div>
       </div>
 

@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Send } from 'lucide-react';
+import CustomDatePicker from '@/components/CustomDatePicker';
 
 interface SimpleContactFormProps {
   propertyId?: string;
@@ -223,14 +224,16 @@ const handleSubmit = async (e: React.FormEvent) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <Label htmlFor="geburtsdatum">Geburtsdatum *</Label>
-          <Input
-            id="geburtsdatum"
-            type="date"
-            value={geburtsdatum}
-            onChange={(e) => setGeburtsdatum(e.target.value)}
-            required
-            className="mt-2"
-          />
+          <div className="mt-2">
+            <CustomDatePicker
+              value={geburtsdatum ? new Date(geburtsdatum) : undefined}
+              onChange={(date) => setGeburtsdatum(date ? date.toISOString().split('T')[0] : '')}
+              placeholder="Geburtsdatum wählen"
+              fromYear={1940}
+              toYear={2010}
+              disabled={(date) => date > new Date()}
+            />
+          </div>
         </div>
         <div>
           <Label htmlFor="nettoeinkommen">Nettoeinkommen (€/Monat) *</Label>
@@ -250,14 +253,22 @@ const handleSubmit = async (e: React.FormEvent) => {
       {isDialog && (
         <div>
           <Label htmlFor="einzugsdatum">Einzugsdatum *</Label>
-          <Input
-            id="einzugsdatum"
-            type="date"
-            value={einzugsdatum}
-            onChange={(e) => setEinzugsdatum(e.target.value)}
-            required
-            className="mt-2"
-          />
+          <div className="mt-2">
+            <CustomDatePicker
+              value={einzugsdatum ? new Date(einzugsdatum) : undefined}
+              onChange={(date) => setEinzugsdatum(date ? date.toISOString().split('T')[0] : '')}
+              placeholder="Einzugsdatum wählen"
+              fromYear={2024}
+              toYear={2030}
+              disabled={(date) => {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const compareDate = new Date(date);
+                compareDate.setHours(0, 0, 0, 0);
+                return compareDate < today;
+              }}
+            />
+          </div>
         </div>
       )}
 
