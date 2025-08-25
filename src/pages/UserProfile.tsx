@@ -36,6 +36,22 @@ interface UserDocument {
   uploaded_at: string;
 }
 
+interface PropertyApplication {
+  id: string;
+  property_id: string;
+  created_at: string;
+  status: string;
+  vorname: string;
+  nachname: string;
+  nettoeinkommen: number;
+  einzugsdatum: string;
+  property?: {
+    title: string;
+    address: string;
+    city?: { name: string };
+  };
+}
+
 const UserProfile = () => {
   const navigate = useNavigate();
   const { user, signOut, loading: authLoading } = useAuth();
@@ -54,6 +70,7 @@ const UserProfile = () => {
     profile_image_url: '',
   });
   const [documents, setDocuments] = useState<UserDocument[]>([]);
+  const [applications, setApplications] = useState<PropertyApplication[]>([]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -65,6 +82,7 @@ const UserProfile = () => {
     if (user) {
       fetchProfile();
       fetchDocuments();
+      fetchApplications();
     }
   }, [user]);
 
@@ -110,6 +128,28 @@ const UserProfile = () => {
       setDocuments(data || []);
     } catch (error) {
       console.error('Error fetching documents:', error);
+    }
+  };
+
+  const fetchApplications = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('property_applications')
+        .select(`
+          *,
+          property:properties(
+            title,
+            address,
+            city:cities(name)
+          )
+        `)
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setApplications(data || []);
+    } catch (error) {
+      console.error('Error fetching applications:', error);
     }
   };
 
@@ -282,6 +322,32 @@ const UserProfile = () => {
         return 'Personalausweis/Reisepass';
       default:
         return type;
+    }
+  };
+
+  const getApplicationStatusLabel = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'Ausstehend';
+      case 'approved':
+        return 'Genehmigt';
+      case 'rejected':
+        return 'Abgelehnt';
+      default:
+        return status;
+    }
+  };
+
+  const getApplicationStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'approved':
+        return 'bg-green-100 text-green-800';
+      case 'rejected':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -515,6 +581,65 @@ const UserProfile = () => {
                   {docType !== 'personalausweis' && <Separator />}
                 </div>
               ))}
+            </CardContent>
+          </Card>
+
+          {/* Property Applications Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Meine Immobilienbewerbungen</CardTitle>
+              <CardDescription>
+                Hier sehen Sie alle Ihre Bewerbungen für Immobilien
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {applications.length === 0 ? (
+                <p className="text-muted-foreground">Sie haben noch keine Bewerbungen eingereicht.</p>
+              ) : (
+                <div className="space-y-4">
+                  {applications.map((application) => (
+                    <div key={application.id} className="border rounded-lg p-4 space-y-3">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h4 className="font-medium">{application.property?.title}</h4>
+                          <p className="text-sm text-muted-foreground">
+                            {application.property?.address}
+                            {application.property?.city && `, ${application.property.city.name}`}
+                          </p>
+                        </div>
+                        <div className={`px-2 py-1 rounded-full text-xs font-medium ${getApplicationStatusColor(application.status)}`}>
+                          {getApplicationStatusLabel(application.status)}
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">Bewerbung vom:</span>
+                          <p className="font-medium">
+                            {new Date(application.created_at).toLocaleDateString('de-DE')}
+                          </p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Gewünschter Einzug:</span>
+                          <p className="font-medium">
+                            {new Date(application.einzugsdatum).toLocaleDateString('de-DE')}
+                          </p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Nettoeinkommen:</span>
+                          <p className="font-medium">
+                            {new Intl.NumberFormat('de-DE', {
+                              style: 'currency',
+                              currency: 'EUR',
+                              minimumFractionDigits: 0,
+                            }).format(application.nettoeinkommen)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

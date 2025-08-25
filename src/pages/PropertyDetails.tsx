@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import PropertyImageGallery from '@/components/PropertyImageGallery';
 import ContactForm from '@/components/SimpleContactForm';
+import PropertyApplicationFlow from '@/components/PropertyApplicationFlow';
 import SimpleLocationDisplay from '@/components/SimpleLocationDisplay';
 import { 
   MapPin, 
@@ -367,13 +368,24 @@ const PropertyDetails = () => {
               </CardContent>
             </Card>
 
+            {/* Property Application Button */}
+            <PropertyApplicationFlow
+              propertyId={property.id}
+              propertyTitle={property.title}
+              trigger={
+                <Button className="w-full mb-4" size="lg" variant="default">
+                  Für Immobilie bewerben
+                </Button>
+              }
+            />
+
             {/* Contact Button */}
             <ContactForm
               propertyId={property.id}
               propertyTitle={property.title}
               isDialog={true}
               trigger={
-                <Button className="w-full mb-6" size="lg">
+                <Button className="w-full mb-6" size="lg" variant="outline">
                   Anfrage senden
                 </Button>
               }

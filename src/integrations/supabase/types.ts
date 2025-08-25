@@ -519,6 +519,80 @@ export type Database = {
           },
         ]
       }
+      property_applications: {
+        Row: {
+          adresse: string
+          created_at: string
+          einzugsdatum: string
+          email: string
+          geburtsdatum: string
+          geburtsort: string
+          id: string
+          nachname: string
+          nachricht: string
+          nettoeinkommen: number
+          ort: string
+          postleitzahl: string
+          property_id: string | null
+          staatsangehoerigkeit: string
+          status: string
+          telefon: string
+          updated_at: string
+          user_id: string | null
+          vorname: string
+        }
+        Insert: {
+          adresse: string
+          created_at?: string
+          einzugsdatum: string
+          email: string
+          geburtsdatum: string
+          geburtsort: string
+          id?: string
+          nachname: string
+          nachricht: string
+          nettoeinkommen: number
+          ort: string
+          postleitzahl: string
+          property_id?: string | null
+          staatsangehoerigkeit: string
+          status?: string
+          telefon: string
+          updated_at?: string
+          user_id?: string | null
+          vorname: string
+        }
+        Update: {
+          adresse?: string
+          created_at?: string
+          einzugsdatum?: string
+          email?: string
+          geburtsdatum?: string
+          geburtsort?: string
+          id?: string
+          nachname?: string
+          nachricht?: string
+          nettoeinkommen?: number
+          ort?: string
+          postleitzahl?: string
+          property_id?: string | null
+          staatsangehoerigkeit?: string
+          status?: string
+          telefon?: string
+          updated_at?: string
+          user_id?: string | null
+          vorname?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_applications_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       property_types: {
         Row: {
           created_at: string
