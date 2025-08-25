@@ -179,6 +179,20 @@ const MembersManagement = () => {
         }
       }
 
+      // Delete associated leads (contact_requests) for each user
+      const memberEmails = selectedMembers
+        .map(memberId => members.find(m => m.id === memberId)?.email)
+        .filter(email => email);
+
+      if (memberEmails.length > 0) {
+        const { error: leadsError } = await supabase
+          .from('contact_requests')
+          .delete()
+          .in('email', memberEmails);
+
+        if (leadsError) throw leadsError;
+      }
+
       // Delete profiles
       const { error: profileError } = await supabase
         .from('profiles')
