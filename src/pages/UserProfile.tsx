@@ -522,20 +522,15 @@ const UserProfile = () => {
                     <Label htmlFor="nettoeinkommen">Nettoeinkommen (€)</Label>
                     <Input
                       id="nettoeinkommen"
-                      type="number"
-                      value={profileData.nettoeinkommen}
-                      onChange={(e) => setProfileData(prev => ({ ...prev, nettoeinkommen: e.target.value }))}
+                      type="text"
+                      value={profileData.nettoeinkommen ? new Intl.NumberFormat('de-DE').format(parseInt(profileData.nettoeinkommen) || 0) : ''}
+                      onChange={(e) => {
+                        // Remove all non-digits and convert back to number string
+                        const numericValue = e.target.value.replace(/\D/g, '');
+                        setProfileData(prev => ({ ...prev, nettoeinkommen: numericValue }));
+                      }}
                       placeholder="z.B. 3.500"
                     />
-                    {profileData.nettoeinkommen && (
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {new Intl.NumberFormat('de-DE', {
-                          style: 'currency',
-                          currency: 'EUR',
-                          minimumFractionDigits: 0,
-                        }).format(parseInt(profileData.nettoeinkommen) || 0)}
-                      </p>
-                    )}
                   </div>
                 </div>
                 
