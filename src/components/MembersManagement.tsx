@@ -165,49 +165,22 @@ const MembersManagement = () => {
     if (selectedMembers.length === 0) return;
 
     try {
-      // Delete user documents first
-      for (const memberId of selectedMembers) {
-        const member = members.find(m => m.id === memberId);
-        if (member) {
-          await supabase.storage
-            .from('user-documents')
-            .remove([`${member.user_id}/`]);
-            
-          await supabase.storage
-            .from('profile-images')
-            .remove([`${member.user_id}/`]);
+      // Get admin token from localStorage
+      const adminToken = localStorage.getItem('adminToken');
+      if (!adminToken) {
+        throw new Error('Admin token not found');
+      }
+
+      // Call admin management function to delete members
+      const { data, error } = await supabase.functions.invoke('admin-management', {
+        body: { 
+          action: 'delete_members',
+          token: adminToken,
+          memberIds: selectedMembers
         }
-      }
+      });
 
-      // Delete associated leads (contact_requests) for each user
-      const memberEmails = selectedMembers
-        .map(memberId => members.find(m => m.id === memberId)?.email)
-        .filter(email => email);
-
-      if (memberEmails.length > 0) {
-        const { error: leadsError } = await supabase
-          .from('contact_requests')
-          .delete()
-          .in('email', memberEmails);
-
-        if (leadsError) throw leadsError;
-      }
-
-      // Delete profiles
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .delete()
-        .in('id', selectedMembers);
-
-      if (profileError) throw profileError;
-
-      // Delete auth users
-      for (const memberId of selectedMembers) {
-        const member = members.find(m => m.id === memberId);
-        if (member) {
-          await supabase.auth.admin.deleteUser(member.user_id);
-        }
-      }
+      if (error) throw error;
 
       toast.success(`${selectedMembers.length} Mitglieder erfolgreich gelöscht`);
       setSelectedMembers([]);

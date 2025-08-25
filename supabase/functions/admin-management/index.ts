@@ -872,6 +872,114 @@ serve(async (req) => {
           );
         }
 
+      case 'delete_members':
+        try {
+          const { memberIds } = data;
+          
+          if (!Array.isArray(memberIds) || memberIds.length === 0) {
+            return new Response(
+              JSON.stringify({ error: 'Member IDs array is required' }),
+              { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          }
+
+          // Get member details first
+          const { data: members, error: membersError } = await supabase
+            .from('profiles')
+            .select('id, user_id, first_name, last_name')
+            .in('id', memberIds);
+
+          if (membersError) throw membersError;
+
+          const memberEmails = [];
+          
+          // Get emails for each member to delete associated contact requests
+          for (const member of members || []) {
+            try {
+              const { data: userData, error: userError } = await supabase.auth.admin.getUserById(member.user_id);
+              if (!userError && userData.user?.email) {
+                memberEmails.push(userData.user.email);
+              }
+            } catch (error) {
+              console.error('Error fetching user email for deletion:', error);
+            }
+
+            // Delete user documents from storage
+            try {
+              await supabase.storage
+                .from('user-documents')
+                .remove([`${member.user_id}/`]);
+            } catch (error) {
+              console.warn('Error deleting user documents:', error);
+            }
+
+            // Delete profile images from storage
+            try {
+              await supabase.storage
+                .from('profile-images')
+                .remove([`${member.user_id}/`]);
+            } catch (error) {
+              console.warn('Error deleting profile images:', error);
+            }
+          }
+
+          // Delete associated leads (contact_requests) by email
+          if (memberEmails.length > 0) {
+            const { error: leadsError } = await supabase
+              .from('contact_requests')
+              .delete()
+              .in('email', memberEmails);
+
+            if (leadsError) {
+              console.warn('Error deleting contact requests:', leadsError);
+            }
+          }
+
+          // Delete user documents records
+          for (const member of members || []) {
+            const { error: userDocsError } = await supabase
+              .from('user_documents')
+              .delete()
+              .eq('user_id', member.user_id);
+
+            if (userDocsError) {
+              console.warn('Error deleting user document records:', userDocsError);
+            }
+          }
+
+          // Delete profiles
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .delete()
+            .in('id', memberIds);
+
+          if (profileError) throw profileError;
+
+          // Delete auth users (requires service role)
+          for (const member of members || []) {
+            try {
+              await supabase.auth.admin.deleteUser(member.user_id);
+            } catch (error) {
+              console.error('Error deleting auth user:', error);
+            }
+          }
+
+          return new Response(
+            JSON.stringify({ 
+              success: true, 
+              message: `${memberIds.length} members deleted successfully`,
+              deletedCount: memberIds.length 
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        } catch (error) {
+          console.error('Delete members error:', error);
+          return new Response(
+            JSON.stringify({ error: 'Failed to delete members', details: error.message }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
       default:
         return new Response(
           JSON.stringify({ error: 'Invalid action' }),
