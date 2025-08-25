@@ -686,6 +686,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      trigger_daily_backup: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
