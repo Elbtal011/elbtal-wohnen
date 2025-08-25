@@ -320,20 +320,22 @@ const PropertyApplicationFlow = ({ propertyId, propertyTitle, trigger }: Propert
               )}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={formData.geburtsdatum}
-              onSelect={(date) => handleInputChange('geburtsdatum', date)}
-              disabled={(date) =>
-                date > new Date() || date < new Date("1900-01-01")
-              }
-              initialFocus
-              className="pointer-events-auto"
-              captionLayout="dropdown-buttons"
-              fromYear={1940}
-              toYear={2010}
-            />
+          <PopoverContent className="w-auto p-0 bg-background border shadow-lg" align="start">
+            <div className="p-0">
+              <Calendar
+                mode="single"
+                selected={formData.geburtsdatum}
+                onSelect={(date) => handleInputChange('geburtsdatum', date)}
+                disabled={(date) =>
+                  date > new Date() || date < new Date("1900-01-01")
+                }
+                initialFocus
+                className="pointer-events-auto"
+                captionLayout="dropdown-buttons"
+                fromYear={1940}
+                toYear={2010}
+              />
+            </div>
           </PopoverContent>
         </Popover>
       </div>
@@ -372,15 +374,20 @@ const PropertyApplicationFlow = ({ propertyId, propertyTitle, trigger }: Propert
               )}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={formData.einzugsdatum}
-              onSelect={(date) => handleInputChange('einzugsdatum', date)}
-              disabled={(date) => date < new Date()}
-              initialFocus
-              className="pointer-events-auto"
-            />
+          <PopoverContent className="w-auto p-0 bg-background border shadow-lg" align="start">
+            <div className="p-0">
+              <Calendar
+                mode="single"
+                selected={formData.einzugsdatum}
+                onSelect={(date) => handleInputChange('einzugsdatum', date)}
+                disabled={(date) => date < new Date()}
+                initialFocus
+                className="pointer-events-auto"
+                captionLayout="dropdown-buttons"
+                fromYear={2024}
+                toYear={2030}
+              />
+            </div>
           </PopoverContent>
         </Popover>
       </div>
