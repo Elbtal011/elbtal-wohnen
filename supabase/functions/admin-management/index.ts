@@ -90,6 +90,7 @@ serve(async (req) => {
         )
 
       case 'get_contact_requests':
+        // Get contact requests with property information
         const { data: requests, error: reqError } = await supabase
           .from('contact_requests')
           .select(`
@@ -100,8 +101,30 @@ serve(async (req) => {
 
         if (reqError) throw reqError
 
+        // Get property applications for all users
+        const { data: applications, error: appsError } = await supabase
+          .from('property_applications')
+          .select(`
+            *,
+            property:properties(title, address, city:cities(name))
+          `)
+          .order('created_at', { ascending: false })
+
+        if (appsError) {
+          console.error('Error fetching applications:', appsError);
+        }
+
+        // Combine contact requests with application info
+        const requestsWithApplications = requests.map(request => ({
+          ...request,
+          applications: applications?.filter(app => app.email === request.email) || []
+        }));
+
         return new Response(
-          JSON.stringify({ requests }),
+          JSON.stringify({ 
+            requests: requestsWithApplications,
+            applications: applications || []
+          }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
 
@@ -825,6 +848,29 @@ serve(async (req) => {
           JSON.stringify({ success: true, message: 'All properties deleted successfully' }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
+
+      case 'update_application_status':
+        try {
+          const { applicationId, status } = data;
+          
+          const { error: updateError } = await supabase
+            .from('property_applications')
+            .update({ status })
+            .eq('id', applicationId);
+
+          if (updateError) throw updateError;
+
+          return new Response(
+            JSON.stringify({ success: true }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        } catch (error) {
+          console.error('Update application status error:', error);
+          return new Response(
+            JSON.stringify({ error: 'Failed to update application status', details: error.message }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
 
       default:
         return new Response(

@@ -44,6 +44,33 @@ interface Lead {
   ort?: string | null;
   isRegistered?: boolean;
   user_id?: string | null;
+  applications?: PropertyApplication[];
+}
+
+interface PropertyApplication {
+  id: string;
+  user_id: string;
+  property_id: string;
+  created_at: string;
+  status: string;
+  vorname: string;
+  nachname: string;
+  email: string;
+  telefon: string;
+  adresse: string;
+  postleitzahl: string;
+  ort: string;
+  geburtsort: string;
+  staatsangehoerigkeit: string;
+  geburtsdatum: string;
+  nettoeinkommen: number;
+  einzugsdatum: string;
+  nachricht: string;
+  property?: {
+    title: string;
+    address: string;
+    city?: { name: string };
+  };
 }
 
 interface UserDocument {
@@ -458,6 +485,50 @@ const LeadsManagement: React.FC = () => {
     }
   };
 
+  const updateApplicationStatus = async (applicationId: string, status: string) => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const { error } = await supabase.functions.invoke('admin-management', {
+        body: {
+          action: 'update_application_status',
+          token,
+          applicationId,
+          status
+        }
+      });
+
+      if (error) throw error;
+
+      toast({ 
+        title: 'Status aktualisiert', 
+        description: 'Bewerbungsstatus wurde erfolgreich geändert.' 
+      });
+
+      // Update the application status in the selected lead's applications
+      if (selected) {
+        const updatedLead = {
+          ...selected,
+          applications: selected.applications?.map(app => 
+            app.id === applicationId ? { ...app, status } : app
+          )
+        };
+        setSelected(updatedLead);
+        
+        // Also update in the leads list
+        setLeads(prev => prev.map(lead => 
+          lead.id === selected.id ? updatedLead : lead
+        ));
+      }
+    } catch (error) {
+      console.error('Error updating application status:', error);
+      toast({ 
+        title: 'Fehler', 
+        description: 'Status konnte nicht aktualisiert werden.', 
+        variant: 'destructive' 
+      });
+    }
+  };
+
   const openDetails = (lead: Lead) => {
     setSelected(lead);
     setOpen(true);
@@ -616,13 +687,19 @@ const LeadsManagement: React.FC = () => {
                                 </Badge>
                                 {/* Current Stage Badge */}
                                 {lead.lead_stage && (
-                                  <Badge variant="outline" className="text-xs px-2 py-0 bg-blue-50 text-blue-700 border-blue-200">
-                                    {lead.lead_stage === 'postident1' && 'PostIdent 1'}
-                                    {lead.lead_stage === 'postident2' && 'PostIdent 2'} 
-                                    {lead.lead_stage === 'contract' && 'Vertrag'}
-                                    {!['postident1', 'postident2', 'contract'].includes(lead.lead_stage) && lead.lead_stage}
-                                  </Badge>
-                                )}
+                                   <Badge variant="outline" className="text-xs px-2 py-0 bg-blue-50 text-blue-700 border-blue-200">
+                                     {lead.lead_stage === 'postident1' && 'PostIdent 1'}
+                                     {lead.lead_stage === 'postident2' && 'PostIdent 2'} 
+                                     {lead.lead_stage === 'contract' && 'Vertrag'}
+                                     {!['postident1', 'postident2', 'contract'].includes(lead.lead_stage) && lead.lead_stage}
+                                   </Badge>
+                                 )}
+                                 {/* Property Application Badge */}
+                                 {lead.applications && lead.applications.length > 0 && (
+                                   <Badge variant="outline" className="text-xs px-2 py-0 bg-purple-50 text-purple-700 border-purple-200">
+                                     📝 Bewerbung eingereicht
+                                   </Badge>
+                                 )}
                               </div>
                             {/* Show contact info on small screens */}
                             <div className="md:hidden space-y-1">
@@ -880,6 +957,85 @@ const LeadsManagement: React.FC = () => {
                         </>
                       ); })()}
                     </div>
+                    
+                    {/* Property Applications Section */}
+                    {selected.applications && selected.applications.length > 0 && (
+                      <div className="pt-4 border-t">
+                        <h4 className="font-semibold mb-3 flex items-center gap-2">
+                          📝 Immobilienbewerbungen
+                        </h4>
+                        <div className="space-y-3">
+                          {selected.applications.map((application) => (
+                            <div key={application.id} className="bg-muted/50 rounded-lg p-4">
+                              <div className="flex items-start justify-between mb-3">
+                                <div>
+                                  <div className="font-medium text-sm">{application.property?.title}</div>
+                                  <div className="text-xs text-muted-foreground">
+                                    {application.property?.address}
+                                    {application.property?.city && `, ${application.property.city.name}`}
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                  <Badge variant="outline" className={`text-xs ${
+                                    application.status === 'approved' ? 'bg-green-50 text-green-700 border-green-200' :
+                                    application.status === 'rejected' ? 'bg-red-50 text-red-700 border-red-200' :
+                                    application.status === 'under_review' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
+                                    'bg-gray-50 text-gray-700 border-gray-200'
+                                  }`}>
+                                    {application.status === 'pending' && 'Ausstehend'}
+                                    {application.status === 'under_review' && 'In Bearbeitung'}
+                                    {application.status === 'approved' && 'Genehmigt'}
+                                    {application.status === 'rejected' && 'Abgelehnt'}
+                                  </Badge>
+                                  <Select
+                                    value={application.status}
+                                    onValueChange={(newStatus) => updateApplicationStatus(application.id, newStatus)}
+                                  >
+                                    <SelectTrigger className="h-6 text-xs px-2 w-28">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="pending">Ausstehend</SelectItem>
+                                      <SelectItem value="under_review">In Bearbeitung</SelectItem>
+                                      <SelectItem value="approved">Genehmigt</SelectItem>
+                                      <SelectItem value="rejected">Abgelehnt</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-2 gap-3 text-xs text-muted-foreground">
+                                <div>
+                                  <span className="font-medium">Bewerbung vom:</span>
+                                  <div>{new Date(application.created_at).toLocaleDateString('de-DE')}</div>
+                                </div>
+                                <div>
+                                  <span className="font-medium">Gewünschter Einzug:</span>
+                                  <div>{new Date(application.einzugsdatum).toLocaleDateString('de-DE')}</div>
+                                </div>
+                                <div>
+                                  <span className="font-medium">Nettoeinkommen:</span>
+                                  <div>{new Intl.NumberFormat('de-DE', {
+                                    style: 'currency',
+                                    currency: 'EUR',
+                                    minimumFractionDigits: 0,
+                                  }).format(application.nettoeinkommen)}</div>
+                                </div>
+                                <div>
+                                  <span className="font-medium">Staatsangehörigkeit:</span>
+                                  <div>{application.staatsangehoerigkeit}</div>
+                                </div>
+                              </div>
+                              {application.nachricht && (
+                                <div className="mt-3 pt-2 border-t">
+                                  <span className="font-medium text-xs">Nachricht:</span>
+                                  <p className="text-xs text-muted-foreground mt-1 line-clamp-3">{application.nachricht}</p>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                   {selected.nachricht && (
                     <div className="pt-4 border-t">
