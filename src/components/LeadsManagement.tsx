@@ -484,16 +484,14 @@ const LeadsManagement: React.FC = () => {
       if (error) throw error;
 
       if (data.url) {
-        const a = document.createElement('a');
-        a.href = data.url;
-        a.download = fileName;
-        a.click();
+        // Open document in new tab instead of downloading
+        window.open(data.url, '_blank');
       } else {
         throw new Error('No download URL received');
       }
     } catch (error) {
-      console.error('Error downloading document:', error);
-      toast({ title: 'Fehler', description: 'Fehler beim Herunterladen des Dokuments', variant: 'destructive' });
+      console.error('Error opening document:', error);
+      toast({ title: 'Fehler', description: 'Fehler beim Öffnen des Dokuments', variant: 'destructive' });
     }
   };
 
