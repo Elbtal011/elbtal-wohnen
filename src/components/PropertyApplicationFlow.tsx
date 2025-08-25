@@ -120,7 +120,7 @@ const PropertyApplicationFlow = ({ propertyId, propertyTitle, trigger }: Propert
   const handleSubmit = async () => {
     if (!validateStep2()) return;
     if (!user) {
-      toast.error('Sie müssen angemeldet sein, um eine Bewerbung abzusenden');
+      toast.error('Sie müssen sich zuerst registrieren und anmelden, um eine Bewerbung abzusenden');
       return;
     }
 
@@ -151,6 +151,30 @@ const PropertyApplicationFlow = ({ propertyId, propertyTitle, trigger }: Propert
         .insert(applicationData);
 
       if (error) throw error;
+
+      // Also create a contact request entry so it shows up in LEADS
+      const { error: contactError } = await supabase
+        .from('contact_requests')
+        .insert({
+          property_id: propertyId,
+          anrede: formData.vorname.toLowerCase() === 'herr' ? 'herr' : 
+                  formData.vorname.toLowerCase() === 'frau' ? 'frau' : null,
+          vorname: formData.vorname,
+          nachname: formData.nachname,
+          email: formData.email,
+          telefon: formData.telefon,
+          strasse: formData.adresse.split(' ').slice(0, -1).join(' '), // Extract street
+          nummer: formData.adresse.split(' ').slice(-1)[0], // Extract number
+          plz: formData.postleitzahl,
+          ort: formData.ort,
+          nachricht: `IMMOBILIENBEWERBUNG:\n\nGeburtsort: ${formData.geburtsort}\nStaatsangehörigkeit: ${formData.staatsangehoerigkeit}\nGeburtsdatum: ${formData.geburtsdatum!.toLocaleDateString('de-DE')}\nNettoeinkommen: ${formData.nettoeinkommen}€\nGewünschter Einzug: ${formData.einzugsdatum!.toLocaleDateString('de-DE')}\n\n${formData.nachricht}`,
+          status: 'new',
+          lead_label: 'Property Application'
+        });
+
+      if (contactError) {
+        console.warn('Failed to create contact request:', contactError);
+      }
 
       toast.success('Ihre Bewerbung wurde erfolgreich eingereicht!');
       setOpen(false);
@@ -306,6 +330,9 @@ const PropertyApplicationFlow = ({ propertyId, propertyTitle, trigger }: Propert
               }
               initialFocus
               className="pointer-events-auto"
+              captionLayout="dropdown-buttons"
+              fromYear={1940}
+              toYear={2010}
             />
           </PopoverContent>
         </Popover>
@@ -385,6 +412,14 @@ const PropertyApplicationFlow = ({ propertyId, propertyTitle, trigger }: Propert
           <DialogTitle>
             Bewerbung für: {propertyTitle}
           </DialogTitle>
+          {!user && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+              <p className="text-sm text-blue-800">
+                <strong>Hinweis:</strong> Sie müssen sich zuerst registrieren und anmelden, um eine Bewerbung für diese Immobilie abzusenden. 
+                <a href="/auth" className="underline font-medium ml-1">Hier registrieren</a>
+              </p>
+            </div>
+          )}
           <div className="flex items-center space-x-2 text-sm text-muted-foreground">
             <span className={currentStep === 1 ? 'font-medium text-primary' : ''}>
               1. Persönliche Daten
@@ -417,7 +452,7 @@ const PropertyApplicationFlow = ({ propertyId, propertyTitle, trigger }: Propert
               )}
               
               {currentStep === 2 && (
-                <Button onClick={handleSubmit} disabled={loading}>
+                <Button onClick={handleSubmit} disabled={loading || !user}>
                   {loading ? 'Wird eingereicht...' : 'Bewerbung absenden'}
                 </Button>
               )}
