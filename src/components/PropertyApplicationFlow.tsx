@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import CustomDatePicker from '@/components/CustomDatePicker';
 
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -303,41 +304,16 @@ const PropertyApplicationFlow = ({ propertyId, propertyTitle, trigger }: Propert
 
       <div>
         <Label>Geburtsdatum *</Label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className={cn(
-                "w-full justify-start text-left font-normal",
-                !formData.geburtsdatum && "text-muted-foreground"
-              )}
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {formData.geburtsdatum ? (
-                format(formData.geburtsdatum, "dd.MM.yyyy", { locale: de })
-              ) : (
-                <span>Datum wählen</span>
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0 bg-background border shadow-lg" align="start">
-            <div className="p-0">
-              <Calendar
-                mode="single"
-                selected={formData.geburtsdatum}
-                onSelect={(date) => handleInputChange('geburtsdatum', date)}
-                disabled={(date) =>
-                  date > new Date() || date < new Date("1900-01-01")
-                }
-                initialFocus
-                className="pointer-events-auto"
-                captionLayout="dropdown-buttons"
-                fromYear={1940}
-                toYear={2010}
-              />
-            </div>
-          </PopoverContent>
-        </Popover>
+        <CustomDatePicker
+          value={formData.geburtsdatum}
+          onChange={(date) => handleInputChange('geburtsdatum', date)}
+          placeholder="Geburtsdatum wählen"
+          disabled={(date) =>
+            date > new Date() || date < new Date("1900-01-01")
+          }
+          fromYear={1940}
+          toYear={2010}
+        />
       </div>
     </div>
   );
@@ -357,39 +333,14 @@ const PropertyApplicationFlow = ({ propertyId, propertyTitle, trigger }: Propert
 
       <div>
         <Label>Gewünschtes Einzugsdatum *</Label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className={cn(
-                "w-full justify-start text-left font-normal",
-                !formData.einzugsdatum && "text-muted-foreground"
-              )}
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {formData.einzugsdatum ? (
-                format(formData.einzugsdatum, "dd.MM.yyyy", { locale: de })
-              ) : (
-                <span>Datum wählen</span>
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0 bg-background border shadow-lg" align="start">
-            <div className="p-0">
-              <Calendar
-                mode="single"
-                selected={formData.einzugsdatum}
-                onSelect={(date) => handleInputChange('einzugsdatum', date)}
-                disabled={(date) => date < new Date()}
-                initialFocus
-                className="pointer-events-auto"
-                captionLayout="dropdown-buttons"
-                fromYear={2024}
-                toYear={2030}
-              />
-            </div>
-          </PopoverContent>
-        </Popover>
+        <CustomDatePicker
+          value={formData.einzugsdatum}
+          onChange={(date) => handleInputChange('einzugsdatum', date)}
+          placeholder="Einzugsdatum wählen"
+          disabled={(date) => date < new Date()}
+          fromYear={2024}
+          toYear={2030}
+        />
       </div>
 
       <div>
