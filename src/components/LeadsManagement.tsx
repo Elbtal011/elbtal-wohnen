@@ -712,41 +712,44 @@ const LeadsManagement: React.FC = () => {
                                 <span className="hidden sm:inline">Details</span>
                               </Button>
                               
-                              {(!lead.lead_stage || lead.lead_stage === 'new') && (
-                                <Button 
-                                  size="sm" 
-                                  onClick={() => moveToPostIdent1(lead.id)}
-                                  className="h-7 text-xs px-2 bg-blue-600 hover:bg-blue-700"
-                                >
-                                  <ArrowRight className="h-3 w-3 mr-1" />
-                                  <span className="hidden sm:inline">PostIdent 1</span>
-                                  <span className="sm:hidden">P1</span>
-                                </Button>
-                              )}
-                              
-                              {lead.lead_stage === 'postident1' && (
-                                <Button 
-                                  size="sm" 
-                                  onClick={() => moveToPostIdent2(lead.id)}
-                                  className="h-7 text-xs px-2 bg-green-600 hover:bg-green-700"
-                                >
-                                  <ArrowRight className="h-3 w-3 mr-1" />
-                                  <span className="hidden sm:inline">PostIdent 2</span>
-                                  <span className="sm:hidden">P2</span>
-                                </Button>
-                              )}
-                              
-                              {lead.lead_stage === 'postident2' && (
-                                <Button 
-                                  size="sm" 
-                                  onClick={() => moveToContract(lead.id)}
-                                  className="h-7 text-xs px-2 bg-purple-600 hover:bg-purple-700"
-                                >
-                                  <ArrowRight className="h-3 w-3 mr-1" />
-                                  <span className="hidden sm:inline">Vertrag</span>
-                                  <span className="sm:hidden">Contract</span>
-                                </Button>
-                              )}
+                               {/* Always show PostIdent 1 button if not already completed */}
+                               {(!lead.lead_stage || lead.lead_stage === 'new' || lead.lead_stage !== 'postident1' && lead.lead_stage !== 'postident2' && lead.lead_stage !== 'contract') && (
+                                 <Button 
+                                   size="sm" 
+                                   onClick={() => moveToPostIdent1(lead.id)}
+                                   className="h-7 text-xs px-2 bg-blue-600 hover:bg-blue-700"
+                                 >
+                                   <ArrowRight className="h-3 w-3 mr-1" />
+                                   <span className="hidden sm:inline">PostIdent 1</span>
+                                   <span className="sm:hidden">P1</span>
+                                 </Button>
+                               )}
+                               
+                               {/* Show PostIdent 2 button if PostIdent 1 is completed */}
+                               {lead.lead_stage === 'postident1' && (
+                                 <Button 
+                                   size="sm" 
+                                   onClick={() => moveToPostIdent2(lead.id)}
+                                   className="h-7 text-xs px-2 bg-green-600 hover:bg-green-700"
+                                 >
+                                   <ArrowRight className="h-3 w-3 mr-1" />
+                                   <span className="hidden sm:inline">PostIdent 2</span>
+                                   <span className="sm:hidden">P2</span>
+                                 </Button>
+                               )}
+                               
+                               {/* Show Contract button if PostIdent 2 is completed */}
+                               {lead.lead_stage === 'postident2' && (
+                                 <Button 
+                                   size="sm" 
+                                   onClick={() => moveToContract(lead.id)}
+                                   className="h-7 text-xs px-2 bg-purple-600 hover:bg-purple-700"
+                                 >
+                                   <ArrowRight className="h-3 w-3 mr-1" />
+                                   <span className="hidden sm:inline">Vertrag</span>
+                                   <span className="sm:hidden">Contract</span>
+                                 </Button>
+                               )}
                             </div>
                           </div>
                         </TableCell>
