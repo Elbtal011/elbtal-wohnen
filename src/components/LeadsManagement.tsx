@@ -45,6 +45,7 @@ interface Lead {
   isRegistered?: boolean;
   user_id?: string | null;
   applications?: PropertyApplication[];
+  hasDocuments?: boolean;
 }
 
 interface PropertyApplication {
@@ -153,7 +154,31 @@ const LeadsManagement: React.FC = () => {
         };
       });
 
-      setLeads(leadsWithStatus);
+      // Check for documents for registered users
+      const leadsWithDocuments = await Promise.all(
+        leadsWithStatus.map(async (lead) => {
+          if (lead.isRegistered && lead.user_id) {
+            try {
+              const { data } = await supabase.functions.invoke('admin-management', {
+                body: {
+                  action: 'get_user_documents',
+                  token,
+                  user_id: lead.user_id
+                }
+              });
+              return {
+                ...lead,
+                hasDocuments: (data?.documents || []).length > 0
+              };
+            } catch {
+              return { ...lead, hasDocuments: false };
+            }
+          }
+          return { ...lead, hasDocuments: false };
+        })
+      );
+
+      setLeads(leadsWithDocuments);
     } catch (e) {
       console.error('Error fetching leads:', e);
       toast({ title: 'Fehler', description: 'Leads konnten nicht geladen werden.', variant: 'destructive' });
@@ -694,10 +719,10 @@ const LeadsManagement: React.FC = () => {
                                      {!['postident1', 'postident2', 'contract'].includes(lead.lead_stage) && lead.lead_stage}
                                    </Badge>
                                  )}
-                                 {/* Property Application Badge */}
-                                 {lead.applications && lead.applications.length > 0 && (
+                                 {/* Document Upload Badge */}
+                                 {lead.hasDocuments && (
                                    <Badge variant="outline" className="text-xs px-2 py-0 bg-purple-50 text-purple-700 border-purple-200">
-                                     📝 Bewerbung eingereicht
+                                     Bewerbung eingereicht
                                    </Badge>
                                  )}
                               </div>
