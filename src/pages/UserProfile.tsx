@@ -366,8 +366,8 @@ const UserProfile = () => {
     <div className="min-h-screen flex flex-col">
       <Header />
       
-      <main className="flex-1 container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto space-y-6">
+      <main className="flex-1 container mx-auto px-4 py-8 max-w-7xl">
+        <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h1 className="text-3xl font-bold">Mein Profil</h1>
             <Button onClick={handleLogout} variant="outline">
@@ -376,289 +376,296 @@ const UserProfile = () => {
             </Button>
           </div>
 
-          {/* Profile Image Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Profilbild</CardTitle>
-            </CardHeader>
-            <CardContent className="flex items-center space-x-4">
-              <Avatar className="h-24 w-24">
-                <AvatarImage src={profileData.profile_image_url} />
-                <AvatarFallback className="text-lg">
-                  {profileData.first_name?.[0]}{profileData.last_name?.[0]}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <Label htmlFor="profile-image" className="cursor-pointer">
-                  <Button variant="outline" asChild>
-                    <span>
-                      <Upload className="h-4 w-4 mr-2" />
-                      Profilbild hochladen
-                    </span>
-                  </Button>
-                </Label>
-                <Input
-                  id="profile-image"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Profile Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Persönliche Informationen</CardTitle>
-              <CardDescription>
-                Aktualisieren Sie Ihre persönlichen Daten
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleProfileUpdate} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left Column - Profile Information */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Profile Image Section */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Profilbild</CardTitle>
+                </CardHeader>
+                <CardContent className="flex items-center space-x-4">
+                  <Avatar className="h-24 w-24">
+                    <AvatarImage src={profileData.profile_image_url} />
+                    <AvatarFallback className="text-lg">
+                      {profileData.first_name?.[0]}{profileData.last_name?.[0]}
+                    </AvatarFallback>
+                  </Avatar>
                   <div>
-                    <Label htmlFor="firstName">Vorname</Label>
-                    <Input
-                      id="firstName"
-                      value={profileData.first_name}
-                      onChange={(e) => setProfileData(prev => ({ ...prev, first_name: e.target.value }))}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="lastName">Nachname</Label>
-                    <Input
-                      id="lastName"
-                      value={profileData.last_name}
-                      onChange={(e) => setProfileData(prev => ({ ...prev, last_name: e.target.value }))}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="anrede">Anrede</Label>
-                    <Select
-                      value={profileData.anrede}
-                      onValueChange={(value) => setProfileData(prev => ({ ...prev, anrede: value }))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Anrede wählen" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="herr">Herr</SelectItem>
-                        <SelectItem value="frau">Frau</SelectItem>
-                        <SelectItem value="divers">Divers</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="telefon">Telefonnummer</Label>
-                    <Input
-                      id="telefon"
-                      type="tel"
-                      value={profileData.telefon}
-                      onChange={(e) => setProfileData(prev => ({ ...prev, telefon: e.target.value }))}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="strasse">Straße</Label>
-                    <Input
-                      id="strasse"
-                      value={profileData.strasse}
-                      onChange={(e) => setProfileData(prev => ({ ...prev, strasse: e.target.value }))}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="nummer">Hausnummer</Label>
-                    <Input
-                      id="nummer"
-                      value={profileData.nummer}
-                      onChange={(e) => setProfileData(prev => ({ ...prev, nummer: e.target.value }))}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="plz">PLZ</Label>
-                    <Input
-                      id="plz"
-                      value={profileData.plz}
-                      onChange={(e) => setProfileData(prev => ({ ...prev, plz: e.target.value }))}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="ort">Ort</Label>
-                    <Input
-                      id="ort"
-                      value={profileData.ort}
-                      onChange={(e) => setProfileData(prev => ({ ...prev, ort: e.target.value }))}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="staatsangehoerigkeit">Staatsangehörigkeit</Label>
-                    <Input
-                      id="staatsangehoerigkeit"
-                      value={profileData.staatsangehoerigkeit}
-                      onChange={(e) => setProfileData(prev => ({ ...prev, staatsangehoerigkeit: e.target.value }))}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="geburtsort">Geburtsort</Label>
-                    <Input
-                      id="geburtsort"
-                      value={profileData.geburtsort}
-                      onChange={(e) => setProfileData(prev => ({ ...prev, geburtsort: e.target.value }))}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="nettoeinkommen">Nettoeinkommen (€)</Label>
-                    <Input
-                      id="nettoeinkommen"
-                      type="text"
-                      value={profileData.nettoeinkommen ? new Intl.NumberFormat('de-DE').format(parseInt(profileData.nettoeinkommen) || 0) : ''}
-                      onChange={(e) => {
-                        // Remove all non-digits and convert back to number string
-                        const numericValue = e.target.value.replace(/\D/g, '');
-                        setProfileData(prev => ({ ...prev, nettoeinkommen: numericValue }));
-                      }}
-                      placeholder="z.B. 3.500"
-                    />
-                  </div>
-                </div>
-                
-                <Button type="submit" disabled={loading}>
-                  {loading ? 'Speichern...' : 'Profil speichern'}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-
-          {/* Document Upload Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Dokumente</CardTitle>
-              <CardDescription>
-                Laden Sie Ihre benötigten Dokumente hoch
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {['gehaltsnachweis', 'kontoauszug', 'personalausweis'].map((docType) => (
-                <div key={docType} className="space-y-2">
-                  <h4 className="font-medium">{getDocumentTypeLabel(docType)}</h4>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Label htmlFor={`doc-${docType}`} className="cursor-pointer">
+                    <Label htmlFor="profile-image" className="cursor-pointer">
                       <Button variant="outline" asChild>
                         <span>
                           <Upload className="h-4 w-4 mr-2" />
-                          Dokument hochladen
+                          Profilbild hochladen
                         </span>
                       </Button>
                     </Label>
                     <Input
-                      id={`doc-${docType}`}
+                      id="profile-image"
                       type="file"
-                      accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                      onChange={(e) => handleDocumentUpload(e, docType)}
+                      accept="image/*"
+                      onChange={handleImageUpload}
                       className="hidden"
                     />
                   </div>
-                  
-                  <div className="space-y-2">
-                    {documents
-                      .filter(doc => doc.document_type === docType)
-                      .map((doc) => (
-                        <div key={doc.id} className="flex items-center justify-between p-2 border rounded">
-                          <div className="flex items-center space-x-2">
-                            <FileText className="h-4 w-4" />
-                            <span className="text-sm">{doc.file_name}</span>
-                            <span className="text-xs text-muted-foreground">
-                              {new Date(doc.uploaded_at).toLocaleDateString()}
-                            </span>
-                          </div>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDocumentDelete(doc.id, doc.file_path)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
-                  </div>
-                  
-                  {docType !== 'personalausweis' && <Separator />}
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
 
-          {/* Property Applications Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Meine Immobilienbewerbungen</CardTitle>
-              <CardDescription>
-                Hier sehen Sie alle Ihre Bewerbungen für Immobilien
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {applications.length === 0 ? (
-                <p className="text-muted-foreground">Sie haben noch keine Bewerbungen eingereicht.</p>
-              ) : (
-                <div className="space-y-4">
-                  {applications.map((application) => (
-                    <div key={application.id} className="border rounded-lg p-4 space-y-3">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h4 className="font-medium">{application.property?.title}</h4>
-                          <p className="text-sm text-muted-foreground">
-                            {application.property?.address}
-                            {application.property?.city && `, ${application.property.city.name}`}
-                          </p>
-                        </div>
-                        <div className={`px-2 py-1 rounded-full text-xs font-medium ${getApplicationStatusColor(application.status)}`}>
-                          {getApplicationStatusLabel(application.status)}
-                        </div>
+              {/* Profile Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Persönliche Informationen</CardTitle>
+                  <CardDescription>
+                    Aktualisieren Sie Ihre persönlichen Daten
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleProfileUpdate} className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="firstName">Vorname</Label>
+                        <Input
+                          id="firstName"
+                          value={profileData.first_name}
+                          onChange={(e) => setProfileData(prev => ({ ...prev, first_name: e.target.value }))}
+                        />
                       </div>
                       
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                        <div>
-                          <span className="text-muted-foreground">Bewerbung vom:</span>
-                          <p className="font-medium">
-                            {new Date(application.created_at).toLocaleDateString('de-DE')}
-                          </p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Gewünschter Einzug:</span>
-                          <p className="font-medium">
-                            {new Date(application.einzugsdatum).toLocaleDateString('de-DE')}
-                          </p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Nettoeinkommen:</span>
-                          <p className="font-medium">
-                            {new Intl.NumberFormat('de-DE', {
-                              style: 'currency',
-                              currency: 'EUR',
-                              minimumFractionDigits: 0,
-                            }).format(application.nettoeinkommen)}
-                          </p>
-                        </div>
+                      <div>
+                        <Label htmlFor="lastName">Nachname</Label>
+                        <Input
+                          id="lastName"
+                          value={profileData.last_name}
+                          onChange={(e) => setProfileData(prev => ({ ...prev, last_name: e.target.value }))}
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="anrede">Anrede</Label>
+                        <Select
+                          value={profileData.anrede}
+                          onValueChange={(value) => setProfileData(prev => ({ ...prev, anrede: value }))}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Anrede wählen" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="herr">Herr</SelectItem>
+                            <SelectItem value="frau">Frau</SelectItem>
+                            <SelectItem value="divers">Divers</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="telefon">Telefonnummer</Label>
+                        <Input
+                          id="telefon"
+                          type="tel"
+                          value={profileData.telefon}
+                          onChange={(e) => setProfileData(prev => ({ ...prev, telefon: e.target.value }))}
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="strasse">Straße</Label>
+                        <Input
+                          id="strasse"
+                          value={profileData.strasse}
+                          onChange={(e) => setProfileData(prev => ({ ...prev, strasse: e.target.value }))}
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="nummer">Hausnummer</Label>
+                        <Input
+                          id="nummer"
+                          value={profileData.nummer}
+                          onChange={(e) => setProfileData(prev => ({ ...prev, nummer: e.target.value }))}
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="plz">PLZ</Label>
+                        <Input
+                          id="plz"
+                          value={profileData.plz}
+                          onChange={(e) => setProfileData(prev => ({ ...prev, plz: e.target.value }))}
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="ort">Ort</Label>
+                        <Input
+                          id="ort"
+                          value={profileData.ort}
+                          onChange={(e) => setProfileData(prev => ({ ...prev, ort: e.target.value }))}
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="staatsangehoerigkeit">Staatsangehörigkeit</Label>
+                        <Input
+                          id="staatsangehoerigkeit"
+                          value={profileData.staatsangehoerigkeit}
+                          onChange={(e) => setProfileData(prev => ({ ...prev, staatsangehoerigkeit: e.target.value }))}
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="geburtsort">Geburtsort</Label>
+                        <Input
+                          id="geburtsort"
+                          value={profileData.geburtsort}
+                          onChange={(e) => setProfileData(prev => ({ ...prev, geburtsort: e.target.value }))}
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="nettoeinkommen">Nettoeinkommen (€)</Label>
+                        <Input
+                          id="nettoeinkommen"
+                          type="text"
+                          value={profileData.nettoeinkommen ? new Intl.NumberFormat('de-DE').format(parseInt(profileData.nettoeinkommen) || 0) : ''}
+                          onChange={(e) => {
+                            // Remove all non-digits and convert back to number string
+                            const numericValue = e.target.value.replace(/\D/g, '');
+                            setProfileData(prev => ({ ...prev, nettoeinkommen: numericValue }));
+                          }}
+                          placeholder="z.B. 3.500"
+                        />
                       </div>
                     </div>
+                    
+                    <Button type="submit" disabled={loading}>
+                      {loading ? 'Speichern...' : 'Profil speichern'}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Right Column - Documents and Applications */}
+            <div className="space-y-6">{/* Document Upload Section */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Dokumente</CardTitle>
+                  <CardDescription>
+                    Laden Sie Ihre benötigten Dokumente hoch
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {['gehaltsnachweis', 'kontoauszug', 'personalausweis'].map((docType) => (
+                    <div key={docType} className="space-y-2">
+                      <h4 className="font-medium">{getDocumentTypeLabel(docType)}</h4>
+                      
+                      <div className="flex items-center space-x-2">
+                        <Label htmlFor={`doc-${docType}`} className="cursor-pointer">
+                          <Button variant="outline" asChild>
+                            <span>
+                              <Upload className="h-4 w-4 mr-2" />
+                              Dokument hochladen
+                            </span>
+                          </Button>
+                        </Label>
+                        <Input
+                          id={`doc-${docType}`}
+                          type="file"
+                          accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                          onChange={(e) => handleDocumentUpload(e, docType)}
+                          className="hidden"
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        {documents
+                          .filter(doc => doc.document_type === docType)
+                          .map((doc) => (
+                            <div key={doc.id} className="flex items-center justify-between p-2 border rounded">
+                              <div className="flex items-center space-x-2">
+                                <FileText className="h-4 w-4" />
+                                <span className="text-sm">{doc.file_name}</span>
+                                <span className="text-xs text-muted-foreground">
+                                  {new Date(doc.uploaded_at).toLocaleDateString()}
+                                </span>
+                              </div>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleDocumentDelete(doc.id, doc.file_path)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ))}
+                      </div>
+                      
+                      {docType !== 'personalausweis' && <Separator />}
+                    </div>
                   ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+
+              {/* Property Applications Section */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Meine Immobilienbewerbungen</CardTitle>
+                  <CardDescription>
+                    Hier sehen Sie alle Ihre Bewerbungen für Immobilien
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {applications.length === 0 ? (
+                    <p className="text-muted-foreground">Sie haben noch keine Bewerbungen eingereicht.</p>
+                  ) : (
+                    <div className="space-y-4">
+                      {applications.map((application) => (
+                        <div key={application.id} className="border rounded-lg p-4 space-y-3">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h4 className="font-medium">{application.property?.title}</h4>
+                              <p className="text-sm text-muted-foreground">
+                                {application.property?.address}
+                                {application.property?.city && `, ${application.property.city.name}`}
+                              </p>
+                            </div>
+                            <div className={`px-2 py-1 rounded-full text-xs font-medium ${getApplicationStatusColor(application.status)}`}>
+                              {getApplicationStatusLabel(application.status)}
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 gap-4 text-sm">
+                            <div>
+                              <span className="text-muted-foreground">Bewerbung vom:</span>
+                              <p className="font-medium">
+                                {new Date(application.created_at).toLocaleDateString('de-DE')}
+                              </p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Gewünschter Einzug:</span>
+                              <p className="font-medium">
+                                {new Date(application.einzugsdatum).toLocaleDateString('de-DE')}
+                              </p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Nettoeinkommen:</span>
+                              <p className="font-medium">
+                                {new Intl.NumberFormat('de-DE', {
+                                  style: 'currency',
+                                  currency: 'EUR',
+                                  minimumFractionDigits: 0,
+                                }).format(application.nettoeinkommen)}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
       </main>
       
