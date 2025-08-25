@@ -972,6 +972,15 @@ const LeadsManagement: React.FC = () => {
                       <div><strong>Datum:</strong> {new Date(selected.created_at).toLocaleString('de-DE')}</div>
                       <div><strong>Immobilie:</strong> {selected.property?.title || 'Allgemein'}</div>
                       <div className="flex items-center gap-2"><strong>Label:</strong> <LeadLabelBadge label={selected.lead_label} /></div>
+                      {/* Document Upload Badge */}
+                      {selected.hasDocuments && (
+                        <div className="flex items-center gap-2">
+                          <strong>Status:</strong> 
+                          <Badge variant="outline" className="text-xs px-2 py-0 bg-purple-50 text-purple-700 border-purple-200">
+                            Bewerbung eingereicht
+                          </Badge>
+                        </div>
+                      )}
                       {(() => { const det = extractDetails(selected.nachricht); return (
                         <>
                           {det['Geburtsdatum'] && <div><strong>Geburtsdatum:</strong> {det['Geburtsdatum']}</div>}
