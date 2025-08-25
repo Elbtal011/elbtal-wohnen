@@ -302,6 +302,7 @@ export type Database = {
           anrede: string | null
           created_at: string
           first_name: string | null
+          geburtsort: string | null
           id: string
           last_name: string | null
           nettoeinkommen: number | null
@@ -319,6 +320,7 @@ export type Database = {
           anrede?: string | null
           created_at?: string
           first_name?: string | null
+          geburtsort?: string | null
           id?: string
           last_name?: string | null
           nettoeinkommen?: number | null
@@ -336,6 +338,7 @@ export type Database = {
           anrede?: string | null
           created_at?: string
           first_name?: string | null
+          geburtsort?: string | null
           id?: string
           last_name?: string | null
           nettoeinkommen?: number | null

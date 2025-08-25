@@ -24,6 +24,7 @@ interface ProfileData {
   plz: string;
   ort: string;
   staatsangehoerigkeit: string;
+  geburtsort: string;
   nettoeinkommen: string;
   profile_image_url: string;
 }
@@ -66,6 +67,7 @@ const UserProfile = () => {
     plz: '',
     ort: '',
     staatsangehoerigkeit: '',
+    geburtsort: '',
     nettoeinkommen: '',
     profile_image_url: '',
   });
@@ -107,6 +109,7 @@ const UserProfile = () => {
           plz: data.plz || '',
           ort: data.ort || '',
           staatsangehoerigkeit: data.staatsangehoerigkeit || '',
+          geburtsort: data.geburtsort || '',
           nettoeinkommen: data.nettoeinkommen?.toString() || '',
           profile_image_url: data.profile_image_url || '',
         });
@@ -507,13 +510,32 @@ const UserProfile = () => {
                   </div>
                   
                   <div>
+                    <Label htmlFor="geburtsort">Geburtsort</Label>
+                    <Input
+                      id="geburtsort"
+                      value={profileData.geburtsort}
+                      onChange={(e) => setProfileData(prev => ({ ...prev, geburtsort: e.target.value }))}
+                    />
+                  </div>
+                  
+                  <div>
                     <Label htmlFor="nettoeinkommen">Nettoeinkommen (€)</Label>
                     <Input
                       id="nettoeinkommen"
                       type="number"
                       value={profileData.nettoeinkommen}
                       onChange={(e) => setProfileData(prev => ({ ...prev, nettoeinkommen: e.target.value }))}
+                      placeholder="z.B. 3.500"
                     />
+                    {profileData.nettoeinkommen && (
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {new Intl.NumberFormat('de-DE', {
+                          style: 'currency',
+                          currency: 'EUR',
+                          minimumFractionDigits: 0,
+                        }).format(parseInt(profileData.nettoeinkommen) || 0)}
+                      </p>
+                    )}
                   </div>
                 </div>
                 
