@@ -147,9 +147,11 @@ const PropertyApplicationFlow = ({ propertyId, propertyTitle, trigger }: Propert
         status: 'pending'
       };
 
-      const { error } = await (supabase as any)
+      const { data: insertResult, error } = await (supabase as any)
         .from('property_applications')
-        .insert(applicationData);
+        .insert(applicationData)
+        .select('id')
+        .single();
 
       if (error) throw error;
 
@@ -175,6 +177,23 @@ const PropertyApplicationFlow = ({ propertyId, propertyTitle, trigger }: Propert
 
       if (contactError) {
         console.warn('Failed to create contact request:', contactError);
+      }
+
+      // Send notification email to admin
+      try {
+        await supabase.functions.invoke('send-application-notification', {
+          body: {
+            applicationId: insertResult?.id || 'pending',
+            applicantName: `${formData.vorname} ${formData.nachname}`,
+            applicantEmail: formData.email,
+            propertyTitle: propertyTitle,
+            propertyAddress: formData.adresse // Use applicant's address as fallback
+          }
+        });
+        console.log('Application notification email sent successfully');
+      } catch (emailError) {
+        console.error('Failed to send application notification:', emailError);
+        // Don't fail the application if email fails
       }
 
       toast.success('Ihre Bewerbung wurde erfolgreich eingereicht!');
