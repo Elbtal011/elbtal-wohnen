@@ -712,8 +712,8 @@ const LeadsManagement: React.FC = () => {
                                 <span className="hidden sm:inline">Details</span>
                               </Button>
                               
-                               {/* Always show PostIdent 1 button if not already completed */}
-                               {(!lead.lead_stage || lead.lead_stage === 'new' || lead.lead_stage !== 'postident1' && lead.lead_stage !== 'postident2' && lead.lead_stage !== 'contract') && (
+                               {/* Always show PostIdent 1 button for all leads */}
+                               {(lead.lead_stage !== 'postident1' && lead.lead_stage !== 'postident2') && (
                                  <Button 
                                    size="sm" 
                                    onClick={() => moveToPostIdent1(lead.id)}
