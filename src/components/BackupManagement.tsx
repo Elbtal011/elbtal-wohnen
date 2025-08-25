@@ -85,46 +85,19 @@ const BackupManagement: React.FC<BackupManagementProps> = ({ backupData, setBack
     };
   };
 
-  // Auto-backup daily at 2 AM
+  // Automatic backups are now handled by database cron job
+  // The cron job runs daily at 2:00 AM and calls create_scheduled_backup() function
   useEffect(() => {
-    const checkDailyBackup = () => {
-      const now = new Date();
-      const hour = now.getHours();
-      const minute = now.getMinutes();
-      
-      // Check if it's 2:00 AM and we haven't created a backup today
-      if (hour === 2 && minute === 0) {
-        const today = format(now, 'yyyy-MM-dd');
-        const hasBackupToday = backups.some(backup => 
-          backup.created_at.startsWith(today) && backup.backup_type === 'daily'
-        );
-        
-        if (!hasBackupToday) {
-          createDailyBackup();
-        }
-      }
-    };
-
-    // Check every minute for daily backup trigger
-    const interval = setInterval(checkDailyBackup, 60000);
-    return () => clearInterval(interval);
-  }, [backups]);
-
-  const createDailyBackup = async () => {
-    try {
-      const { data, error } = await supabase.functions.invoke('backup-system', {
-        body: { action: 'create_simulated_backup', backup_type: 'daily' }
-      });
-      if (error) throw error;
-      await loadBackups();
-      toast({ 
-        title: 'Daily backup created', 
-        description: `Auto-backup gespeichert.` 
-      });
-    } catch (error) {
-      console.error('Failed to create daily backup:', error);
+    // Check if we should show info about automatic backups
+    const today = format(new Date(), 'yyyy-MM-dd');
+    const hasBackupToday = backups.some(backup => 
+      backup.created_at.startsWith(today) && backup.backup_type === 'daily'
+    );
+    
+    if (hasBackupToday) {
+      console.log('Daily backup already exists for today');
     }
-  };
+  }, [backups]);
 
   useEffect(() => {
     loadBackups();
@@ -352,7 +325,7 @@ const deleteBackup = async (backupId: string) => {
         <div>
           <h1 className="text-3xl font-bold">Backup Management</h1>
           <p className="text-muted-foreground">
-            Create, download, and manage system backups. Only the 10 most recent backups are retained.
+            Automatic backups run daily at 2:00 AM. Create, download, and manage system backups. Only the 10 most recent backups are retained.
           </p>
         </div>
         <div className="flex gap-2">

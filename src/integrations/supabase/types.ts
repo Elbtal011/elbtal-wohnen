@@ -665,6 +665,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      create_scheduled_backup: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       get_contact_requests_secure: {
         Args: { admin_token: string }
         Returns: {
