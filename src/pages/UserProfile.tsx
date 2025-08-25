@@ -133,7 +133,7 @@ const UserProfile = () => {
 
   const fetchApplications = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('property_applications')
         .select(`
           *,
