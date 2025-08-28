@@ -540,7 +540,7 @@ serve(async (req) => {
         if (insertErr) throw insertErr
 
         return new Response(
-          JSON.stringify({ request: newRequest }),
+          JSON.stringify({ request: newRequest, contact_request_id: newRequest.id }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 201 }
         )
       }

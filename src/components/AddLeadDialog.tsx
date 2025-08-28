@@ -4,8 +4,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { Upload, X, FileText } from 'lucide-react';
 
 interface AddLeadDialogProps {
   open: boolean;
@@ -41,6 +43,9 @@ const AddLeadDialog: React.FC<AddLeadDialogProps> = ({ open, onOpenChange, avail
   const [leadLabel, setLeadLabel] = useState<string>('none');
   const [freieNachricht, setFreieNachricht] = useState('');
   const [deineNachricht, setDeineNachricht] = useState('');
+  const [iban, setIban] = useState('');
+  const [amount, setAmount] = useState('');
+  const [documents, setDocuments] = useState<File[]>([]);
 
   const labels = useMemo(() => Array.from(new Set(availableLabels)), [availableLabels]);
 
@@ -62,6 +67,67 @@ const AddLeadDialog: React.FC<AddLeadDialogProps> = ({ open, onOpenChange, avail
     setLeadLabel('none');
     setFreieNachricht('');
     setDeineNachricht('');
+    setIban('');
+    setAmount('');
+    setDocuments([]);
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'application/pdf'];
+    const validFiles = files.filter(file => validTypes.includes(file.type));
+    
+    if (validFiles.length !== files.length) {
+      toast({
+        title: 'Ungültige Dateitypen',
+        description: 'Nur PNG, JPG und PDF Dateien sind erlaubt.',
+        variant: 'destructive'
+      });
+    }
+    
+    setDocuments(prev => [...prev, ...validFiles]);
+    e.target.value = '';
+  };
+
+  const removeDocument = (index: number) => {
+    setDocuments(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const uploadDocuments = async (contactRequestId: string) => {
+    const uploadedDocs = [];
+    
+    for (const file of documents) {
+      const fileName = `${Date.now()}-${file.name}`;
+      const filePath = `${contactRequestId}/${fileName}`;
+      
+      const { data, error } = await supabase.storage
+        .from('lead-documents')
+        .upload(filePath, file);
+        
+      if (error) {
+        console.error('Upload error:', error);
+        continue;
+      }
+      
+      const { error: dbError } = await supabase
+        .from('lead_documents')
+        .insert({
+          contact_request_id: contactRequestId,
+          document_type: file.type.includes('pdf') ? 'other' : 'id',
+          file_name: file.name,
+          file_path: filePath,
+          file_size: file.size,
+          content_type: file.type
+        });
+        
+      if (dbError) {
+        console.error('DB insert error:', dbError);
+      } else {
+        uploadedDocs.push(file.name);
+      }
+    }
+    
+    return uploadedDocs;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -71,7 +137,7 @@ const AddLeadDialog: React.FC<AddLeadDialogProps> = ({ open, onOpenChange, avail
       const token = localStorage.getItem('adminToken');
       if (!token) throw new Error('Kein Admin-Token gefunden');
 
-      const combinedNachricht = `${deineNachricht}\n\nGeburtsort: ${geburtsort}\nStaatsangehörigkeit: ${staatsangehoerigkeit}\nGeburtsdatum: ${geburtsdatum}\nEinzugsdatum: ${einzugsdatum}\nNettoeinkommen: ${nettoeinkommen}${freieNachricht ? `\n\n${freieNachricht}` : ''}`;
+      const combinedNachricht = `${deineNachricht}\n\nGeburtsort: ${geburtsort}\nStaatsangehörigkeit: ${staatsangehoerigkeit}\nGeburtsdatum: ${geburtsdatum}\nEinzugsdatum: ${einzugsdatum}\nNettoeinkommen: ${nettoeinkommen}${iban ? `\nIBAN: ${iban}` : ''}${amount ? `\nBetrag: ${amount}€` : ''}${freieNachricht ? `\n\n${freieNachricht}` : ''}`;
 
       const payload = {
         action: 'create_contact_request',
@@ -94,7 +160,25 @@ const AddLeadDialog: React.FC<AddLeadDialogProps> = ({ open, onOpenChange, avail
       });
       if (error) throw error;
 
-      toast({ title: 'Lead erstellt', description: `${vorname} ${nachname} wurde hinzugefügt.` });
+      // Upload documents if any
+      if (documents.length > 0 && data?.contact_request_id) {
+        const uploadedDocs = await uploadDocuments(data.contact_request_id);
+        if (uploadedDocs.length > 0) {
+          toast({
+            title: 'Lead und Dokumente erstellt',
+            description: `${vorname} ${nachname} wurde hinzugefügt mit ${uploadedDocs.length} Dokumenten.`
+          });
+        } else {
+          toast({
+            title: 'Lead erstellt',
+            description: `${vorname} ${nachname} wurde hinzugefügt, aber Dokumente konnten nicht hochgeladen werden.`,
+            variant: 'destructive'
+          });
+        }
+      } else {
+        toast({ title: 'Lead erstellt', description: `${vorname} ${nachname} wurde hinzugefügt.` });
+      }
+      
       onOpenChange(false);
       reset();
       onCreated?.();
@@ -210,6 +294,17 @@ const AddLeadDialog: React.FC<AddLeadDialogProps> = ({ open, onOpenChange, avail
             </div>
           </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-1 block">IBAN</label>
+              <Input value={iban} onChange={(e) => setIban(e.target.value)} placeholder="DE89 3704 0044 0532 0130 00" />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-1 block">Betrag (€)</label>
+              <Input type="number" min={0} step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" />
+            </div>
+          </div>
+
           <div>
             <label className="text-sm font-medium text-gray-700 mb-1 block">Deine Nachricht *</label>
             <Textarea placeholder="Beschreiben Sie Ihr Anliegen..." value={deineNachricht} onChange={(e) => setDeineNachricht(e.target.value)} rows={4} required />
@@ -219,6 +314,65 @@ const AddLeadDialog: React.FC<AddLeadDialogProps> = ({ open, onOpenChange, avail
             <label className="text-sm font-medium text-gray-700 mb-1 block">Freitext (optional)</label>
             <Textarea placeholder="Zusätzliche Informationen..." value={freieNachricht} onChange={(e) => setFreieNachricht(e.target.value)} rows={3} />
           </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Dokumente hochladen</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <div className="text-sm text-gray-600 mb-2">
+                  Klicken Sie hier oder ziehen Sie Dateien hierher
+                </div>
+                <div className="text-xs text-gray-500 mb-4">
+                  Unterstützte Formate: PNG, JPG, PDF (max. 10MB pro Datei)
+                </div>
+                <input
+                  type="file"
+                  multiple
+                  accept=".png,.jpg,.jpeg,.pdf"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                  id="document-upload"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => document.getElementById('document-upload')?.click()}
+                >
+                  Dateien auswählen
+                </Button>
+              </div>
+
+              {documents.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="font-medium text-sm">Ausgewählte Dateien ({documents.length})</h4>
+                  {documents.map((file, index) => (
+                    <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <FileText className="h-5 w-5 text-blue-500" />
+                        <div>
+                          <div className="text-sm font-medium">{file.name}</div>
+                          <div className="text-xs text-gray-500">
+                            {(file.size / 1024 / 1024).toFixed(2)} MB
+                          </div>
+                        </div>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeDocument(index)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => { reset(); onOpenChange(false); }}>Abbrechen</Button>
