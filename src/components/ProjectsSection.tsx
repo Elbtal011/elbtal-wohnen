@@ -9,7 +9,7 @@ export const ProjectsSection = () => {
           <div className="max-w-5xl mx-auto">
             <p className="text-lg text-muted-foreground leading-relaxed mb-8">
               Sie suchen ein erstklassiges Immobilienobjekt, vertrauen langjähriger Erfahrung und umfassendem Wissen mit hohem Qualitätsbewusstsein? 
-              Dann sind Sie bei uns genau richtig. Wir stellen vor. Die Berlinhaus GmbH entwickelt Einzelhandels- und Büroflächen, Hotels, Ärztehäuser und Wohnimmobilien. 
+              Dann sind Sie bei uns genau richtig. Wir stellen vor. Die Amiel Immobilienverwaltung GmbH entwickelt Einzelhandels- und Büroflächen, Hotels, Ärztehäuser und Wohnimmobilien. 
             </p>
             <p className="text-lg text-muted-foreground leading-relaxed">
               Die Ansprüche an den Lebensraum entwickeln sich beständig weiter, innovative Lösungen sind gefragt. Auch modernes Arbeiten braucht ihre passenden Räume. 
