@@ -95,7 +95,7 @@ const Impressum = () => {
               <CardContent className="space-y-4">
                 <div>
                   <p className="font-medium">Telefon</p>
-                  <p className="text-muted-foreground">+49 89 123 456 789</p>
+                  <p className="text-muted-foreground">+49 089 244 108 610</p>
                 </div>
 
                 <div>

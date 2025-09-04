@@ -26,7 +26,7 @@ const Contact = () => {
     {
       icon: Phone,
       title: "Telefon",
-      details: ["+49 351 123 456 789"],
+      details: ["+49 089 244 108 610"],
       description: "Mo-Fr: 9:00-18:00 Uhr, Sa: 9:00-14:00 Uhr"
     },
     {

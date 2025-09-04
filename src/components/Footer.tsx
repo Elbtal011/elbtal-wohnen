@@ -47,7 +47,7 @@ export const Footer = () => {
                 <span>Leuchtenbergring 54<br />81677 München</span>
               </div>
               <div>
-                <span>+49 351 123 456 789</span>
+                <span>+49 089 244 108 610</span>
               </div>
               <div>
                 <span>info@amiel-immobilienverwaltung.de</span>

@@ -260,7 +260,7 @@ const Vermietungsablauf = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" variant="default">
                 <Phone className="h-5 w-5 mr-2" />
-                +49 351 123 456 789
+                +49 089 244 108 610
               </Button>
               <Button size="lg" variant="outline">
                 <Mail className="h-5 w-5 mr-2" />

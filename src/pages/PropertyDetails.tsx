@@ -335,7 +335,7 @@ const PropertyDetails = () => {
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center justify-between">
                     <span className="text-muted-foreground">Telefon:</span>
-                    <span className="font-medium">+49 351 123 456 789</span>
+                    <span className="font-medium">+49 089 244 108 610</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-muted-foreground">E-Mail:</span>
