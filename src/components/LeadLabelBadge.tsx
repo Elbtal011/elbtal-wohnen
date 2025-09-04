@@ -15,6 +15,7 @@ const labelVariantMap: Record<string, BadgeProps["variant"]> = {
   "Unterlagen erhalten - PI senden": "success",          // green
   "Besichtigung vereinbaren": "secondary",               // neutral
   "Hot Lead": "destructive",                             // red
+  "Property Application": "default",                     // primary
 };
 
 const LeadLabelBadge: React.FC<LeadLabelBadgeProps> = ({ label, className }) => {

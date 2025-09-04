@@ -89,7 +89,8 @@ const DEFAULT_LABELS = [
   'PI 2 erstellt',
   'Unterlagen erhalten - PI senden',
   'Besichtigung vereinbaren',
-  'Hot Lead'
+  'Hot Lead',
+  'Property Application'
 ];
 
 const LeadsManagement: React.FC = () => {
@@ -205,7 +206,11 @@ const LeadsManagement: React.FC = () => {
 
   const uniqueLabels = useMemo(() => {
     const set = new Set<string>();
-    leads.forEach(l => { if (l.lead_label) set.add(l.lead_label); });
+    leads.forEach(l => { 
+      if (l.lead_label && DEFAULT_LABELS.includes(l.lead_label)) {
+        set.add(l.lead_label); 
+      }
+    });
     return Array.from(set);
   }, [leads]);
 
@@ -775,12 +780,12 @@ const LeadsManagement: React.FC = () => {
                                <SelectTrigger className="h-7 text-xs px-2 w-auto min-w-[80px]">
                                  <SelectValue placeholder="Label" />
                                </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="none">Ohne Label</SelectItem>
-                                {Array.from(new Set([...DEFAULT_LABELS, ...uniqueLabels])).map(l => (
-                                  <SelectItem key={l} value={l}>{l}</SelectItem>
-                                ))}
-                              </SelectContent>
+                               <SelectContent>
+                                 <SelectItem value="none">Ohne Label</SelectItem>
+                                 {DEFAULT_LABELS.map(l => (
+                                   <SelectItem key={l} value={l}>{l}</SelectItem>
+                                 ))}
+                               </SelectContent>
                             </Select>
                           </div>
                         </TableCell>
