@@ -587,9 +587,9 @@ const LeadsManagement: React.FC = () => {
             <SelectContent>
               <SelectItem value="all">Alle Labels</SelectItem>
               <SelectItem value="__none__">Ohne Label</SelectItem>
-              {uniqueLabels.map(l => (
-                <SelectItem key={l} value={l}>{l}</SelectItem>
-              ))}
+               {DEFAULT_LABELS.map(l => (
+                 <SelectItem key={l} value={l}>{l}</SelectItem>
+               ))}
             </SelectContent>
           </Select>
           <Popover>
@@ -777,9 +777,9 @@ const LeadsManagement: React.FC = () => {
                                </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="none">Ohne Label</SelectItem>
-                                {Array.from(new Set([...DEFAULT_LABELS, ...uniqueLabels])).map(l => (
-                                  <SelectItem key={l} value={l}>{l}</SelectItem>
-                                ))}
+                                 {DEFAULT_LABELS.map(l => (
+                                   <SelectItem key={l} value={l}>{l}</SelectItem>
+                                 ))}
                               </SelectContent>
                             </Select>
                           </div>
@@ -1147,7 +1147,7 @@ const LeadsManagement: React.FC = () => {
       <AddLeadDialog
         open={openAdd}
         onOpenChange={setOpenAdd}
-        availableLabels={Array.from(new Set([...DEFAULT_LABELS, ...uniqueLabels]))}
+        availableLabels={DEFAULT_LABELS}
         onCreated={fetchLeads}
       />
     </div>
