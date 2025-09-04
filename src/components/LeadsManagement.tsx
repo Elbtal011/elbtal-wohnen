@@ -83,18 +83,13 @@ interface UserDocument {
 }
 
 const DEFAULT_LABELS = [
-  'Cold', 
+  'Kalt',
   'Warm', 
-  'Hot Lead', 
-  'VIP', 
-  'Follow-Up', 
-  'Unqualified', 
-  'Converted',
-  'Auf Unterlagen warten',
-  'Unterlagen erhalten - Kunde wartet auf PI',
-  'Vertrag erstellen',
-  'Besichtigungstermin vereinbaren',
-  'Keine Rückmeldung'
+  'PI 1 erstellt',
+  'PI 2 erstellt',
+  'Unterlagen erhalten - PI senden',
+  'Besichtigung vereinbaren',
+  'Hot Lead'
 ];
 
 const LeadsManagement: React.FC = () => {

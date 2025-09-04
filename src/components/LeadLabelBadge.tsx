@@ -8,18 +8,13 @@ interface LeadLabelBadgeProps {
 
 // Map labels to semantic badge variants using design tokens
 const labelVariantMap: Record<string, BadgeProps["variant"]> = {
-  "Cold": "info",                                        // blue
-  "Hot Lead": "destructive",                             // red
+  "Kalt": "info",                                        // blue
   "Warm": "warning",                                     // yellow
-  "VIP": "orange",                                       // orange
-  "Converted": "success",                                // green
-  "Follow-Up": "purple",                                 // purple
-  "Unqualified": "secondary",                            // neutral
-  "Auf Unterlagen warten": "warning",                    // yellow
-  "Unterlagen erhalten - Kunde wartet auf PI": "info",  // blue
-  "Vertrag erstellen": "purple",                         // purple
-  "Besichtigungstermin vereinbaren": "orange",           // orange
-  "Keine Rückmeldung": "destructive",                    // red
+  "PI 1 erstellt": "purple",                             // purple
+  "PI 2 erstellt": "orange",                             // orange
+  "Unterlagen erhalten - PI senden": "success",          // green
+  "Besichtigung vereinbaren": "secondary",               // neutral
+  "Hot Lead": "destructive",                             // red
 };
 
 const LeadLabelBadge: React.FC<LeadLabelBadgeProps> = ({ label, className }) => {
