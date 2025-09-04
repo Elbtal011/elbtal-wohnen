@@ -43,6 +43,7 @@ interface LeadDocument {
   file_size: number;
   document_type: string;
   created_at: string;
+  signed_url?: string;
 }
 
 const ContactRequestsManagement = () => {
@@ -176,14 +177,17 @@ const ContactRequestsManagement = () => {
 
   const fetchLeadDocuments = async (contactRequestId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('lead_documents')
-        .select('*')
-        .eq('contact_request_id', contactRequestId)
-        .order('created_at', { ascending: false });
+      const token = localStorage.getItem('adminToken');
+      const { data, error } = await supabase.functions.invoke('admin-management', {
+        body: {
+          action: 'get_lead_documents',
+          token,
+          contact_request_id: contactRequestId,
+        }
+      });
 
       if (error) throw error;
-      setLeadDocuments(data || []);
+      setLeadDocuments(data?.documents || []);
     } catch (error) {
       console.error('Error fetching lead documents:', error);
     }
@@ -223,36 +227,37 @@ const ContactRequestsManagement = () => {
     setSelectedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
+  const fileToBase64 = (file: File) => new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      const base64 = result.split(',')[1] || result; // strip data URL prefix
+      resolve(base64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+
   const uploadDocuments = async () => {
     if (!selectedRequest || selectedFiles.length === 0) return;
 
     setIsUploading(true);
     try {
+      const token = localStorage.getItem('adminToken');
+
       for (const file of selectedFiles) {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${selectedRequest.id}/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-
-        // Upload file to storage
-        const { error: uploadError } = await supabase.storage
-          .from('lead-documents')
-          .upload(fileName, file);
-
-        if (uploadError) throw uploadError;
-
-        // Save document metadata
-        const { error: dbError } = await supabase
-          .from('lead_documents')
-          .insert({
+        const base64 = await fileToBase64(file);
+        const { error } = await supabase.functions.invoke('admin-management', {
+          body: {
+            action: 'upload_lead_document',
+            token,
             contact_request_id: selectedRequest.id,
             file_name: file.name,
-            file_path: fileName,
             content_type: file.type,
-            file_size: file.size,
-            document_type: getDocumentType(file.type),
-            uploaded_by: null // admin upload
-          });
-
-        if (dbError) throw dbError;
+            file_base64: base64,
+          }
+        });
+        if (error) throw error;
       }
 
       toast({
@@ -276,20 +281,16 @@ const ContactRequestsManagement = () => {
 
   const deleteDocument = async (documentId: string, filePath: string) => {
     try {
-      // Delete from storage
-      const { error: storageError } = await supabase.storage
-        .from('lead-documents')
-        .remove([filePath]);
-
-      if (storageError) throw storageError;
-
-      // Delete from database
-      const { error: dbError } = await supabase
-        .from('lead_documents')
-        .delete()
-        .eq('id', documentId);
-
-      if (dbError) throw dbError;
+      const token = localStorage.getItem('adminToken');
+      const { error } = await supabase.functions.invoke('admin-management', {
+        body: {
+          action: 'delete_lead_document',
+          token,
+          id: documentId,
+          file_path: filePath,
+        }
+      });
+      if (error) throw error;
 
       toast({
         title: "Dokument gelöscht",
