@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, ImageIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ImageIcon, X } from 'lucide-react';
 import { Button } from './ui/button';
+import { Dialog, DialogContent, DialogTrigger } from './ui/dialog';
 
 interface PropertyImageGalleryProps {
   images: string[];
@@ -16,6 +17,7 @@ const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loadingImages, setLoadingImages] = useState<Set<number>>(new Set());
   const [failedImages, setFailedImages] = useState<Set<number>>(new Set());
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // Filter out empty, duplicate, and failed images
   const uniqueImages = images
@@ -73,56 +75,124 @@ const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
   return (
     <div className={`relative ${className}`}>
       {/* Main Image */}
-      <div className="relative h-[400px] rounded-lg overflow-hidden bg-muted">
-        {validImages.length > 0 && (
-          <>
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogTrigger asChild>
+          <div className="relative h-[400px] rounded-lg overflow-hidden bg-muted cursor-pointer group">
+            {validImages.length > 0 && (
+              <>
+                <img
+                  src={validImages[currentValidIndex]}
+                  alt={`${title} - Bild ${currentValidIndex + 1}`}
+                  className="w-full h-full object-cover transition-all duration-300 group-hover:scale-105"
+                  onLoadStart={() => handleImageLoadStart(currentValidIndex)}
+                  onLoad={() => handleImageLoad(currentValidIndex)}
+                  onError={() => handleImageError(currentValidIndex)}
+                />
+                
+                {/* Hover overlay */}
+                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                  <div className="bg-white/90 text-black px-4 py-2 rounded-lg text-sm font-medium">
+                    Klicken für Vollbild
+                  </div>
+                </div>
+            
+                {loadingImages.has(currentValidIndex) && (
+                  <div className="absolute inset-0 bg-muted animate-pulse flex items-center justify-center">
+                    <ImageIcon className="h-16 w-16 text-muted-foreground" />
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* Navigation Buttons */}
+            {validImages.length > 1 && (
+              <>
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white shadow-lg z-10"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handlePrevious();
+                  }}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white shadow-lg z-10"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleNext();
+                  }}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </>
+            )}
+
+            {/* Image Counter */}
+            {validImages.length > 1 && (
+              <div className="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm z-10">
+                {currentValidIndex + 1} / {validImages.length}
+              </div>
+            )}
+          </div>
+        </DialogTrigger>
+
+        {/* Full-size Dialog */}
+        <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 border-0 bg-black/95">
+          <div className="relative w-full h-full flex items-center justify-center">
             <img
               src={validImages[currentValidIndex]}
               alt={`${title} - Bild ${currentValidIndex + 1}`}
-              className="w-full h-full object-cover transition-opacity duration-300"
-              onLoadStart={() => handleImageLoadStart(currentValidIndex)}
-              onLoad={() => handleImageLoad(currentValidIndex)}
-              onError={() => handleImageError(currentValidIndex)}
+              className="max-w-full max-h-[90vh] object-contain"
             />
             
-            {loadingImages.has(currentValidIndex) && (
-              <div className="absolute inset-0 bg-muted animate-pulse flex items-center justify-center">
-                <ImageIcon className="h-16 w-16 text-muted-foreground" />
+            {/* Navigation in fullscreen */}
+            {validImages.length > 1 && (
+              <>
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white border-white/20"
+                  onClick={handlePrevious}
+                >
+                  <ChevronLeft className="h-6 w-6" />
+                </Button>
+                
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white border-white/20"
+                  onClick={handleNext}
+                >
+                  <ChevronRight className="h-6 w-6" />
+                </Button>
+              </>
+            )}
+
+            {/* Image counter in fullscreen */}
+            {validImages.length > 1 && (
+              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-full text-sm">
+                {currentValidIndex + 1} / {validImages.length}
               </div>
             )}
-          </>
-        )}
 
-        {/* Navigation Buttons */}
-        {validImages.length > 1 && (
-          <>
+            {/* Close button */}
             <Button
               variant="secondary"
               size="icon"
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white shadow-lg"
-              onClick={handlePrevious}
+              className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 text-white border-white/20"
+              onClick={() => setIsDialogOpen(false)}
             >
-              <ChevronLeft className="h-4 w-4" />
+              <X className="h-6 w-6" />
             </Button>
-            
-            <Button
-              variant="secondary"
-              size="icon"
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white shadow-lg"
-              onClick={handleNext}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </>
-        )}
-
-        {/* Image Counter */}
-        {validImages.length > 1 && (
-          <div className="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm">
-            {currentValidIndex + 1} / {validImages.length}
           </div>
-        )}
-      </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Thumbnail Strip */}
       {validImages.length > 1 && (
