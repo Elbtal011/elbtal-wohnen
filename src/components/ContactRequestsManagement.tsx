@@ -6,12 +6,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Mail, Phone, MapPin, Calendar, Building2, Eye, Trash2, ChevronLeft, ChevronRight, Upload, FileText, X, Save } from 'lucide-react';
+import { Mail, Phone, MapPin, Calendar, Building2, Eye, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface ContactRequest {
   id: string;
@@ -27,23 +24,10 @@ interface ContactRequest {
   nachricht: string;
   status: 'new' | 'in_progress' | 'completed' | 'archived';
   created_at: string;
-  lead_label?: string;
-  lead_stage?: string;
   property?: {
     title: string;
     address: string;
   };
-}
-
-interface LeadDocument {
-  id: string;
-  file_name: string;
-  file_path: string;
-  content_type: string;
-  file_size: number;
-  document_type: string;
-  created_at: string;
-  signed_url?: string;
 }
 
 const ContactRequestsManagement = () => {
@@ -52,11 +36,6 @@ const ContactRequestsManagement = () => {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedRequest, setSelectedRequest] = useState<ContactRequest | null>(null);
-  const [editedRequest, setEditedRequest] = useState<ContactRequest | null>(null);
-  const [leadDocuments, setLeadDocuments] = useState<LeadDocument[]>([]);
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const { toast } = useToast();
   
@@ -168,188 +147,9 @@ const ContactRequestsManagement = () => {
     }
   };
 
-  const handleViewRequest = async (request: ContactRequest) => {
+  const handleViewRequest = (request: ContactRequest) => {
     setSelectedRequest(request);
-    setEditedRequest({ ...request });
     setViewDialogOpen(true);
-    await fetchLeadDocuments(request.id);
-  };
-
-  const fetchLeadDocuments = async (contactRequestId: string) => {
-    try {
-      const token = localStorage.getItem('adminToken');
-      const { data, error } = await supabase.functions.invoke('admin-management', {
-        body: {
-          action: 'get_lead_documents',
-          token,
-          contact_request_id: contactRequestId,
-        }
-      });
-
-      if (error) throw error;
-      setLeadDocuments(data?.documents || []);
-    } catch (error) {
-      console.error('Error fetching lead documents:', error);
-    }
-  };
-
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files) return;
-
-    const validFiles: File[] = [];
-    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
-
-    Array.from(files).forEach(file => {
-      if (allowedTypes.includes(file.type)) {
-        if (file.size <= 10 * 1024 * 1024) { // 10MB limit
-          validFiles.push(file);
-        } else {
-          toast({
-            title: "Datei zu groß",
-            description: `${file.name} ist größer als 10MB.`,
-            variant: "destructive"
-          });
-        }
-      } else {
-        toast({
-          title: "Dateityp nicht unterstützt",
-          description: `${file.name} ist kein unterstützter Dateityp.`,
-          variant: "destructive"
-        });
-      }
-    });
-
-    setSelectedFiles(prev => [...prev, ...validFiles]);
-  };
-
-  const removeSelectedFile = (index: number) => {
-    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const fileToBase64 = (file: File) => new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      const base64 = result.split(',')[1] || result; // strip data URL prefix
-      resolve(base64);
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-
-  const uploadDocuments = async () => {
-    if (!selectedRequest || selectedFiles.length === 0) return;
-
-    setIsUploading(true);
-    try {
-      const token = localStorage.getItem('adminToken');
-
-      for (const file of selectedFiles) {
-        const base64 = await fileToBase64(file);
-        const { error } = await supabase.functions.invoke('admin-management', {
-          body: {
-            action: 'upload_lead_document',
-            token,
-            contact_request_id: selectedRequest.id,
-            file_name: file.name,
-            content_type: file.type,
-            file_base64: base64,
-          }
-        });
-        if (error) throw error;
-      }
-
-      toast({
-        title: "Dokumente hochgeladen",
-        description: `${selectedFiles.length} Dokument(e) erfolgreich hochgeladen.`,
-      });
-
-      setSelectedFiles([]);
-      await fetchLeadDocuments(selectedRequest.id);
-    } catch (error) {
-      console.error('Error uploading documents:', error);
-      toast({
-        title: "Fehler beim Hochladen",
-        description: "Dokumente konnten nicht hochgeladen werden.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const deleteDocument = async (documentId: string, filePath: string) => {
-    try {
-      const token = localStorage.getItem('adminToken');
-      const { error } = await supabase.functions.invoke('admin-management', {
-        body: {
-          action: 'delete_lead_document',
-          token,
-          id: documentId,
-          file_path: filePath,
-        }
-      });
-      if (error) throw error;
-
-      toast({
-        title: "Dokument gelöscht",
-        description: "Das Dokument wurde erfolgreich entfernt.",
-      });
-
-      if (selectedRequest) {
-        await fetchLeadDocuments(selectedRequest.id);
-      }
-    } catch (error) {
-      console.error('Error deleting document:', error);
-      toast({
-        title: "Fehler",
-        description: "Dokument konnte nicht gelöscht werden.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const getDocumentType = (contentType: string): string => {
-    if (contentType === 'application/pdf') return 'PDF';
-    if (contentType.startsWith('image/')) return 'Bild';
-    return 'Dokument';
-  };
-
-  const saveRequestChanges = async () => {
-    if (!editedRequest) return;
-
-    setIsSaving(true);
-    try {
-      const token = localStorage.getItem('adminToken');
-      const { data } = await supabase.functions.invoke('admin-management', {
-        body: {
-          action: 'update_contact_request',
-          token,
-          id: editedRequest.id,
-          updates: editedRequest
-        }
-      });
-
-      if (data?.success) {
-        toast({
-          title: "Änderungen gespeichert",
-          description: "Die Kontaktanfrage wurde erfolgreich aktualisiert.",
-        });
-        
-        await fetchRequests();
-        setSelectedRequest(editedRequest);
-      }
-    } catch (error) {
-      console.error('Error saving changes:', error);
-      toast({
-        title: "Fehler",
-        description: "Änderungen konnten nicht gespeichert werden.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSaving(false);
-    }
   };
 
   const filteredRequests = filterStatus === 'all' 
@@ -577,313 +377,86 @@ const ContactRequestsManagement = () => {
         </CardContent>
       </Card>
 
-      {/* Edit Request Dialog */}
-      <Dialog open={viewDialogOpen} onOpenChange={(open) => {
-        setViewDialogOpen(open);
-        if (!open) {
-          setSelectedFiles([]);
-          setLeadDocuments([]);
-        }
-      }}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      {/* View Request Dialog */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              Kontaktanfrage bearbeiten
-              <Button
-                onClick={saveRequestChanges}
-                disabled={isSaving}
-                size="sm"
-                className="ml-auto"
-              >
-                <Save className="h-4 w-4 mr-2" />
-                {isSaving ? 'Speichern...' : 'Speichern'}
-              </Button>
-            </DialogTitle>
+            <DialogTitle>Kontaktanfrage Details</DialogTitle>
             <DialogDescription>
-              Bearbeiten Sie die Kontaktanfrage und laden Sie interne Dokumente hoch
+              Vollständige Informationen zur Kontaktanfrage
             </DialogDescription>
           </DialogHeader>
-          
-          {editedRequest && (
+          {selectedRequest && (
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Personal Data */}
                 <div className="space-y-4">
-                  <h4 className="font-semibold">Persönliche Daten</h4>
-                  
-                  <div className="space-y-3">
-                    <div>
-                      <Label htmlFor="anrede">Anrede</Label>
-                      <Select 
-                        value={editedRequest.anrede} 
-                        onValueChange={(value) => setEditedRequest({...editedRequest, anrede: value})}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="herr">Herr</SelectItem>
-                          <SelectItem value="frau">Frau</SelectItem>
-                          <SelectItem value="divers">Divers</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <Label htmlFor="vorname">Vorname</Label>
-                        <Input
-                          id="vorname"
-                          value={editedRequest.vorname}
-                          onChange={(e) => setEditedRequest({...editedRequest, vorname: e.target.value})}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="nachname">Nachname</Label>
-                        <Input
-                          id="nachname"
-                          value={editedRequest.nachname}
-                          onChange={(e) => setEditedRequest({...editedRequest, nachname: e.target.value})}
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label htmlFor="email">E-Mail</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={editedRequest.email}
-                        onChange={(e) => setEditedRequest({...editedRequest, email: e.target.value})}
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="telefon">Telefon</Label>
-                      <Input
-                        id="telefon"
-                        value={editedRequest.telefon}
-                        onChange={(e) => setEditedRequest({...editedRequest, telefon: e.target.value})}
-                      />
+                  <div>
+                    <h4 className="font-semibold mb-2">Persönliche Daten</h4>
+                    <div className="space-y-2 text-sm">
+                      <div><strong>Name:</strong> {selectedRequest.anrede && `${selectedRequest.anrede === 'herr' ? 'Herr' : selectedRequest.anrede === 'frau' ? 'Frau' : 'Divers'} `}{selectedRequest.vorname} {selectedRequest.nachname}</div>
+                      <div><strong>E-Mail:</strong> <a href={`mailto:${selectedRequest.email}`} className="text-primary hover:underline">{selectedRequest.email}</a></div>
+                      <div><strong>Telefon:</strong> <a href={`tel:${selectedRequest.telefon}`} className="text-primary hover:underline">{selectedRequest.telefon}</a></div>
                     </div>
                   </div>
+
+                  {(selectedRequest.strasse || selectedRequest.nummer || selectedRequest.plz || selectedRequest.ort) && (
+                    <div>
+                      <h4 className="font-semibold mb-2">Adresse</h4>
+                      <div className="space-y-1 text-sm">
+                        {selectedRequest.strasse && <div>{selectedRequest.strasse} {selectedRequest.nummer}</div>}
+                        {(selectedRequest.plz || selectedRequest.ort) && (
+                          <div>{selectedRequest.plz} {selectedRequest.ort}</div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {/* Address */}
                 <div className="space-y-4">
-                  <h4 className="font-semibold">Adresse</h4>
-                  
-                  <div className="space-y-3">
-                    <div className="grid grid-cols-3 gap-3">
-                      <div className="col-span-2">
-                        <Label htmlFor="strasse">Straße</Label>
-                        <Input
-                          id="strasse"
-                          value={editedRequest.strasse || ''}
-                          onChange={(e) => setEditedRequest({...editedRequest, strasse: e.target.value})}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="nummer">Nr.</Label>
-                        <Input
-                          id="nummer"
-                          value={editedRequest.nummer || ''}
-                          onChange={(e) => setEditedRequest({...editedRequest, nummer: e.target.value})}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <Label htmlFor="plz">PLZ</Label>
-                        <Input
-                          id="plz"
-                          value={editedRequest.plz || ''}
-                          onChange={(e) => setEditedRequest({...editedRequest, plz: e.target.value})}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="ort">Ort</Label>
-                        <Input
-                          id="ort"
-                          value={editedRequest.ort || ''}
-                          onChange={(e) => setEditedRequest({...editedRequest, ort: e.target.value})}
-                        />
+                  <div>
+                    <h4 className="font-semibold mb-2">Anfrage Details</h4>
+                    <div className="space-y-2 text-sm">
+                      <div><strong>Datum:</strong> {new Date(selectedRequest.created_at).toLocaleDateString('de-DE', { 
+                        day: '2-digit', 
+                        month: '2-digit', 
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}</div>
+                      <div><strong>Status:</strong> 
+                        <Badge variant={getStatusVariant(selectedRequest.status)} className="ml-2">
+                          {getStatusLabel(selectedRequest.status)}
+                        </Badge>
                       </div>
                     </div>
                   </div>
 
-                  {/* Status and Labels */}
-                  <div className="space-y-3 pt-4">
+                  {selectedRequest.property && (
                     <div>
-                      <Label htmlFor="status">Status</Label>
-                      <Select 
-                        value={editedRequest.status} 
-                        onValueChange={(value) => setEditedRequest({...editedRequest, status: value as any})}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="new">Neu</SelectItem>
-                          <SelectItem value="in_progress">In Bearbeitung</SelectItem>
-                          <SelectItem value="completed">Abgeschlossen</SelectItem>
-                          <SelectItem value="archived">Archiviert</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <h4 className="font-semibold mb-2">Immobilie</h4>
+                      <div className="space-y-1 text-sm">
+                        <div><strong>Titel:</strong> {selectedRequest.property.title}</div>
+                        <div><strong>Adresse:</strong> {selectedRequest.property.address}</div>
+                      </div>
                     </div>
-
-                    <div>
-                      <Label htmlFor="lead_label">Lead Label</Label>
-                      <Select 
-                        value={editedRequest.lead_label || ''} 
-                        onValueChange={(value) => setEditedRequest({...editedRequest, lead_label: value})}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Label auswählen" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="">Kein Label</SelectItem>
-                          <SelectItem value="Kalt">Kalt</SelectItem>
-                          <SelectItem value="Warm">Warm</SelectItem>
-                          <SelectItem value="PI 1 erstellt">PI 1 erstellt</SelectItem>
-                          <SelectItem value="PI 2 erstellt">PI 2 erstellt</SelectItem>
-                          <SelectItem value="Unterlagen erhalten - PI senden">Unterlagen erhalten - PI senden</SelectItem>
-                          <SelectItem value="Besichtigung vereinbaren">Besichtigung vereinbaren</SelectItem>
-                          <SelectItem value="Hot Lead">Hot Lead</SelectItem>
-                          <SelectItem value="Property Application">Property Application</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
 
-              {/* Message */}
               <div>
-                <Label htmlFor="nachricht">Nachricht</Label>
-                <Textarea
-                  id="nachricht"
-                  value={editedRequest.nachricht}
-                  onChange={(e) => setEditedRequest({...editedRequest, nachricht: e.target.value})}
-                  rows={4}
-                />
+                <h4 className="font-semibold mb-2">Nachricht</h4>
+                <div className="bg-muted/50 p-4 rounded-lg">
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{selectedRequest.nachricht}</p>
+                </div>
               </div>
 
-              {/* Property Info (if exists) */}
-              {editedRequest.property && (
-                <div>
-                  <h4 className="font-semibold mb-2">Immobilien-Information</h4>
-                  <div className="bg-muted p-3 rounded-lg text-sm">
-                    <div><strong>Titel:</strong> {editedRequest.property.title}</div>
-                    <div><strong>Adresse:</strong> {editedRequest.property.address}</div>
-                  </div>
-                </div>
-              )}
-
-              {/* Document Upload Section */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-semibold">Interne Dokumente</h4>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="file"
-                      multiple
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      onChange={handleFileSelect}
-                      className="hidden"
-                      id="document-upload"
-                    />
-                    <Button
-                      onClick={() => document.getElementById('document-upload')?.click()}
-                      variant="outline"
-                      size="sm"
-                    >
-                      <Upload className="h-4 w-4 mr-2" />
-                      Dokumente wählen
-                    </Button>
-                    {selectedFiles.length > 0 && (
-                      <Button
-                        onClick={uploadDocuments}
-                        disabled={isUploading}
-                        size="sm"
-                      >
-                        {isUploading ? 'Hochladen...' : `${selectedFiles.length} hochladen`}
-                      </Button>
-                    )}
-                  </div>
-                </div>
-
-                {/* Selected Files */}
-                {selectedFiles.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">Ausgewählte Dateien:</p>
-                    {selectedFiles.map((file, index) => (
-                      <div key={index} className="flex items-center gap-2 p-2 bg-muted rounded">
-                        <FileText className="h-4 w-4" />
-                        <span className="flex-1 text-sm">{file.name}</span>
-                        <Button
-                          onClick={() => removeSelectedFile(index)}
-                          variant="ghost"
-                          size="sm"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Uploaded Documents */}
-                {leadDocuments.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">Hochgeladene Dokumente:</p>
-                    {leadDocuments.map((doc) => (
-                      <div key={doc.id} className="flex items-center gap-2 p-2 border rounded">
-                        <FileText className="h-4 w-4" />
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">{doc.file_name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {doc.document_type} • {(doc.file_size / 1024).toFixed(1)} KB • 
-                            {new Date(doc.created_at).toLocaleDateString('de-DE')}
-                          </p>
-                        </div>
-                        <Button
-                          onClick={() => deleteDocument(doc.id, doc.file_path)}
-                          variant="ghost"
-                          size="sm"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {leadDocuments.length === 0 && selectedFiles.length === 0 && (
-                  <p className="text-sm text-muted-foreground text-center py-4">
-                    Noch keine Dokumente hochgeladen
-                  </p>
-                )}
-              </div>
-
-              {/* Metadata */}
-              <div className="flex items-center justify-between pt-4 border-t text-sm text-muted-foreground">
-                <div>
-                  Erstellt: {new Date(editedRequest.created_at).toLocaleDateString('de-DE', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
-                </div>
-                <Button
-                  onClick={() => window.open(`mailto:${editedRequest.email}`, '_blank')}
-                  variant="outline"
-                  size="sm"
-                >
-                  <Mail className="h-4 w-4 mr-2" />
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setViewDialogOpen(false)}>
+                  Schließen
+                </Button>
+                <Button onClick={() => {
+                  window.location.href = `mailto:${selectedRequest.email}?subject=Re: Ihre Anfrage&body=Hallo ${selectedRequest.vorname} ${selectedRequest.nachname},%0D%0A%0D%0AVielen Dank für Ihre Anfrage...`;
+                }}>
                   E-Mail senden
                 </Button>
               </div>
