@@ -6,9 +6,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Mail, Phone, MapPin, Calendar, Building2, Eye, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Mail, Phone, MapPin, Calendar, Building2, Eye, Trash2, ChevronLeft, ChevronRight, Upload, FileText, X, Save } from 'lucide-react';
 
 interface ContactRequest {
   id: string;
@@ -24,10 +27,22 @@ interface ContactRequest {
   nachricht: string;
   status: 'new' | 'in_progress' | 'completed' | 'archived';
   created_at: string;
+  lead_label?: string;
+  lead_stage?: string;
   property?: {
     title: string;
     address: string;
   };
+}
+
+interface LeadDocument {
+  id: string;
+  file_name: string;
+  file_path: string;
+  content_type: string;
+  file_size: number;
+  document_type: string;
+  created_at: string;
 }
 
 const ContactRequestsManagement = () => {
@@ -36,6 +51,11 @@ const ContactRequestsManagement = () => {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedRequest, setSelectedRequest] = useState<ContactRequest | null>(null);
+  const [editedRequest, setEditedRequest] = useState<ContactRequest | null>(null);
+  const [leadDocuments, setLeadDocuments] = useState<LeadDocument[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const { toast } = useToast();
   
@@ -147,9 +167,188 @@ const ContactRequestsManagement = () => {
     }
   };
 
-  const handleViewRequest = (request: ContactRequest) => {
+  const handleViewRequest = async (request: ContactRequest) => {
     setSelectedRequest(request);
+    setEditedRequest({ ...request });
     setViewDialogOpen(true);
+    await fetchLeadDocuments(request.id);
+  };
+
+  const fetchLeadDocuments = async (contactRequestId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('lead_documents')
+        .select('*')
+        .eq('contact_request_id', contactRequestId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setLeadDocuments(data || []);
+    } catch (error) {
+      console.error('Error fetching lead documents:', error);
+    }
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files) return;
+
+    const validFiles: File[] = [];
+    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+
+    Array.from(files).forEach(file => {
+      if (allowedTypes.includes(file.type)) {
+        if (file.size <= 10 * 1024 * 1024) { // 10MB limit
+          validFiles.push(file);
+        } else {
+          toast({
+            title: "Datei zu groß",
+            description: `${file.name} ist größer als 10MB.`,
+            variant: "destructive"
+          });
+        }
+      } else {
+        toast({
+          title: "Dateityp nicht unterstützt",
+          description: `${file.name} ist kein unterstützter Dateityp.`,
+          variant: "destructive"
+        });
+      }
+    });
+
+    setSelectedFiles(prev => [...prev, ...validFiles]);
+  };
+
+  const removeSelectedFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const uploadDocuments = async () => {
+    if (!selectedRequest || selectedFiles.length === 0) return;
+
+    setIsUploading(true);
+    try {
+      for (const file of selectedFiles) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${selectedRequest.id}/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+
+        // Upload file to storage
+        const { error: uploadError } = await supabase.storage
+          .from('lead-documents')
+          .upload(fileName, file);
+
+        if (uploadError) throw uploadError;
+
+        // Save document metadata
+        const { error: dbError } = await supabase
+          .from('lead_documents')
+          .insert({
+            contact_request_id: selectedRequest.id,
+            file_name: file.name,
+            file_path: fileName,
+            content_type: file.type,
+            file_size: file.size,
+            document_type: getDocumentType(file.type),
+            uploaded_by: null // admin upload
+          });
+
+        if (dbError) throw dbError;
+      }
+
+      toast({
+        title: "Dokumente hochgeladen",
+        description: `${selectedFiles.length} Dokument(e) erfolgreich hochgeladen.`,
+      });
+
+      setSelectedFiles([]);
+      await fetchLeadDocuments(selectedRequest.id);
+    } catch (error) {
+      console.error('Error uploading documents:', error);
+      toast({
+        title: "Fehler beim Hochladen",
+        description: "Dokumente konnten nicht hochgeladen werden.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const deleteDocument = async (documentId: string, filePath: string) => {
+    try {
+      // Delete from storage
+      const { error: storageError } = await supabase.storage
+        .from('lead-documents')
+        .remove([filePath]);
+
+      if (storageError) throw storageError;
+
+      // Delete from database
+      const { error: dbError } = await supabase
+        .from('lead_documents')
+        .delete()
+        .eq('id', documentId);
+
+      if (dbError) throw dbError;
+
+      toast({
+        title: "Dokument gelöscht",
+        description: "Das Dokument wurde erfolgreich entfernt.",
+      });
+
+      if (selectedRequest) {
+        await fetchLeadDocuments(selectedRequest.id);
+      }
+    } catch (error) {
+      console.error('Error deleting document:', error);
+      toast({
+        title: "Fehler",
+        description: "Dokument konnte nicht gelöscht werden.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const getDocumentType = (contentType: string): string => {
+    if (contentType === 'application/pdf') return 'PDF';
+    if (contentType.startsWith('image/')) return 'Bild';
+    return 'Dokument';
+  };
+
+  const saveRequestChanges = async () => {
+    if (!editedRequest) return;
+
+    setIsSaving(true);
+    try {
+      const token = localStorage.getItem('adminToken');
+      const { data } = await supabase.functions.invoke('admin-management', {
+        body: {
+          action: 'update_contact_request',
+          token,
+          id: editedRequest.id,
+          updates: editedRequest
+        }
+      });
+
+      if (data?.success) {
+        toast({
+          title: "Änderungen gespeichert",
+          description: "Die Kontaktanfrage wurde erfolgreich aktualisiert.",
+        });
+        
+        await fetchRequests();
+        setSelectedRequest(editedRequest);
+      }
+    } catch (error) {
+      console.error('Error saving changes:', error);
+      toast({
+        title: "Fehler",
+        description: "Änderungen konnten nicht gespeichert werden.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const filteredRequests = filterStatus === 'all' 

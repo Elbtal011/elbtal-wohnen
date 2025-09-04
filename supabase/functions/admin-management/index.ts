@@ -980,6 +980,48 @@ serve(async (req) => {
           );
         }
 
+      case 'update_contact_request':
+        try {
+          const { id, updates } = data;
+          
+          if (!id || !updates) {
+            return new Response(
+              JSON.stringify({ error: 'ID and updates are required' }),
+              { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          }
+
+          // Clean the updates object to only include valid fields
+          const allowedFields = ['anrede', 'vorname', 'nachname', 'email', 'telefon', 'strasse', 'nummer', 'plz', 'ort', 'nachricht', 'status', 'lead_label', 'lead_stage'];
+          const cleanUpdates = {};
+          
+          for (const [key, value] of Object.entries(updates)) {
+            if (allowedFields.includes(key)) {
+              cleanUpdates[key] = value;
+            }
+          }
+
+          const { data: updatedContactRequest, error: updateContactError } = await supabase
+            .from('contact_requests')
+            .update(cleanUpdates)
+            .eq('id', id)
+            .select()
+            .single();
+
+          if (updateContactError) throw updateContactError;
+
+          return new Response(
+            JSON.stringify({ success: true, request: updatedContactRequest }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        } catch (error) {
+          console.error('Update contact request error:', error);
+          return new Response(
+            JSON.stringify({ error: 'Failed to update contact request', details: error.message }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
       default:
         return new Response(
           JSON.stringify({ error: 'Invalid action' }),
