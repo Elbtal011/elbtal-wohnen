@@ -1002,41 +1002,6 @@ serve(async (req) => {
           );
         }
 
-      case 'update_lead':
-        try {
-          const { contactRequestId, updates } = data;
-          
-          const { data: updatedLead, error: updateError } = await supabase
-            .from('contact_requests')
-            .update({
-              vorname: updates.vorname,
-              nachname: updates.nachname,
-              email: updates.email,
-              telefon: updates.telefon,
-              strasse: updates.strasse,
-              nummer: updates.nummer,
-              plz: updates.plz,
-              ort: updates.ort,
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', contactRequestId)
-            .select()
-            .single();
-
-          if (updateError) throw updateError;
-
-          return new Response(
-            JSON.stringify({ lead: updatedLead }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
-        } catch (error) {
-          console.error('Update lead error:', error);
-          return new Response(
-            JSON.stringify({ error: 'Failed to update lead', details: error.message }),
-            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
-        }
-
       default:
         return new Response(
           JSON.stringify({ error: 'Invalid action' }),
