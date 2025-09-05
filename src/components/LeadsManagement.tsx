@@ -1242,6 +1242,9 @@ const LeadsManagement: React.FC = () => {
                         Hochgeladene Dokumente
                       </h4>
                       <div className="flex flex-col gap-2">
+                        <div className="text-xs text-muted-foreground">
+                          PDF, JPG, PNG (max 10MB pro Datei)
+                        </div>
                         <input
                           type="file"
                           accept=".jpg,.jpeg,.png,.pdf"
@@ -1268,9 +1271,6 @@ const LeadsManagement: React.FC = () => {
                           <Upload className="h-4 w-4" />
                           {uploadingDocument ? 'Hochladen...' : 'Dokumente hinzufügen'}
                         </Button>
-                        <div className="text-xs text-muted-foreground">
-                          PDF, JPG, PNG (max 10MB pro Datei)
-                        </div>
                       </div>
                     </div>
                     
