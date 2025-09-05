@@ -19,7 +19,8 @@ import {
 } from '@/components/ui/pagination';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Calendar, Eye, Mail, Phone, Tag, Plus, Trash2, ArrowRight, Download, FileText, Upload, X } from 'lucide-react';
+import { Calendar, Eye, Mail, Phone, Tag, Plus, Trash2, ArrowRight, Download, FileText, Upload, X, Edit, Save } from 'lucide-react';
+import { Label } from '@/components/ui/label';
 import * as XLSX from 'xlsx';
 import LeadLabelBadge from '@/components/LeadLabelBadge';
 import AddLeadDialog from '@/components/AddLeadDialog';
@@ -113,14 +114,27 @@ const LeadsManagement: React.FC = () => {
   const { toast } = useToast();
   const [fromDate, setFromDate] = useState<Date | undefined>();
   const [toDate, setToDate] = useState<Date | undefined>();
+  const [userDocuments, setUserDocuments] = useState<any[]>([]);
+  const [leadDocuments, setLeadDocuments] = useState<any[]>([]);
+  const [loadingDocuments, setLoadingDocuments] = useState(false);
+  const [uploadingDocument, setUploadingDocument] = useState(false);
+  const [deletingDocument, setDeletingDocument] = useState<string | null>(null);
+  const [editingLead, setEditingLead] = useState(false);
+  const [editForm, setEditForm] = useState({
+    vorname: '',
+    nachname: '',
+    email: '',
+    telefon: '',
+    strasse: '',
+    nummer: '',
+    plz: '',
+    ort: '',
+    nettoeinkommen: ''
+  });
   const [openAdd, setOpenAdd] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 15;
-  const [userDocuments, setUserDocuments] = useState<UserDocument[]>([]);
-  const [leadDocuments, setLeadDocuments] = useState<LeadDocument[]>([]);
-  const [loadingDocuments, setLoadingDocuments] = useState(false);
-  const [uploadingDocument, setUploadingDocument] = useState(false);
 
   const fetchLeads = async () => {
     try {
@@ -571,8 +585,70 @@ const LeadsManagement: React.FC = () => {
               resolve();
             } catch (error) {
               reject(error);
-            }
-          };
+    }
+  };
+
+  const startEditing = (lead: any) => {
+    const details = extractDetails(lead.nachricht);
+    setEditForm({
+      vorname: lead.vorname || '',
+      nachname: lead.nachname || '',
+      email: lead.email || '',
+      telefon: lead.telefon || '',
+      strasse: lead.strasse || '',
+      nummer: lead.nummer || '',
+      plz: lead.plz || '',
+      ort: lead.ort || '',
+      nettoeinkommen: details['Nettoeinkommen'] || ''
+    });
+    setEditingLead(true);
+  };
+
+  const saveLeadEdit = async () => {
+    if (!selected) return;
+    
+    try {
+      const adminToken = localStorage.getItem('adminToken');
+      if (!adminToken) throw new Error('Admin token not found');
+
+      const { data, error } = await supabase.functions.invoke('admin-management', {
+        body: {
+          action: 'update_lead',
+          token: adminToken,
+          contactRequestId: selected.id,
+          updates: editForm
+        }
+      });
+
+      if (error) throw error;
+
+      // Update the local lead data
+      setSelected({
+        ...selected,
+        ...editForm
+      });
+
+      // Update the leads list
+      setLeads(leads.map(lead => 
+        lead.id === selected.id 
+          ? { ...lead, ...editForm }
+          : lead
+      ));
+
+      setEditingLead(false);
+      toast({ 
+        title: 'Erfolg', 
+        description: 'Lead erfolgreich aktualisiert' 
+      });
+    } catch (error) {
+      console.error('Error updating lead:', error);
+      toast({ 
+        title: 'Fehler', 
+        description: 'Fehler beim Aktualisieren des Leads',
+        variant: 'destructive' 
+      });
+    }
+  };
           reader.onerror = () => reject(new Error(`Failed to read file: ${file.name}`));
           reader.readAsDataURL(file);
         });
@@ -1092,27 +1168,136 @@ const LeadsManagement: React.FC = () => {
                 {/* Left Column: Lead Information */}
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 gap-4 text-sm">
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2">
-                        <strong>Name:</strong> 
-                        {selected.anrede && (selected.anrede === 'herr' ? 'Herr' : selected.anrede === 'frau' ? 'Frau' : 'Divers')} {selected.vorname} {selected.nachname}
-                        {selected.isRegistered && (
-                          <Badge variant="secondary" className="text-xs">
-                            ✓ Registriert
-                          </Badge>
-                        )}
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <strong>Name:</strong> 
+                          {selected.anrede && (selected.anrede === 'herr' ? 'Herr' : selected.anrede === 'frau' ? 'Frau' : 'Divers')} {selected.vorname} {selected.nachname}
+                          {selected.isRegistered && (
+                            <Badge variant="secondary" className="text-xs">
+                              ✓ Registriert
+                            </Badge>
+                          )}
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => startEditing(selected)}
+                          className="flex items-center gap-2"
+                        >
+                          <Edit className="h-4 w-4" />
+                          Bearbeiten
+                        </Button>
                       </div>
-                      <div><strong>E‑Mail:</strong> <a className="text-primary hover:underline" href={`mailto:${selected.email}`}>{selected.email}</a></div>
-                      <div><strong>Telefon:</strong> <a className="text-primary hover:underline" href={`tel:${selected.telefon}`}>{selected.telefon}</a></div>
-                      {selected.strasse || selected.plz || selected.ort ? (
-                        <div>
-                          <strong>Adresse:</strong>
-                          <div className="ml-2 text-muted-foreground">
-                            {selected.strasse} {selected.nummer}<br />
-                            {selected.plz} {selected.ort}
+
+                      {editingLead ? (
+                        <div className="space-y-4 p-4 border rounded-lg bg-muted/20">
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <Label htmlFor="vorname">Vorname</Label>
+                              <Input
+                                id="vorname"
+                                value={editForm.vorname}
+                                onChange={(e) => setEditForm({ ...editForm, vorname: e.target.value })}
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="nachname">Nachname</Label>
+                              <Input
+                                id="nachname"
+                                value={editForm.nachname}
+                                onChange={(e) => setEditForm({ ...editForm, nachname: e.target.value })}
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <Label htmlFor="email">E‑Mail</Label>
+                            <Input
+                              id="email"
+                              type="email"
+                              value={editForm.email}
+                              onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="telefon">Telefon</Label>
+                            <Input
+                              id="telefon"
+                              value={editForm.telefon}
+                              onChange={(e) => setEditForm({ ...editForm, telefon: e.target.value })}
+                            />
+                          </div>
+                          <div className="grid grid-cols-3 gap-3">
+                            <div>
+                              <Label htmlFor="strasse">Straße</Label>
+                              <Input
+                                id="strasse"
+                                value={editForm.strasse}
+                                onChange={(e) => setEditForm({ ...editForm, strasse: e.target.value })}
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="nummer">Nr.</Label>
+                              <Input
+                                id="nummer"
+                                value={editForm.nummer}
+                                onChange={(e) => setEditForm({ ...editForm, nummer: e.target.value })}
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="plz">PLZ</Label>
+                              <Input
+                                id="plz"
+                                value={editForm.plz}
+                                onChange={(e) => setEditForm({ ...editForm, plz: e.target.value })}
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <Label htmlFor="ort">Ort</Label>
+                            <Input
+                              id="ort"
+                              value={editForm.ort}
+                              onChange={(e) => setEditForm({ ...editForm, ort: e.target.value })}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="nettoeinkommen">Nettoeinkommen (€)</Label>
+                            <Input
+                              id="nettoeinkommen"
+                              type="number"
+                              value={editForm.nettoeinkommen}
+                              onChange={(e) => setEditForm({ ...editForm, nettoeinkommen: e.target.value })}
+                            />
+                          </div>
+                          <div className="flex gap-2 pt-2">
+                            <Button onClick={saveLeadEdit} className="flex items-center gap-2">
+                              <Save className="h-4 w-4" />
+                              Speichern
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              onClick={() => setEditingLead(false)}
+                            >
+                              Abbrechen
+                            </Button>
                           </div>
                         </div>
-                      ) : null}
+                      ) : (
+                        <div className="space-y-3">
+                          <div><strong>E‑Mail:</strong> <a className="text-primary hover:underline" href={`mailto:${selected.email}`}>{selected.email}</a></div>
+                          <div><strong>Telefon:</strong> <a className="text-primary hover:underline" href={`tel:${selected.telefon}`}>{selected.telefon}</a></div>
+                          {selected.strasse || selected.plz || selected.ort ? (
+                            <div>
+                              <strong>Adresse:</strong>
+                              <div className="ml-2 text-muted-foreground">
+                                {selected.strasse} {selected.nummer}<br />
+                                {selected.plz} {selected.ort}
+                              </div>
+                            </div>
+                          ) : null}
+                        </div>
+                      )}
                     </div>
                     <div className="space-y-3 pt-4 border-t">
                       <div><strong>Datum:</strong> {new Date(selected.created_at).toLocaleString('de-DE')}</div>
