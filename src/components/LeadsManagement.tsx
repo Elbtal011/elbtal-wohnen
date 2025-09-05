@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/pagination';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Calendar, Eye, Mail, Phone, Tag, Plus, Trash2, ArrowRight, Download, FileText } from 'lucide-react';
+import { Calendar, Eye, Mail, Phone, Tag, Plus, Trash2, ArrowRight, Download, FileText, Upload } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import LeadLabelBadge from '@/components/LeadLabelBadge';
 import AddLeadDialog from '@/components/AddLeadDialog';
@@ -110,6 +110,7 @@ const LeadsManagement: React.FC = () => {
   const itemsPerPage = 15;
   const [userDocuments, setUserDocuments] = useState<UserDocument[]>([]);
   const [loadingDocuments, setLoadingDocuments] = useState(false);
+  const [uploadingDocument, setUploadingDocument] = useState(false);
 
   const fetchLeads = async () => {
     try {
@@ -492,6 +493,67 @@ const LeadsManagement: React.FC = () => {
     } catch (error) {
       console.error('Error opening document:', error);
       toast({ title: 'Fehler', description: 'Fehler beim Öffnen des Dokuments', variant: 'destructive' });
+    }
+  };
+
+  const handleDocumentUpload = async (file: File) => {
+    if (!selected) return;
+    
+    try {
+      setUploadingDocument(true);
+      const adminToken = localStorage.getItem('adminToken');
+      if (!adminToken) throw new Error('Admin token not found');
+
+      // Convert file to base64
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          const base64Data = reader.result as string;
+          
+          const { data, error } = await supabase.functions.invoke('admin-management', {
+            body: {
+              action: 'upload_lead_document',
+              token: adminToken,
+              contactRequestId: selected.id,
+              documentType: 'admin_upload',
+              fileName: file.name,
+              fileData: base64Data,
+              contentType: file.type
+            }
+          });
+
+          if (error) throw error;
+
+          toast({ 
+            title: 'Dokument hochgeladen', 
+            description: `${file.name} wurde erfolgreich hochgeladen.` 
+          });
+
+          // Refresh documents for user
+          if (selected.user_id) {
+            fetchUserDocuments(selected.user_id);
+          }
+        } catch (error) {
+          console.error('Error uploading document:', error);
+          toast({ 
+            title: 'Fehler', 
+            description: 'Dokument konnte nicht hochgeladen werden.', 
+            variant: 'destructive' 
+          });
+        } finally {
+          setUploadingDocument(false);
+        }
+      };
+      
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Error reading file:', error);
+      toast({ 
+        title: 'Fehler', 
+        description: 'Datei konnte nicht gelesen werden.', 
+        variant: 'destructive' 
+      });
+      setUploadingDocument(false);
     }
   };
 
@@ -933,7 +995,7 @@ const LeadsManagement: React.FC = () => {
       </Card>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-5xl max-h-[90vh] flex flex-col">
+        <DialogContent className="max-w-6xl max-h-[95vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>Lead Details</DialogTitle>
             <DialogDescription>Vollständige Informationen zum Lead</DialogDescription>
@@ -1085,10 +1147,35 @@ const LeadsManagement: React.FC = () => {
                 {/* Right Column: Documents */}
                 <div className="space-y-6">
                   <div className="border-l pl-8 h-full">
-                    <h4 className="font-semibold mb-4 flex items-center gap-2">
-                      <FileText className="h-4 w-4" />
-                      Hochgeladene Dokumente
-                    </h4>
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="font-semibold flex items-center gap-2">
+                        <FileText className="h-4 w-4" />
+                        Hochgeladene Dokumente
+                      </h4>
+                      <div className="flex gap-2">
+                        <input
+                          type="file"
+                          accept=".jpg,.jpeg,.png,.pdf"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleDocumentUpload(file);
+                          }}
+                          className="hidden"
+                          id="document-upload"
+                          disabled={uploadingDocument}
+                        />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => document.getElementById('document-upload')?.click()}
+                          disabled={uploadingDocument}
+                          className="flex items-center gap-2"
+                        >
+                          <Upload className="h-4 w-4" />
+                          {uploadingDocument ? 'Hochladen...' : 'Dokument hinzufügen'}
+                        </Button>
+                      </div>
+                    </div>
                     
                     {!selected.isRegistered ? (
                       <div className="flex items-center justify-center h-32 text-center">
