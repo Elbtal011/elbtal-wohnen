@@ -894,6 +894,76 @@ serve(async (req) => {
           );
         }
 
+      case 'update_lead':
+        try {
+          const { id, vorname, nachname, email, telefon, strasse, nummer, plz, ort, nettoeinkommen } = data;
+          
+          // Update contact request basic info
+          const { error: updateError } = await supabase
+            .from('contact_requests')
+            .update({ 
+              vorname, 
+              nachname, 
+              email, 
+              telefon, 
+              strasse, 
+              nummer, 
+              plz, 
+              ort,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', id);
+
+          if (updateError) throw updateError;
+
+          // If nettoeinkommen is provided, update it in the nachricht field
+          if (nettoeinkommen) {
+            const { data: currentLead, error: fetchError } = await supabase
+              .from('contact_requests')
+              .select('nachricht')
+              .eq('id', id)
+              .single();
+
+            if (fetchError) throw fetchError;
+
+            // Parse existing message and update Nettoeinkommen
+            const lines = currentLead.nachricht.split('\n');
+            let nettoFound = false;
+            const updatedLines = lines.map(line => {
+              if (line.startsWith('Nettoeinkommen:')) {
+                nettoFound = true;
+                return `Nettoeinkommen: ${nettoeinkommen}`;
+              }
+              return line;
+            });
+
+            // If Nettoeinkommen wasn't found, add it
+            if (!nettoFound) {
+              updatedLines.push(`Nettoeinkommen: ${nettoeinkommen}`);
+            }
+
+            const updatedMessage = updatedLines.join('\n');
+
+            const { error: messageUpdateError } = await supabase
+              .from('contact_requests')
+              .update({ nachricht: updatedMessage })
+              .eq('id', id);
+
+            if (messageUpdateError) throw messageUpdateError;
+          }
+
+          return new Response(
+            JSON.stringify({ success: true }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        } catch (error) {
+          console.error('Update lead error:', error);
+          return new Response(
+            JSON.stringify({ error: 'Failed to update lead', details: error.message }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
       case 'delete_members':
         try {
           const { memberIds } = data;

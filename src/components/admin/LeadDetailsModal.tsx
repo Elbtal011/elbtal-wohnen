@@ -54,13 +54,15 @@ const LeadDetailsModal: React.FC<LeadDetailsModalProps> = ({
     strasse: '',
     nummer: '',
     plz: '',
-    ort: ''
+    ort: '',
+    nettoeinkommen: ''
   });
   const { callAdminFunction } = useAdminAPI();
   const { toast } = useToast();
 
   useEffect(() => {
     if (lead) {
+      const details = extractDetails(lead.nachricht);
       setEditForm({
         vorname: lead.vorname || '',
         nachname: lead.nachname || '',
@@ -69,7 +71,8 @@ const LeadDetailsModal: React.FC<LeadDetailsModalProps> = ({
         strasse: lead.strasse || '',
         nummer: lead.nummer || '',
         plz: lead.plz || '',
-        ort: lead.ort || ''
+        ort: lead.ort || '',
+        nettoeinkommen: details['Nettoeinkommen'] || ''
       });
     }
   }, [lead]);
@@ -217,6 +220,15 @@ const LeadDetailsModal: React.FC<LeadDetailsModalProps> = ({
                       id="ort"
                       value={editForm.ort}
                       onChange={(e) => setEditForm(prev => ({ ...prev, ort: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="nettoeinkommen">Nettoeinkommen</Label>
+                    <Input
+                      id="nettoeinkommen"
+                      value={editForm.nettoeinkommen}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, nettoeinkommen: e.target.value }))}
+                      placeholder="z.B. 2500 €"
                     />
                   </div>
                 </div>
