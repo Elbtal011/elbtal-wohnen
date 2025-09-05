@@ -531,7 +531,7 @@ const LeadsManagement: React.FC = () => {
     }
   };
 
-  const handleDocumentUpload = async (files: FileList) => {
+  const handleDocumentUpload = async (files: File[]) => {
     if (!selected || files.length === 0) return;
     
     try {
@@ -539,26 +539,19 @@ const LeadsManagement: React.FC = () => {
       const adminToken = localStorage.getItem('adminToken');
       if (!adminToken) throw new Error('Admin token not found');
 
-      // Process multiple files
-      const uploadPromises = Array.from(files).map(async (file) => {
-        // Validate file type
-        const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
-        if (!allowedTypes.includes(file.type)) {
-          throw new Error(`Unsupported file type: ${file.name}`);
-        }
+      const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+      const fileArray = files.filter((file) => allowedTypes.includes(file.type) && file.size <= 10 * 1024 * 1024);
 
-        // Validate file size (10MB limit)
-        if (file.size > 10 * 1024 * 1024) {
-          throw new Error(`File too large: ${file.name} (max 10MB)`);
-        }
+      let successCount = 0;
 
+      const uploadPromises = fileArray.map(async (file) => {
         return new Promise<void>((resolve, reject) => {
           const reader = new FileReader();
           reader.onload = async () => {
             try {
               const base64Data = reader.result as string;
               
-              const { data, error } = await supabase.functions.invoke('admin-management', {
+              const { error } = await supabase.functions.invoke('admin-management', {
                 body: {
                   action: 'upload_lead_document',
                   token: adminToken,
@@ -571,6 +564,7 @@ const LeadsManagement: React.FC = () => {
               });
 
               if (error) throw error;
+              successCount += 1;
               resolve();
             } catch (error) {
               reject(error);
@@ -581,11 +575,11 @@ const LeadsManagement: React.FC = () => {
         });
       });
 
-      await Promise.all(uploadPromises);
+      await Promise.allSettled(uploadPromises);
 
       toast({ 
         title: 'Dokumente hochgeladen', 
-        description: `${files.length} Dokument(e) wurden erfolgreich hochgeladen.` 
+        description: `${successCount} Dokument(e) wurden erfolgreich hochgeladen.`,
       });
 
       // Refresh documents
@@ -593,11 +587,11 @@ const LeadsManagement: React.FC = () => {
         fetchUserDocuments(selected.user_id);
       }
       fetchLeadDocuments(selected.id);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error uploading documents:', error);
       toast({ 
         title: 'Fehler', 
-        description: error.message || 'Dokumente konnten nicht hochgeladen werden.', 
+        description: error?.message || 'Dokumente konnten nicht hochgeladen werden.', 
         variant: 'destructive' 
       });
     } finally {
@@ -1249,7 +1243,7 @@ const LeadsManagement: React.FC = () => {
                           onChange={(e) => {
                             const files = e.target.files;
                             if (files && files.length > 0) {
-                              handleDocumentUpload(files);
+                              handleDocumentUpload(Array.from(files));
                               // Reset the input
                               e.target.value = '';
                             }
