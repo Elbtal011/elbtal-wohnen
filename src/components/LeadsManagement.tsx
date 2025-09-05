@@ -19,10 +19,11 @@ import {
 } from '@/components/ui/pagination';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Calendar, Eye, Mail, Phone, Tag, Plus, Trash2, ArrowRight, Download, FileText, Upload, X } from 'lucide-react';
+import { Calendar, Eye, Mail, Phone, Tag, Plus, Trash2, ArrowRight, Download, FileText, Upload, X, Edit } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import LeadLabelBadge from '@/components/LeadLabelBadge';
 import AddLeadDialog from '@/components/AddLeadDialog';
+import LeadDetailsModal from '@/components/admin/LeadDetailsModal';
 import { Checkbox } from '@/components/ui/checkbox';
 
 interface Lead {
@@ -121,6 +122,7 @@ const LeadsManagement: React.FC = () => {
   const [leadDocuments, setLeadDocuments] = useState<LeadDocument[]>([]);
   const [loadingDocuments, setLoadingDocuments] = useState(false);
   const [uploadingDocument, setUploadingDocument] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const fetchLeads = async () => {
     try {
@@ -1083,8 +1085,23 @@ const LeadsManagement: React.FC = () => {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-6xl max-h-[95vh] flex flex-col">
           <DialogHeader>
-            <DialogTitle>Lead Details</DialogTitle>
-            <DialogDescription>Vollständige Informationen zum Lead</DialogDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <DialogTitle>Lead Details</DialogTitle>
+                <DialogDescription>Vollständige Informationen zum Lead</DialogDescription>
+              </div>
+              {selected && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowEditModal(true)}
+                  className="text-primary border-primary hover:bg-primary/10"
+                >
+                  <Edit className="h-4 w-4 mr-2" />
+                  Bearbeiten
+                </Button>
+              )}
+            </div>
           </DialogHeader>
           {selected && (
             <div className="flex-1 overflow-hidden">
@@ -1386,6 +1403,15 @@ const LeadsManagement: React.FC = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {selected && (
+        <LeadDetailsModal
+          lead={selected}
+          open={showEditModal}
+          onOpenChange={setShowEditModal}
+          onLeadUpdated={fetchLeads}
+        />
+      )}
 
       <AddLeadDialog
         open={openAdd}
