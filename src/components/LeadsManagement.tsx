@@ -1241,10 +1241,7 @@ const LeadsManagement: React.FC = () => {
                         <FileText className="h-4 w-4" />
                         Hochgeladene Dokumente
                       </h4>
-                      <div className="flex flex-col gap-2">
-                        <div className="text-xs text-muted-foreground">
-                          PDF, JPG, PNG (max 10MB pro Datei)
-                        </div>
+                      <div className="flex gap-2">
                         <input
                           type="file"
                           accept=".jpg,.jpeg,.png,.pdf"
@@ -1266,7 +1263,7 @@ const LeadsManagement: React.FC = () => {
                           size="sm"
                           onClick={() => document.getElementById('document-upload')?.click()}
                           disabled={uploadingDocument}
-                          className="flex items-center gap-2 w-fit"
+                          className="flex items-center gap-2"
                         >
                           <Upload className="h-4 w-4" />
                           {uploadingDocument ? 'Hochladen...' : 'Dokumente hinzufügen'}
