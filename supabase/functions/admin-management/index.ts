@@ -828,6 +828,28 @@ serve(async (req) => {
           );
         }
 
+      case 'get_lead_document_download_url':
+        try {
+          const { filePath } = data;
+          
+          const { data: urlData, error: urlError } = await supabase.storage
+            .from('lead-documents')
+            .createSignedUrl(filePath, 3600); // 1 hour expiry
+
+          if (urlError) throw urlError;
+
+          return new Response(
+            JSON.stringify({ url: urlData.signedUrl }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        } catch (error) {
+          console.error('Get lead document download URL error:', error);
+          return new Response(
+            JSON.stringify({ error: 'Failed to get lead document URL', details: error.message }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
       case 'bulk_delete_properties':
         const { error: bulkDeleteError } = await supabase
           .from('properties')

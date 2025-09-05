@@ -82,6 +82,15 @@ interface UserDocument {
   uploaded_at: string;
 }
 
+interface LeadDocument {
+  id: string;
+  document_type: string;
+  file_name: string;
+  file_path: string;
+  uploaded_by: string;
+  created_at: string;
+}
+
 const DEFAULT_LABELS = [
   'Kalt',
   'Warm', 
@@ -109,6 +118,7 @@ const LeadsManagement: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 15;
   const [userDocuments, setUserDocuments] = useState<UserDocument[]>([]);
+  const [leadDocuments, setLeadDocuments] = useState<LeadDocument[]>([]);
   const [loadingDocuments, setLoadingDocuments] = useState(false);
   const [uploadingDocument, setUploadingDocument] = useState(false);
 
@@ -469,14 +479,39 @@ const LeadsManagement: React.FC = () => {
     }
   };
 
-  const downloadDocument = async (filePath: string, fileName: string) => {
+  const fetchLeadDocuments = async (contactRequestId: string) => {
     try {
       const adminToken = localStorage.getItem('adminToken');
       if (!adminToken) throw new Error('Admin token not found');
 
       const { data, error } = await supabase.functions.invoke('admin-management', {
         body: {
-          action: 'get_user_document_download_url',
+          action: 'get_lead_documents',
+          token: adminToken,
+          contactRequestId: contactRequestId
+        }
+      });
+
+      if (error) throw error;
+      setLeadDocuments(data.documents || []);
+    } catch (error) {
+      console.error('Error fetching lead documents:', error);
+      setLeadDocuments([]);
+    }
+  };
+
+  const downloadDocument = async (filePath: string, fileName: string) => {
+    try {
+      const adminToken = localStorage.getItem('adminToken');
+      if (!adminToken) throw new Error('Admin token not found');
+
+      // Check if it's a user document or lead document
+      const isUserDocument = userDocuments.some(doc => doc.file_path === filePath);
+      const action = isUserDocument ? 'get_user_document_download_url' : 'get_lead_document_download_url';
+
+      const { data, error } = await supabase.functions.invoke('admin-management', {
+        body: {
+          action: action,
           token: adminToken,
           filePath: filePath
         }
@@ -529,10 +564,11 @@ const LeadsManagement: React.FC = () => {
             description: `${file.name} wurde erfolgreich hochgeladen.` 
           });
 
-          // Refresh documents for user
+          // Refresh documents
           if (selected.user_id) {
             fetchUserDocuments(selected.user_id);
           }
+          fetchLeadDocuments(selected.id);
         } catch (error) {
           console.error('Error uploading document:', error);
           toast({ 
@@ -565,6 +601,8 @@ const LeadsManagement: React.FC = () => {
         return 'Kontoauszug';
       case 'personalausweis':
         return 'Personalausweis/Reisepass';
+      case 'admin_upload':
+        return 'Admin Dokument';
       default:
         return type;
     }
@@ -623,6 +661,8 @@ const LeadsManagement: React.FC = () => {
     } else {
       setUserDocuments([]);
     }
+    // Always fetch lead documents uploaded by admin
+    fetchLeadDocuments(lead.id);
   };
 
   if (isLoading) {
@@ -1192,7 +1232,7 @@ const LeadsManagement: React.FC = () => {
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
                         <p className="ml-3 text-sm text-muted-foreground">Dokumente werden geladen...</p>
                       </div>
-                    ) : userDocuments.length === 0 ? (
+                    ) : userDocuments.length === 0 && leadDocuments.length === 0 ? (
                       <div className="flex items-center justify-center h-32 text-center">
                         <div>
                           <FileText className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
@@ -1202,30 +1242,70 @@ const LeadsManagement: React.FC = () => {
                         </div>
                       </div>
                     ) : (
-                      <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-2">
-                        {userDocuments.map((doc) => (
-                          <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                            <div className="flex-1 min-w-0">
-                              <div className="font-medium text-sm">{getDocumentTypeLabel(doc.document_type)}</div>
-                              <div className="text-sm text-muted-foreground truncate">{doc.file_name}</div>
-                              <div className="text-xs text-muted-foreground mt-1">
-                                {new Date(doc.uploaded_at).toLocaleDateString('de-DE', {
-                                  day: '2-digit',
-                                  month: '2-digit', 
-                                  year: 'numeric'
-                                })}
-                              </div>
+                      <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-2">
+                        {/* User Documents Section */}
+                        {userDocuments.length > 0 && (
+                          <div>
+                            <h5 className="font-medium text-sm mb-3 text-muted-foreground">Benutzer-Dokumente</h5>
+                            <div className="space-y-3">
+                              {userDocuments.map((doc) => (
+                                <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                                  <div className="flex-1 min-w-0">
+                                    <div className="font-medium text-sm">{getDocumentTypeLabel(doc.document_type)}</div>
+                                    <div className="text-sm text-muted-foreground truncate">{doc.file_name}</div>
+                                    <div className="text-xs text-muted-foreground mt-1">
+                                      {new Date(doc.uploaded_at).toLocaleDateString('de-DE', {
+                                        day: '2-digit',
+                                        month: '2-digit', 
+                                        year: 'numeric'
+                                      })}
+                                    </div>
+                                  </div>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => downloadDocument(doc.file_path, doc.file_name)}
+                                    className="ml-3 shrink-0"
+                                  >
+                                    <Download className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              ))}
                             </div>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => downloadDocument(doc.file_path, doc.file_name)}
-                              className="ml-3 shrink-0"
-                            >
-                              <Download className="h-4 w-4" />
-                            </Button>
                           </div>
-                        ))}
+                        )}
+                        
+                        {/* Admin Lead Documents Section */}
+                        {leadDocuments.length > 0 && (
+                          <div>
+                            <h5 className="font-medium text-sm mb-3 text-muted-foreground">Admin-Dokumente</h5>
+                            <div className="space-y-3">
+                              {leadDocuments.map((doc) => (
+                                <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors border-blue-200 bg-blue-50/50">
+                                  <div className="flex-1 min-w-0">
+                                    <div className="font-medium text-sm">{getDocumentTypeLabel(doc.document_type)}</div>
+                                    <div className="text-sm text-muted-foreground truncate">{doc.file_name}</div>
+                                    <div className="text-xs text-muted-foreground mt-1">
+                                      Hochgeladen von Admin • {new Date(doc.created_at).toLocaleDateString('de-DE', {
+                                        day: '2-digit',
+                                        month: '2-digit', 
+                                        year: 'numeric'
+                                      })}
+                                    </div>
+                                  </div>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => downloadDocument(doc.file_path, doc.file_name)}
+                                    className="ml-3 shrink-0"
+                                  >
+                                    <Download className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
