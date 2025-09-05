@@ -1,7 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import React, { useState } from 'react';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import AdminSidebar from '@/components/AdminSidebar';
 import AdminHeader from '@/components/AdminHeader';
@@ -15,127 +12,17 @@ import BackupManagement from '@/components/BackupManagement';
 import LeadsManagement from '@/components/LeadsManagement';
 import PostIdent1Management from '@/components/PostIdent1Management';
 import PostIdent2Management from '@/components/PostIdent2Management';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
-  const [isLoading, setIsLoading] = useState(true);
-  const [adminUser, setAdminUser] = useState<any>(null);
   const [backupData, setBackupData] = useState({
     backups: [],
     isLoading: true,
     downloadProgress: {}
   });
-  const navigate = useNavigate();
-  const { toast } = useToast();
+  const { isLoading, adminUser, logout } = useAdminAuth();
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      console.log('=== DASHBOARD AUTH CHECK ===');
-      
-      const token = localStorage.getItem('adminToken');
-      const userStr = localStorage.getItem('adminUser');
-      
-      console.log('Stored data:', { hasToken: !!token, hasUser: !!userStr });
-      
-      if (!token || !userStr) {
-        console.log('No stored session, redirecting to login');
-        navigate('/admin1244');
-        return;
-      }
-
-      try {
-        console.log('Verifying token with server...');
-        const { data, error } = await supabase.functions.invoke('admin-auth', {
-          body: { action: 'verify', token }
-        });
-        
-        console.log('Verification response:', { data, error });
-        
-        if (error) {
-          console.error('Verification request failed:', error);
-          throw new Error('Verification request failed');
-        }
-        
-        if (!data?.success) {
-          console.error('Token verification failed:', data);
-          throw new Error('Invalid session');
-        }
-
-        console.log('Auth verification successful');
-        setAdminUser(JSON.parse(userStr));
-        
-      } catch (error) {
-        console.error('Auth check failed:', error);
-        
-        // Clear invalid session
-        localStorage.removeItem('adminToken');
-        localStorage.removeItem('adminUser');
-        
-        toast({
-          title: "Sitzung abgelaufen",
-          description: "Bitte melden Sie sich erneut an.",
-          variant: "destructive"
-        });
-        
-        navigate('/admin1244');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkAuth();
-  }, [navigate, toast]);
-
-  const handleLogout = async () => {
-    console.log('=== LOGOUT PROCESS STARTED ===');
-    
-    try {
-      const token = localStorage.getItem('adminToken');
-      
-      // Try to logout on server, but don't block if it fails
-      if (token) {
-        try {
-          console.log('Attempting server logout...');
-          await supabase.functions.invoke('admin-auth', {
-            body: { action: 'logout', token }
-          });
-          console.log('Server logout successful');
-        } catch (error) {
-          console.error('Server logout failed (continuing anyway):', error);
-          // Don't throw here - we still want to clear local storage
-        }
-      }
-      
-      // Always clear local storage regardless of server response
-      console.log('Clearing local storage...');
-      localStorage.removeItem('adminToken');
-      localStorage.removeItem('adminUser');
-      
-      // Show success message
-      toast({
-        title: "Abgemeldet",
-        description: "Sie wurden erfolgreich abgemeldet.",
-      });
-      
-      console.log('Redirecting to login...');
-      navigate('/admin1244');
-      
-    } catch (error) {
-      console.error('Unexpected error during logout:', error);
-      
-      // Even if something goes wrong, still try to clear and redirect
-      localStorage.removeItem('adminToken');
-      localStorage.removeItem('adminUser');
-      
-      toast({
-        title: "Abgemeldet", 
-        description: "Abmeldung abgeschlossen (mit Fehlern).",
-        variant: "destructive"
-      });
-      
-      navigate('/admin1244');
-    }
-  };
 
   if (isLoading) {
     return (
@@ -181,7 +68,7 @@ const AdminDashboard = () => {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
-        <AdminSidebar activeTab={activeTab} onTabChange={setActiveTab} adminUser={adminUser} onLogout={handleLogout} />
+        <AdminSidebar activeTab={activeTab} onTabChange={setActiveTab} adminUser={adminUser} onLogout={logout} />
         <div className="flex-1 flex flex-col min-w-0">
           <div className="md:hidden p-4 border-b bg-background">
             <div className="flex items-center justify-between">
