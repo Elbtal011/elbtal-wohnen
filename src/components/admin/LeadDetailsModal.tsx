@@ -120,29 +120,29 @@ const LeadDetailsModal: React.FC<LeadDetailsModalProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
-            <span>Lead Details: {lead.vorname} {lead.nachname}</span>
-            <div className="flex items-center gap-2">
-              {isEditing ? (
-                <>
-                  <Button onClick={handleSaveEdit} size="sm">
-                    <Save className="h-4 w-4 mr-2" />
-                    Speichern
-                  </Button>
-                  <Button onClick={() => setIsEditing(false)} variant="outline" size="sm">
-                    <X className="h-4 w-4 mr-2" />
-                    Abbrechen
-                  </Button>
-                </>
-              ) : (
-                <Button onClick={() => setIsEditing(true)} variant="outline" size="sm">
-                  <Edit className="h-4 w-4 mr-2" />
-                  Bearbeiten
-                </Button>
-              )}
-            </div>
-          </DialogTitle>
+          <DialogTitle>Lead Details: {lead.vorname} {lead.nachname}</DialogTitle>
         </DialogHeader>
+
+        {/* Edit Controls */}
+        <div className="flex items-center justify-end gap-2 pb-4 border-b">
+          {isEditing ? (
+            <>
+              <Button onClick={handleSaveEdit} size="sm" className="bg-green-600 hover:bg-green-700">
+                <Save className="h-4 w-4 mr-2" />
+                Speichern
+              </Button>
+              <Button onClick={() => setIsEditing(false)} variant="outline" size="sm">
+                <X className="h-4 w-4 mr-2" />
+                Abbrechen
+              </Button>
+            </>
+          ) : (
+            <Button onClick={() => setIsEditing(true)} variant="outline" size="sm" className="border-blue-500 text-blue-600 hover:bg-blue-50">
+              <Edit className="h-4 w-4 mr-2" />
+              Bearbeiten
+            </Button>
+          )}
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Contact Information */}
