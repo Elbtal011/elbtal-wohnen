@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/pagination';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Calendar, Eye, Mail, Phone, Tag, Plus, Trash2, ArrowRight, Download, FileText, Upload } from 'lucide-react';
+import { Calendar, Eye, Mail, Phone, Tag, Plus, Trash2, ArrowRight, Download, FileText, Upload, X } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import LeadLabelBadge from '@/components/LeadLabelBadge';
 import AddLeadDialog from '@/components/AddLeadDialog';
@@ -531,65 +531,114 @@ const LeadsManagement: React.FC = () => {
     }
   };
 
-  const handleDocumentUpload = async (file: File) => {
-    if (!selected) return;
+  const handleDocumentUpload = async (files: FileList) => {
+    if (!selected || files.length === 0) return;
     
     try {
       setUploadingDocument(true);
       const adminToken = localStorage.getItem('adminToken');
       if (!adminToken) throw new Error('Admin token not found');
 
-      // Convert file to base64
-      const reader = new FileReader();
-      reader.onload = async () => {
-        try {
-          const base64Data = reader.result as string;
-          
-          const { data, error } = await supabase.functions.invoke('admin-management', {
-            body: {
-              action: 'upload_lead_document',
-              token: adminToken,
-              contactRequestId: selected.id,
-              documentType: 'admin_upload',
-              fileName: file.name,
-              fileData: base64Data,
-              contentType: file.type
-            }
-          });
-
-          if (error) throw error;
-
-          toast({ 
-            title: 'Dokument hochgeladen', 
-            description: `${file.name} wurde erfolgreich hochgeladen.` 
-          });
-
-          // Refresh documents
-          if (selected.user_id) {
-            fetchUserDocuments(selected.user_id);
-          }
-          fetchLeadDocuments(selected.id);
-        } catch (error) {
-          console.error('Error uploading document:', error);
-          toast({ 
-            title: 'Fehler', 
-            description: 'Dokument konnte nicht hochgeladen werden.', 
-            variant: 'destructive' 
-          });
-        } finally {
-          setUploadingDocument(false);
+      // Process multiple files
+      const uploadPromises = Array.from(files).map(async (file) => {
+        // Validate file type
+        const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+        if (!allowedTypes.includes(file.type)) {
+          throw new Error(`Unsupported file type: ${file.name}`);
         }
-      };
-      
-      reader.readAsDataURL(file);
+
+        // Validate file size (10MB limit)
+        if (file.size > 10 * 1024 * 1024) {
+          throw new Error(`File too large: ${file.name} (max 10MB)`);
+        }
+
+        return new Promise<void>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = async () => {
+            try {
+              const base64Data = reader.result as string;
+              
+              const { data, error } = await supabase.functions.invoke('admin-management', {
+                body: {
+                  action: 'upload_lead_document',
+                  token: adminToken,
+                  contactRequestId: selected.id,
+                  documentType: 'admin_upload',
+                  fileName: file.name,
+                  fileData: base64Data,
+                  contentType: file.type
+                }
+              });
+
+              if (error) throw error;
+              resolve();
+            } catch (error) {
+              reject(error);
+            }
+          };
+          reader.onerror = () => reject(new Error(`Failed to read file: ${file.name}`));
+          reader.readAsDataURL(file);
+        });
+      });
+
+      await Promise.all(uploadPromises);
+
+      toast({ 
+        title: 'Dokumente hochgeladen', 
+        description: `${files.length} Dokument(e) wurden erfolgreich hochgeladen.` 
+      });
+
+      // Refresh documents
+      if (selected.user_id) {
+        fetchUserDocuments(selected.user_id);
+      }
+      fetchLeadDocuments(selected.id);
     } catch (error) {
-      console.error('Error reading file:', error);
+      console.error('Error uploading documents:', error);
       toast({ 
         title: 'Fehler', 
-        description: 'Datei konnte nicht gelesen werden.', 
+        description: error.message || 'Dokumente konnten nicht hochgeladen werden.', 
         variant: 'destructive' 
       });
+    } finally {
       setUploadingDocument(false);
+    }
+  };
+
+  const handleDeleteLeadDocument = async (documentId: string, filePath: string) => {
+    if (!confirm('Möchten Sie dieses Dokument wirklich löschen?')) return;
+
+    try {
+      const adminToken = localStorage.getItem('adminToken');
+      if (!adminToken) throw new Error('Admin token not found');
+
+      const { error } = await supabase.functions.invoke('admin-management', {
+        body: {
+          action: 'delete_lead_document',
+          token: adminToken,
+          documentId: documentId,
+          filePath: filePath
+        }
+      });
+
+      if (error) throw error;
+
+      toast({ 
+        title: 'Dokument gelöscht', 
+        description: 'Das Dokument wurde erfolgreich gelöscht.' 
+      });
+
+      // Refresh lead documents
+      if (selected) {
+        fetchLeadDocuments(selected.id);
+      }
+    } catch (error) {
+      console.error('Error deleting document:', error);
+      toast({ 
+        title: 'Fehler', 
+        description: 'Dokument konnte nicht gelöscht werden.', 
+        variant: 'destructive' 
+      });
     }
   };
 
@@ -1196,9 +1245,14 @@ const LeadsManagement: React.FC = () => {
                         <input
                           type="file"
                           accept=".jpg,.jpeg,.png,.pdf"
+                          multiple
                           onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) handleDocumentUpload(file);
+                            const files = e.target.files;
+                            if (files && files.length > 0) {
+                              handleDocumentUpload(files);
+                              // Reset the input
+                              e.target.value = '';
+                            }
                           }}
                           className="hidden"
                           id="document-upload"
@@ -1212,10 +1266,22 @@ const LeadsManagement: React.FC = () => {
                           className="flex items-center gap-2"
                         >
                           <Upload className="h-4 w-4" />
-                          {uploadingDocument ? 'Hochladen...' : 'Dokument hinzufügen'}
+                          {uploadingDocument ? 'Hochladen...' : 'Dokumente hinzufügen'}
                         </Button>
+                        <div className="text-xs text-muted-foreground">
+                          PDF, JPG, PNG (max 10MB pro Datei)
+                        </div>
                       </div>
                     </div>
+                    
+                    {uploadingDocument && (
+                      <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div className="flex items-center gap-2 text-blue-700">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-700" />
+                          <span className="text-sm">Dokumente werden hochgeladen...</span>
+                        </div>
+                      </div>
+                    )}
                     
                     {!selected.isRegistered ? (
                       <div className="flex items-center justify-center h-32 text-center">
@@ -1293,14 +1359,23 @@ const LeadsManagement: React.FC = () => {
                                       })}
                                     </div>
                                   </div>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => downloadDocument(doc.file_path, doc.file_name)}
-                                    className="ml-3 shrink-0"
-                                  >
-                                    <Download className="h-4 w-4" />
-                                  </Button>
+                                  <div className="flex gap-2 ml-3 shrink-0">
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => downloadDocument(doc.file_path, doc.file_name)}
+                                    >
+                                      <Download className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => handleDeleteLeadDocument(doc.id, doc.file_path)}
+                                      className="text-red-600 hover:text-red-700 hover:border-red-300"
+                                    >
+                                      <X className="h-4 w-4" />
+                                    </Button>
+                                  </div>
                                 </div>
                               ))}
                             </div>
