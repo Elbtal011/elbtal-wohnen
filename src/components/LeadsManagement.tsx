@@ -484,6 +484,8 @@ const LeadsManagement: React.FC = () => {
       const adminToken = localStorage.getItem('adminToken');
       if (!adminToken) throw new Error('Admin token not found');
 
+      console.log('Fetching lead documents for:', contactRequestId);
+
       const { data, error } = await supabase.functions.invoke('admin-management', {
         body: {
           action: 'get_lead_documents',
@@ -493,6 +495,7 @@ const LeadsManagement: React.FC = () => {
       });
 
       if (error) throw error;
+      console.log('Lead documents response:', data);
       setLeadDocuments(data.documents || []);
     } catch (error) {
       console.error('Error fetching lead documents:', error);
@@ -1274,20 +1277,22 @@ const LeadsManagement: React.FC = () => {
                       </div>
                     )}
                     
-                    {!selected.isRegistered ? (
+                    {loadingDocuments ? (
+                      <div className="flex items-center justify-center h-32">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+                        <p className="ml-3 text-sm text-muted-foreground">Dokumente werden geladen...</p>
+                      </div>
+                    ) : userDocuments.length === 0 && leadDocuments.length === 0 ? (
                       <div className="flex items-center justify-center h-32 text-center">
                         <div>
                           <FileText className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                           <p className="text-sm text-muted-foreground">
-                            Dieser Lead ist nicht registriert.<br />
-                            Keine Dokumente verfügbar.
+                            {!selected.isRegistered 
+                              ? "Dieser Lead ist nicht registriert.\nKeine Dokumente hochgeladen." 
+                              : "Keine Dokumente hochgeladen"
+                            }
                           </p>
                         </div>
-                      </div>
-                    ) : loadingDocuments ? (
-                      <div className="flex items-center justify-center h-32">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-                        <p className="ml-3 text-sm text-muted-foreground">Dokumente werden geladen...</p>
                       </div>
                     ) : userDocuments.length === 0 && leadDocuments.length === 0 ? (
                       <div className="flex items-center justify-center h-32 text-center">
