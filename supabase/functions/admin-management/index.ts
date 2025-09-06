@@ -455,41 +455,37 @@ serve(async (req) => {
 
       case 'get_members':
         try {
-          // First get all profiles
+          // Fetch all profiles (optional extra data)
           const { data: profiles, error: profilesError } = await supabase
             .from('profiles')
             .select('*')
             .order('created_at', { ascending: false });
+          if (profilesError) console.warn('profiles query error (non-fatal):', profilesError);
 
-          if (profilesError) throw profilesError;
-
-          // Get emails from auth.users for each profile using service role
-          const membersWithEmails = [];
-          
-          for (const profile of profiles || []) {
-            try {
-              const { data: userData, error: userError } = await supabase.auth.admin.getUserById(profile.user_id);
-              
-              if (!userError && userData.user) {
-                membersWithEmails.push({
-                  ...profile,
-                  email: userData.user.email || 'N/A'
-                });
-              } else {
-                // If we can't fetch user data, still include the profile without email
-                membersWithEmails.push({
-                  ...profile,
-                  email: 'N/A'
-                });
-              }
-            } catch (error) {
-              console.error('Error fetching user email for profile:', profile.id, error);
-              membersWithEmails.push({
-                ...profile,
-                email: 'N/A'
-              });
-            }
+          // Fetch all auth users to ensure we can match by email even if profile row is missing
+          const users: any[] = []
+          let page = 1
+          const perPage = 1000
+          while (true) {
+            const { data: list, error: listErr } = await supabase.auth.admin.listUsers({ page, perPage })
+            if (listErr) throw listErr
+            users.push(...(list?.users || []))
+            if (!list || list.users.length < perPage) break
+            page++
           }
+
+          // Merge profiles with auth users by user_id
+          const profileByUserId = new Map((profiles || []).map((p: any) => [p.user_id, p]))
+          const membersWithEmails = users.map((u: any) => {
+            const profile = profileByUserId.get(u.id)
+            return {
+              ...(profile || {}),
+              user_id: u.id,
+              id: profile?.id ?? u.id, // keep a stable id
+              email: u.email ?? 'N/A',
+              created_at: profile?.created_at ?? u.created_at
+            }
+          })
 
           return new Response(
             JSON.stringify({ members: membersWithEmails }),
@@ -498,7 +494,7 @@ serve(async (req) => {
         } catch (error) {
           console.error('Error fetching members:', error);
           return new Response(
-            JSON.stringify({ error: 'Failed to fetch members' }),
+            JSON.stringify({ error: 'Failed to fetch members', details: (error as any)?.message }),
             { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
