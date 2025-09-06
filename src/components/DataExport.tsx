@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Download, FileDown, Loader2, Archive } from 'lucide-react';
+import { Download, FileDown, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
 const DataExport = () => {
   const [isExporting, setIsExporting] = useState(false);
-  const [isBackingUp, setIsBackingUp] = useState(false);
   const { toast } = useToast();
 
   const downloadCSV = (csvContent: string, filename: string) => {
@@ -70,52 +69,6 @@ const DataExport = () => {
     }
   };
 
-  const handleFullBackup = async () => {
-    setIsBackingUp(true);
-    
-    try {
-      console.log('Starting full backup with documents...');
-      
-      const response = await fetch(`https://msujaimgdxhxmtlaabvn.supabase.co/functions/v1/full-backup`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      // Get the ZIP file as blob
-      const blob = await response.blob();
-      
-      // Create download link
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `elbtal_full_backup_${new Date().toISOString().split('T')[0]}.zip`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-
-      toast({
-        title: 'Vollständiges Backup erstellt',
-        description: 'Alle Daten und Dokumente wurden erfolgreich heruntergeladen',
-      });
-
-    } catch (error) {
-      console.error('Full backup failed:', error);
-      toast({
-        title: 'Backup fehlgeschlagen',
-        description: 'Fehler beim Erstellen des vollständigen Backups',
-        variant: 'destructive'
-      });
-    } finally {
-      setIsBackingUp(false);
-    }
-  };
 
   return (
     <Card>
@@ -131,8 +84,7 @@ const DataExport = () => {
       <CardContent className="space-y-4">
         <Button 
           onClick={handleExport} 
-          disabled={isExporting || isBackingUp}
-          variant="outline"
+          disabled={isExporting}
           className="w-full"
         >
           {isExporting ? (
@@ -143,25 +95,7 @@ const DataExport = () => {
           ) : (
             <>
               <Download className="h-4 w-4 mr-2" />
-              Nur CSV Dateien
-            </>
-          )}
-        </Button>
-
-        <Button 
-          onClick={handleFullBackup} 
-          disabled={isExporting || isBackingUp}
-          className="w-full"
-        >
-          {isBackingUp ? (
-            <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Erstelle Vollbackup...
-            </>
-          ) : (
-            <>
-              <Archive className="h-4 w-4 mr-2" />
-              Vollständiges Backup (inkl. 128 Dokumente)
+              CSV Dateien exportieren
             </>
           )}
         </Button>
