@@ -125,6 +125,9 @@ serve(async (req) => {
         });
         const uniqueUserIds = Array.from(new Set(Array.from(emailToUserId.values())));
 
+        console.log(`Found ${emailToUserId.size} email->user_id mappings from applications`);
+        console.log(`Sample mappings:`, Array.from(emailToUserId.entries()).slice(0, 5));
+
         // Preload document counts for inferred users
         const docsByUserId = new Map<string, number>();
         if (uniqueUserIds.length > 0) {
@@ -136,6 +139,7 @@ serve(async (req) => {
             docs.forEach((d: any) => {
               docsByUserId.set(d.user_id, (docsByUserId.get(d.user_id) || 0) + 1);
             });
+            console.log(`Found documents for ${docsByUserId.size} users, total docs: ${docs.length}`);
           }
         }
 
@@ -152,6 +156,10 @@ serve(async (req) => {
           const inferred_user_id = emailToUserId.get(reqEmail) || (matched.find((a: any) => a.user_id)?.user_id || null);
           const has_documents = inferred_user_id ? ((docsByUserId.get(inferred_user_id) || 0) > 0) : false;
           const is_registered = matched.length > 0 || has_documents;
+
+          if (reqEmail === 'moritz.bl@gmx.de' || reqEmail === 'luca.patzner@icloud.com') {
+            console.log(`DEBUG ${reqEmail}: matched=${matched.length}, inferred_user_id=${inferred_user_id}, has_documents=${has_documents}, is_registered=${is_registered}`);
+          }
 
           return { ...request, applications: matched, inferred_user_id, has_documents, is_registered };
         });
