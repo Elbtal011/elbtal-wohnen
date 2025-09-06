@@ -153,17 +153,30 @@ const LeadsManagement: React.FC = () => {
       setRegisteredEmails(memberEmails);
 
       // Add registration status and user_id to leads
+      const globalApps: any[] = (leadsResult.data?.applications || []) as any[];
+      const normEmail = (e?: string) => (e || '').toLowerCase().trim();
+      const normPhone = (p?: string) => (p || '').replace(/[^0-9]/g, '');
+
       const leadsWithStatus = (leadsResult.data?.requests || []).map((lead: Lead) => {
         const member = (membersResult.data?.members || []).find((m: any) => 
-          m.email && lead.email && m.email.toLowerCase() === lead.email.toLowerCase()
+          m.email && lead.email && normEmail(m.email) === normEmail(lead.email)
         );
 
-        // Fallback: if no auth user found (after restores), infer registration from applications
-        const applicationUserId = (lead as any).inferred_user_id || (Array.isArray(lead.applications)
-          ? (lead.applications.find((app: any) => app && typeof app.user_id === 'string' && app.user_id.trim().length === 36)?.user_id ?? null)
-          : null);
+        // Prefer inferred id from server, else derive from per-lead apps, else from global apps by email/phone
+        const fromServer = (lead as any).inferred_user_id || null;
+        const fromLocalApps = Array.isArray(lead.applications)
+          ? (lead.applications.find((app: any) => app?.user_id)?.user_id ?? null)
+          : null;
+        const fromGlobalApps = (() => {
+          const byEmail = globalApps.find((app: any) => normEmail(app.email) === normEmail(lead.email));
+          if (byEmail?.user_id) return byEmail.user_id;
+          const reqPhone = normPhone((lead as any).telefon);
+          const byPhone = reqPhone ? globalApps.find((app: any) => normPhone(app.telefon) === reqPhone) : null;
+          return byPhone?.user_id ?? null;
+        })();
+        const applicationUserId = fromServer || fromLocalApps || fromGlobalApps;
 
-        const registeredByAuth = memberEmails.has(lead.email?.toLowerCase());
+        const registeredByAuth = memberEmails.has(normEmail(lead.email));
         const registeredByApplication = Boolean(applicationUserId);
 
         return {
