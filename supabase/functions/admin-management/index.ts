@@ -114,13 +114,19 @@ serve(async (req) => {
           console.error('Error fetching applications:', appsError);
         }
 
-        // Combine contact requests with application info (case-insensitive email match)
-        const requestsWithApplications = requests.map(request => ({
-          ...request,
-          applications: (applications || []).filter(app =>
-            (app.email || '').toLowerCase().trim() === (request.email || '').toLowerCase().trim()
-          )
-        }));
+        // Combine contact requests with application info (robust match by email or phone)
+        const normalizeEmail = (e: string) => (e || '').toLowerCase().trim();
+        const normalizePhone = (p: string) => (p || '').replace(/[^0-9]/g, '');
+        const requestsWithApplications = requests.map(request => {
+          const reqEmail = normalizeEmail(request.email);
+          const reqPhone = normalizePhone(request.telefon);
+          const matched = (applications || []).filter(app => {
+            const appEmail = normalizeEmail(app.email);
+            const appPhone = normalizePhone(app.telefon);
+            return (appEmail && appEmail === reqEmail) || (appPhone && reqPhone && appPhone === reqPhone);
+          });
+          return { ...request, applications: matched };
+        });
 
         return new Response(
           JSON.stringify({ 
