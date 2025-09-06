@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Archive, Download, Loader2, Upload } from 'lucide-react';
@@ -12,6 +13,7 @@ const LeadsExportWithDocuments = () => {
   const [isImporting, setIsImporting] = useState(false);
   const [cutoffDate, setCutoffDate] = useState('');
   const [importFile, setImportFile] = useState<File | null>(null);
+  const [open, setOpen] = useState(false);
   const { toast } = useToast();
 
   const handleExportWithDocuments = async () => {
@@ -127,103 +129,120 @@ const LeadsExportWithDocuments = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Export Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Archive className="h-5 w-5" />
-            Leads mit Dokumenten exportieren
-          </CardTitle>
-          <CardDescription>
-            Exportiert alle Leads und deren zugehörige Dokumente als ZIP-Datei
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="cutoff-date">
-              Ab Datum exportieren (optional)
-            </Label>
-            <Input
-              id="cutoff-date"
-              type="datetime-local"
-              value={cutoffDate}
-              onChange={(e) => setCutoffDate(e.target.value)}
-              placeholder="Alle Daten exportieren"
-            />
-            <p className="text-sm text-muted-foreground">
-              Leer lassen, um alle Leads zu exportieren. Datum eingeben, um nur neuere Leads zu exportieren.
-            </p>
-          </div>
-          
-          <Button 
-            onClick={handleExportWithDocuments} 
-            disabled={isExporting || isImporting}
-            className="w-full"
-          >
-            {isExporting ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Exportiere Leads mit Dokumenten...
-              </>
-            ) : (
-              <>
-                <Download className="h-4 w-4 mr-2" />
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" className="hover-scale">
+          <Archive className="h-4 w-4 mr-2" />
+          Export/Import mit Dokumenten
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Leads mit Dokumenten Export/Import</DialogTitle>
+          <DialogDescription>
+            Exportiere oder importiere Leads zusammen mit ihren Dokumenten
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="space-y-6">
+          {/* Export Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Archive className="h-5 w-5" />
                 Leads mit Dokumenten exportieren
-              </>
-            )}
-          </Button>
-        </CardContent>
-      </Card>
+              </CardTitle>
+              <CardDescription>
+                Exportiert alle Leads und deren zugehörige Dokumente als ZIP-Datei
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="cutoff-date">
+                  Ab Datum exportieren (optional)
+                </Label>
+                <Input
+                  id="cutoff-date"
+                  type="datetime-local"
+                  value={cutoffDate}
+                  onChange={(e) => setCutoffDate(e.target.value)}
+                  placeholder="Alle Daten exportieren"
+                />
+                <p className="text-sm text-muted-foreground">
+                  Leer lassen, um alle Leads zu exportieren. Datum eingeben, um nur neuere Leads zu exportieren.
+                </p>
+              </div>
+              
+              <Button 
+                onClick={handleExportWithDocuments} 
+                disabled={isExporting || isImporting}
+                className="w-full"
+              >
+                {isExporting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Exportiere Leads mit Dokumenten...
+                  </>
+                ) : (
+                  <>
+                    <Download className="h-4 w-4 mr-2" />
+                    Leads mit Dokumenten exportieren
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
 
-      {/* Import Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Upload className="h-5 w-5" />
-            Leads mit Dokumenten importieren
-          </CardTitle>
-          <CardDescription>
-            Importiert Leads und Dokumente aus einer zuvor exportierten ZIP-Datei
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="import-file">
-              ZIP-Datei auswählen
-            </Label>
-            <Input
-              id="import-file"
-              type="file"
-              accept=".zip"
-              onChange={(e) => setImportFile(e.target.files?.[0] || null)}
-            />
-            <p className="text-sm text-muted-foreground">
-              Wählen Sie eine ZIP-Datei aus, die zuvor mit dem Export-Tool erstellt wurde.
-            </p>
-          </div>
-          
-          <Button 
-            onClick={handleImportWithDocuments} 
-            disabled={isExporting || isImporting || !importFile}
-            variant="outline"
-            className="w-full"
-          >
-            {isImporting ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Importiere Leads mit Dokumenten...
-              </>
-            ) : (
-              <>
-                <Upload className="h-4 w-4 mr-2" />
+          {/* Import Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Upload className="h-5 w-5" />
                 Leads mit Dokumenten importieren
-              </>
-            )}
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
+              </CardTitle>
+              <CardDescription>
+                Importiert Leads und Dokumente aus einer zuvor exportierten ZIP-Datei
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="import-file">
+                  ZIP-Datei auswählen
+                </Label>
+                <Input
+                  id="import-file"
+                  type="file"
+                  accept=".zip"
+                  onChange={(e) => setImportFile(e.target.files?.[0] || null)}
+                />
+                <p className="text-sm text-muted-foreground">
+                  Wählen Sie eine ZIP-Datei aus, die zuvor mit dem Export-Tool erstellt wurde.
+                </p>
+              </div>
+              
+              <Button 
+                onClick={handleImportWithDocuments} 
+                disabled={isExporting || isImporting || !importFile}
+                variant="outline"
+                className="w-full"
+              >
+                {isImporting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Importiere Leads mit Dokumenten...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="h-4 w-4 mr-2" />
+                    Leads mit Dokumenten importieren
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
