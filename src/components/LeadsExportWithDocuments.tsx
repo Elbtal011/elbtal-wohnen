@@ -21,8 +21,8 @@ const LeadsExportWithDocuments = () => {
     try {
       console.log('Starting export with documents...');
 
-      // Call the edge function directly to receive a ZIP blob
-      const response = await fetch(`https://msujaimgdxhxmtlaabvn.supabase.co/functions/v1/leads-export-with-documents`, {
+      // Call the full-backup function which now includes lead documents
+      const response = await fetch(`https://msujaimgdxhxmtlaabvn.supabase.co/functions/v1/full-backup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({})

@@ -60,19 +60,19 @@ Deno.serve(async (req) => {
       .select('*')
       .order('uploaded_at', { ascending: false })
 
-    const { data: properties, error: propertiesError } = await supabase
-      .from('properties')
+    const { data: leadDocuments, error: leadDocsError } = await supabase
+      .from('lead_documents')
       .select('*')
       .order('created_at', { ascending: false })
 
-    if (contactError || applicationError || documentsError || propertiesError) {
+    if (contactError || applicationError || documentsError || leadDocsError) {
       throw new Error('Error fetching data from database')
     }
 
     console.log(`Found ${contactRequests?.length || 0} contact requests`)
     console.log(`Found ${propertyApplications?.length || 0} property applications`)
     console.log(`Found ${userDocuments?.length || 0} user documents`)
-    console.log(`Found ${properties?.length || 0} properties`)
+    console.log(`Found ${leadDocuments?.length || 0} lead documents`)
 
     // Add CSV files to ZIP
     if (contactRequests && contactRequests.length > 0) {
@@ -85,47 +85,62 @@ Deno.serve(async (req) => {
       zip.addFile('data/property_applications.csv', csvContent)
     }
 
-    if (properties && properties.length > 0) {
-      const csvContent = arrayToCSV(properties)
-      zip.addFile('data/properties.csv', csvContent)
-    }
-
+    // Remove properties.csv to keep backup small and focused on leads
     if (userDocuments && userDocuments.length > 0) {
       const csvContent = arrayToCSV(userDocuments)
       zip.addFile('data/user_documents_metadata.csv', csvContent)
+    }
+
+    if (leadDocuments && leadDocuments.length > 0) {
+      const csvContent = arrayToCSV(leadDocuments)
+      zip.addFile('data/lead_documents.csv', csvContent)
     }
 
     // Download and add user documents to ZIP
     let successfulDownloads = 0
     let failedDownloads = 0
 
+    const processFile = async (bucket: string, path: string, dest: string) => {
+      const { data: fileData, error: downloadError } = await supabase.storage
+        .from(bucket)
+        .download(path)
+      if (downloadError) return { ok: false, error: downloadError }
+      const fileBuffer = await fileData!.arrayBuffer()
+      zip.addFile(dest, new Uint8Array(fileBuffer))
+      return { ok: true }
+    }
+
     if (userDocuments && userDocuments.length > 0) {
-      console.log('Starting document downloads...')
-      
+      console.log('Starting user document downloads...')
       for (const doc of userDocuments) {
         try {
-          const { data: fileData, error: downloadError } = await supabase.storage
-            .from('user-documents')
-            .download(doc.file_path)
-
-          if (downloadError) {
-            console.error(`Failed to download ${doc.file_path}:`, downloadError)
+          const res = await processFile('user-documents', doc.file_path, `documents/user_documents/${doc.user_id}/${doc.document_type}/${doc.file_name}`)
+          if (!res.ok) {
+            console.error(`Failed to download user doc ${doc.file_path}:`, res.error)
             failedDownloads++
-            continue
-          }
-
-          if (fileData) {
-            const fileBuffer = await fileData.arrayBuffer()
-            const fileName = `documents/user_documents/${doc.user_id}/${doc.document_type}/${doc.file_name}`
-            zip.addFile(fileName, new Uint8Array(fileBuffer))
+          } else {
             successfulDownloads++
-            
-            if (successfulDownloads % 10 === 0) {
-              console.log(`Downloaded ${successfulDownloads} documents...`)
-            }
           }
         } catch (error) {
-          console.error(`Error downloading ${doc.file_path}:`, error)
+          console.error(`Error downloading user doc ${doc.file_path}:`, error)
+          failedDownloads++
+        }
+      }
+    }
+
+    if (leadDocuments && leadDocuments.length > 0) {
+      console.log('Starting lead document downloads...')
+      for (const doc of leadDocuments) {
+        try {
+          const res = await processFile('lead-documents', doc.file_path, `documents/lead_documents/${doc.contact_request_id}/${doc.document_type}/${doc.file_name}`)
+          if (!res.ok) {
+            console.error(`Failed to download lead doc ${doc.file_path}:`, res.error)
+            failedDownloads++
+          } else {
+            successfulDownloads++
+          }
+        } catch (error) {
+          console.error(`Error downloading lead doc ${doc.file_path}:`, error)
           failedDownloads++
         }
       }
@@ -138,8 +153,8 @@ Deno.serve(async (req) => {
       created_at: new Date().toISOString(),
       total_contact_requests: contactRequests?.length || 0,
       total_property_applications: propertyApplications?.length || 0,
-      total_properties: properties?.length || 0,
       total_user_documents: userDocuments?.length || 0,
+      total_lead_documents: leadDocuments?.length || 0,
       successful_document_downloads: successfulDownloads,
       failed_document_downloads: failedDownloads,
       backup_type: 'full_backup_with_documents'
@@ -147,9 +162,9 @@ Deno.serve(async (req) => {
 
     zip.addFile('backup_info.json', JSON.stringify(backupInfo, null, 2))
 
-    // Generate ZIP
-    console.log('Generating ZIP file...')
-    const zipData = await zip.generateAsync({ type: 'uint8array', compression: 'DEFLATE' })
+    // Generate ZIP (no compression to reduce CPU)
+    console.log('Generating ZIP file (STORE)...')
+    const zipData = await zip.generateAsync({ type: 'uint8array', compression: 'STORE' })
 
     console.log(`Backup complete! ZIP size: ${zipData.length} bytes`)
 
