@@ -3,6 +3,7 @@ import { JSZip } from 'https://deno.land/x/jszip@0.11.0/mod.ts'
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
 interface ImportResult {
@@ -19,12 +20,13 @@ interface ImportResult {
 
 function parseCSV(csvContent: string): any[] {
   // Robust CSV parser supporting quoted fields and commas/newlines inside quotes
+  const text = csvContent && csvContent.charCodeAt(0) === 65279 ? csvContent.slice(1) : csvContent
   const rows: string[][] = []
   const line: string[] = []
   let cur = ''
   let inQuotes = false
-  for (let i = 0; i < csvContent.length; i++) {
-    const ch = csvContent[i]
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i]
     if (inQuotes) {
       if (ch === '"') {
         // Escaped quote
@@ -110,9 +112,12 @@ Deno.serve(async (req) => {
 
     // Read ZIP file
     const zipBuffer = await zipFile.arrayBuffer()
+    console.log(`ZIP received, size: ${zipBuffer.byteLength} bytes`)
 
     // Load and extract CSVs from ZIP using JSZip
     const zip = await JSZip.loadAsync(new Uint8Array(zipBuffer))
+    const fileNames = Object.keys(zip.files)
+    console.log('ZIP contains files:', fileNames.slice(0, 50))
 
     const readText = async (paths: string[]): Promise<string | null> => {
       for (const p of paths) {
@@ -235,15 +240,14 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     console.error('Import error:', error)
-    
     return new Response(
       JSON.stringify({
         success: false,
         message: 'Import failed',
-        error: error.message
+        error: error instanceof Error ? error.message : String(error)
       }),
       {
-        status: 500,
+        status: 200,
         headers: {
           ...corsHeaders,
           'Content-Type': 'application/json',
