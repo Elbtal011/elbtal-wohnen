@@ -1,5 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.53.0'
-
+import { JSZip } from 'https://deno.land/x/jszip@0.11.0/mod.ts'
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -79,18 +79,43 @@ Deno.serve(async (req) => {
 
     // Read ZIP file
     const zipBuffer = await zipFile.arrayBuffer()
-    
-    // For now, we'll use a simple approach - extract files manually
-    // In a production environment, you'd use a proper ZIP library
-    
-    // Parse form data to get CSV content and file information
-    // This is a simplified approach - in production you'd extract the ZIP properly
-    const contactRequestsCSV = formData.get('contactRequestsCSV') as string
-    const leadDocumentsCSV = formData.get('leadDocumentsCSV') as string
-    const userDocumentsCSV = formData.get('userDocumentsCSV') as string
-    
+
+    // Load and extract CSVs from ZIP using JSZip
+    const zip = await JSZip.loadAsync(new Uint8Array(zipBuffer))
+
+    const readText = async (paths: string[]): Promise<string | null> => {
+      for (const p of paths) {
+        const file = zip.file(p)
+        if (file) return await file.async('string')
+      }
+      return null
+    }
+
+    let contactRequestsCSV = await readText(['data/contact_requests.csv', 'contact_requests.csv'])
+    let leadDocumentsCSV = await readText(['data/lead_documents.csv', 'lead_documents.csv'])
+    let userDocumentsCSV = await readText([
+      'data/user_documents_metadata.csv',
+      'data/user_documents.csv',
+      'user_documents_metadata.csv',
+      'user_documents.csv'
+    ])
+
+    // Backward-compatibility: also accept CSVs provided directly in form-data
     if (!contactRequestsCSV) {
-      throw new Error('No contact requests data found in import')
+      const f = formData.get('contactRequestsCSV')
+      if (typeof f === 'string' && f.trim().length > 0) contactRequestsCSV = f
+    }
+    if (!leadDocumentsCSV) {
+      const f = formData.get('leadDocumentsCSV')
+      if (typeof f === 'string' && f.trim().length > 0) leadDocumentsCSV = f
+    }
+    if (!userDocumentsCSV) {
+      const f = formData.get('userDocumentsCSV')
+      if (typeof f === 'string' && f.trim().length > 0) userDocumentsCSV = f
+    }
+
+    if (!contactRequestsCSV) {
+      throw new Error('No contact requests CSV found (expected data/contact_requests.csv in ZIP)')
     }
 
     // Parse CSV data
