@@ -66,11 +66,6 @@ function parseCSV(csvContent: string): any[] {
   const dataRows = rows.slice(1)
   const toValue = (value: string) => {
     if (value === '') return null
-    const lower = value.toLowerCase()
-    if (lower === 'true') return true
-    if (lower === 'false') return false
-    const n = Number(value)
-    if (!Number.isNaN(n) && /^-?\d+(\.\d+)?$/.test(value)) return n
     return value
   }
   return dataRows.map(cols => {
@@ -163,107 +158,61 @@ Deno.serve(async (req) => {
     console.log(`Importing ${leadDocuments.length} lead documents`)
     console.log(`Importing ${userDocuments.length} user documents`)
 
-    // Import contact requests
-    for (const contact of contactRequests) {
-      try {
-        // Check if contact already exists
-        const { data: existing } = await supabase
-          .from('contact_requests')
-          .select('id')
-          .eq('id', contact.id)
-          .maybeSingle()
+    // Import contact requests (bulk upsert to avoid per-row queries and RLS pitfalls)
+    const chunkArray = (arr: any[], size: number) => {
+      const out: any[] = []
+      for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size))
+      return out
+    }
 
-        if (existing) {
-          // Update existing
-          const { error } = await supabase
-            .from('contact_requests')
-            .update(contact)
-            .eq('id', contact.id)
+    for (const part of chunkArray(contactRequests, 500)) {
+      const { error } = await supabase
+        .from('contact_requests')
+        .upsert(part, { onConflict: 'id' })
 
-          if (error) {
-            result.errors.push(`Failed to update contact ${contact.id}: ${error.message}`)
-            result.details.contactRequests.skipped++
-          } else {
-            result.details.contactRequests.updated++
-          }
-        } else {
-          // Insert new
-          const { error } = await supabase
-            .from('contact_requests')
-            .insert(contact)
-
-          if (error) {
-            result.errors.push(`Failed to insert contact ${contact.id}: ${error.message}`)
-            result.details.contactRequests.skipped++
-          } else {
-            result.details.contactRequests.inserted++
-          }
-        }
-      } catch (error) {
-        result.errors.push(`Error processing contact ${contact.id}: ${error.message}`)
-        result.details.contactRequests.skipped++
+      if (error) {
+        result.errors.push(`Failed to upsert ${part.length} contact requests: ${error.message}`)
+        result.details.contactRequests.skipped += part.length
+      } else {
+        result.details.contactRequests.inserted += part.length
       }
     }
 
-    // Import lead documents metadata
-    for (const doc of leadDocuments) {
-      try {
-        // Check if document already exists
-        const { data: existing } = await supabase
-          .from('lead_documents')
-          .select('id')
-          .eq('id', doc.id)
-          .maybeSingle()
+    // Import lead documents metadata (bulk upsert)
+    for (const part of chunkArray(leadDocuments, 500)) {
+      const normalized = part.map((d: any) => ({
+        ...d,
+        file_size: d.file_size === '' || d.file_size === null || d.file_size === undefined ? null : Number(d.file_size)
+      }))
 
-        if (existing) {
-          result.details.leadDocuments.skipped++
-        } else {
-          // Insert new document record
-          const { error } = await supabase
-            .from('lead_documents')
-            .insert(doc)
+      const { error } = await supabase
+        .from('lead_documents')
+        .upsert(normalized, { onConflict: 'id' })
 
-          if (error) {
-            result.errors.push(`Failed to insert lead document ${doc.id}: ${error.message}`)
-            result.details.leadDocuments.skipped++
-          } else {
-            result.details.leadDocuments.inserted++
-          }
-        }
-      } catch (error) {
-        result.errors.push(`Error processing lead document ${doc.id}: ${error.message}`)
-        result.details.leadDocuments.skipped++
+      if (error) {
+        result.errors.push(`Failed to upsert ${part.length} lead documents: ${error.message}`)
+        result.details.leadDocuments.skipped += part.length
+      } else {
+        result.details.leadDocuments.inserted += part.length
       }
     }
 
-    // Import user documents metadata
-    for (const doc of userDocuments) {
-      try {
-        // Check if document already exists
-        const { data: existing } = await supabase
-          .from('user_documents')
-          .select('id')
-          .eq('id', doc.id)
-          .maybeSingle()
+    // Import user documents metadata (bulk upsert)
+    for (const part of chunkArray(userDocuments, 500)) {
+      const normalized = part.map((d: any) => ({
+        ...d,
+        file_size: d.file_size === '' || d.file_size === null || d.file_size === undefined ? null : Number(d.file_size)
+      }))
 
-        if (existing) {
-          result.details.userDocuments.skipped++
-        } else {
-          // Insert new document record
-          const { error } = await supabase
-            .from('user_documents')
-            .insert(doc)
+      const { error } = await supabase
+        .from('user_documents')
+        .upsert(normalized, { onConflict: 'id' })
 
-          if (error) {
-            result.errors.push(`Failed to insert user document ${doc.id}: ${error.message}`)
-            result.details.userDocuments.skipped++
-          } else {
-            result.details.userDocuments.inserted++
-          }
-        }
-      } catch (error) {
-        result.errors.push(`Error processing user document ${doc.id}: ${error.message}`)
-        result.details.userDocuments.skipped++
+      if (error) {
+        result.errors.push(`Failed to upsert ${part.length} user documents: ${error.message}`)
+        result.details.userDocuments.skipped += part.length
+      } else {
+        result.details.userDocuments.inserted += part.length
       }
     }
 
