@@ -1,5 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.53.0'
-import JSZip, { loadAsync } from 'https://deno.land/x/jszip@0.11.0/mod.ts'
+import { JSZip } from 'https://deno.land/x/jszip@0.11.0/mod.ts'
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -114,9 +114,10 @@ Deno.serve(async (req) => {
     const zipBuffer = await zipFile.arrayBuffer()
     console.log(`ZIP received, size: ${zipBuffer.byteLength} bytes`)
 
-    // Load and extract CSVs from ZIP using JSZip
-    const zip = await loadAsync(new Uint8Array(zipBuffer))
-    const fileNames = Object.keys(zip.files)
+    // Load and extract CSVs from ZIP using JSZip (deno wrapper requires instance)
+    const zip = new JSZip()
+    await zip.loadAsync(new Uint8Array(zipBuffer))
+    const fileNames = Object.keys(zip.files())
     console.log('ZIP contains files:', fileNames.slice(0, 50))
 
     const readText = async (paths: string[]): Promise<string | null> => {
