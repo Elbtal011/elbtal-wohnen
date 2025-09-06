@@ -34,25 +34,21 @@ Deno.serve(async (req) => {
   }
 
   try {
-    let cutoffDate: string | null = null
-    try {
-      const body = await req.json()
-      cutoffDate = body?.cutoffDate ?? null // backward compatible, but unused
-    } catch (_) {
-      // no body provided
-    }
+    console.log('Starting leads export with documents...')
     
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    console.log('Starting leads export with documents...')
+    console.log('Supabase client initialized')
 
     // Initialize ZIP
     const zip = new JSZip()
+    console.log('ZIP initialized')
 
     // Fetch contact requests (all)
+    console.log('Fetching contact requests...')
     const { data: contactRequests, error: contactError } = await supabase
       .from('contact_requests')
       .select('*')
@@ -60,82 +56,106 @@ Deno.serve(async (req) => {
 
     if (contactError) {
       console.error('Error fetching contact requests:', contactError)
-      throw contactError
+      throw new Error(`Contact requests fetch failed: ${contactError.message}`)
     }
 
     console.log(`Found ${contactRequests?.length || 0} contact requests`)
 
-    // Fetch related user documents and lead documents for these contacts
+    // Fetch related documents
     const contactIds = contactRequests?.map(cr => cr.id) || []
+    console.log(`Processing ${contactIds.length} contact IDs`)
     
-    // Get user documents for registered users
-    let userDocuments: any[] = []
     let leadDocuments: any[] = []
+    let userDocuments: any[] = []
 
     if (contactIds.length > 0) {
       // Get lead documents directly associated with contact requests
-      const { data: leadDocs, error: leadDocsError } = await supabase
-        .from('lead_documents')
-        .select('*')
-        .in('contact_request_id', contactIds)
-
-      if (leadDocsError) {
-        console.error('Error fetching lead documents:', leadDocsError)
-      } else {
-        leadDocuments = leadDocs || []
-      }
-
-      // Get user documents for users that actually submitted applications (better signal of "applied")
-      const { data: applications, error: appsError } = await supabase
-        .from('property_applications')
-        .select('user_id')
-        .not('user_id', 'is', null)
-
-      if (appsError) {
-        console.error('Error fetching applications:', appsError)
-      }
-
-      const userIds = Array.from(new Set((applications || []).map((a: any) => a.user_id)))
-
-      if (userIds.length > 0) {
-        const { data: userDocs, error: userDocsError } = await supabase
-          .from('user_documents')
+      console.log('Fetching lead documents...')
+      try {
+        const { data: leadDocs, error: leadDocsError } = await supabase
+          .from('lead_documents')
           .select('*')
-          .in('user_id', userIds)
+          .in('contact_request_id', contactIds)
 
-        if (userDocsError) {
-          console.error('Error fetching user documents:', userDocsError)
-        } else if (userDocs) {
-          userDocuments = userDocs
+        if (leadDocsError) {
+          console.error('Error fetching lead documents:', leadDocsError)
+        } else {
+          leadDocuments = leadDocs || []
+          console.log(`Found ${leadDocuments.length} lead documents`)
         }
+      } catch (error) {
+        console.error('Lead documents fetch failed:', error)
+      }
+
+      // Get user documents for users that submitted applications
+      console.log('Fetching property applications...')
+      try {
+        const { data: applications, error: appsError } = await supabase
+          .from('property_applications')
+          .select('user_id')
+          .not('user_id', 'is', null)
+
+        if (appsError) {
+          console.error('Error fetching applications:', appsError)
+        } else {
+          const userIds = Array.from(new Set((applications || []).map((a: any) => a.user_id)))
+          console.log(`Found ${userIds.length} unique user IDs from applications`)
+
+          if (userIds.length > 0) {
+            console.log('Fetching user documents...')
+            const { data: userDocs, error: userDocsError } = await supabase
+              .from('user_documents')
+              .select('*')
+              .in('user_id', userIds)
+
+            if (userDocsError) {
+              console.error('Error fetching user documents:', userDocsError)
+            } else if (userDocs) {
+              userDocuments = userDocs
+              console.log(`Found ${userDocuments.length} user documents`)
+            }
+          }
+        }
+      } catch (error) {
+        console.error('User documents fetch failed:', error)
       }
     }
 
-    console.log(`Found ${leadDocuments.length} lead documents`)
-    console.log(`Found ${userDocuments.length} user documents`)
+    console.log(`Document counts - Lead: ${leadDocuments.length}, User: ${userDocuments.length}`)
 
     // Add CSV files to ZIP
-    if (contactRequests && contactRequests.length > 0) {
-      const csvContent = arrayToCSV(contactRequests)
-      zip.addFile('data/contact_requests.csv', csvContent)
-    }
+    console.log('Adding CSV files to ZIP...')
+    try {
+      if (contactRequests && contactRequests.length > 0) {
+        const csvContent = arrayToCSV(contactRequests)
+        zip.addFile('data/contact_requests.csv', csvContent)
+        console.log('Added contact_requests.csv')
+      }
 
-    if (leadDocuments.length > 0) {
-      const csvContent = arrayToCSV(leadDocuments)
-      zip.addFile('data/lead_documents.csv', csvContent)
-    }
+      if (leadDocuments.length > 0) {
+        const csvContent = arrayToCSV(leadDocuments)
+        zip.addFile('data/lead_documents.csv', csvContent)
+        console.log('Added lead_documents.csv')
+      }
 
-    if (userDocuments.length > 0) {
-      const csvContent = arrayToCSV(userDocuments)
-      zip.addFile('data/user_documents.csv', csvContent)
+      if (userDocuments.length > 0) {
+        const csvContent = arrayToCSV(userDocuments)
+        zip.addFile('data/user_documents.csv', csvContent)
+        console.log('Added user_documents.csv')
+      }
+    } catch (error) {
+      console.error('Error adding CSV files:', error)
+      throw new Error(`CSV generation failed: ${error.message}`)
     }
 
     // Download and add lead documents to ZIP
+    console.log('Processing lead document downloads...')
     let successfulDownloads = 0
     let failedDownloads = 0
 
     for (const doc of leadDocuments) {
       try {
+        console.log(`Downloading lead document: ${doc.file_path}`)
         const { data: fileData, error: downloadError } = await supabase.storage
           .from('lead-documents')
           .download(doc.file_path)
@@ -151,6 +171,10 @@ Deno.serve(async (req) => {
           const fileName = `documents/lead_documents/${doc.contact_request_id}/${doc.document_type}/${doc.file_name}`
           zip.addFile(fileName, new Uint8Array(fileBuffer))
           successfulDownloads++
+          
+          if (successfulDownloads % 5 === 0) {
+            console.log(`Downloaded ${successfulDownloads} lead documents...`)
+          }
         }
       } catch (error) {
         console.error(`Error downloading lead document ${doc.file_path}:`, error)
@@ -159,8 +183,10 @@ Deno.serve(async (req) => {
     }
 
     // Download and add user documents to ZIP
+    console.log('Processing user document downloads...')
     for (const doc of userDocuments) {
       try {
+        console.log(`Downloading user document: ${doc.file_path}`)
         const { data: fileData, error: downloadError } = await supabase.storage
           .from('user-documents')
           .download(doc.file_path)
@@ -176,6 +202,10 @@ Deno.serve(async (req) => {
           const fileName = `documents/user_documents/${doc.user_id}/${doc.document_type}/${doc.file_name}`
           zip.addFile(fileName, new Uint8Array(fileBuffer))
           successfulDownloads++
+          
+          if (successfulDownloads % 5 === 0) {
+            console.log(`Downloaded ${successfulDownloads} total documents...`)
+          }
         }
       } catch (error) {
         console.error(`Error downloading user document ${doc.file_path}:`, error)
@@ -186,9 +216,9 @@ Deno.serve(async (req) => {
     console.log(`Document download complete: ${successfulDownloads} successful, ${failedDownloads} failed`)
 
     // Add export info
+    console.log('Adding export metadata...')
     const exportInfo = {
       created_at: new Date().toISOString(),
-      cutoff_date: cutoffDate,
       total_contact_requests: contactRequests?.length || 0,
       total_lead_documents: leadDocuments.length,
       total_user_documents: userDocuments.length,
@@ -217,11 +247,13 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     console.error('Leads export error:', error)
+    console.error('Error stack:', error.stack)
     
     return new Response(
       JSON.stringify({
         error: 'Export failed',
-        message: error.message
+        message: error.message,
+        details: error.stack
       }),
       {
         status: 500,
