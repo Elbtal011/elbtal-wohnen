@@ -56,8 +56,8 @@ export const useAdminAPI = () => {
     return callAdminFunction('get_members');
   };
 
-  const getUserDocuments = async (user_id: string) => {
-    return callAdminFunction('get_user_documents', { user_id });
+  const getUserDocuments = async (user_id: string, contact_request_id?: string) => {
+    return callAdminFunction('get_user_documents', { user_id, contact_request_id });
   };
 
   const getLeadDocuments = async (contactRequestId: string) => {

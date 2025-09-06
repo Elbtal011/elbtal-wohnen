@@ -780,13 +780,50 @@ serve(async (req) => {
 
       case 'get_user_documents':
         try {
-          const { user_id } = data;
+          const { user_id, contact_request_id } = data;
           
-          const { data: documents, error: docsError } = await supabase
+          // Try to get documents by user_id first
+          let { data: documents, error: docsError } = await supabase
             .from('user_documents')
             .select('*')
             .eq('user_id', user_id)
             .order('uploaded_at', { ascending: false });
+
+          // If no documents found and we have contact_request_id, try to find via property application
+          if ((!documents || documents.length === 0) && contact_request_id) {
+            // Get the contact request email
+            const { data: contactRequest, error: contactError } = await supabase
+              .from('contact_requests')
+              .select('email')
+              .eq('id', contact_request_id)
+              .single();
+
+            if (!contactError && contactRequest?.email) {
+              // Find property application with matching email to get the original user_id
+              const { data: applications, error: appError } = await supabase
+                .from('property_applications')
+                .select('user_id')
+                .eq('email', contactRequest.email)
+                .limit(1);
+
+              if (!appError && applications && applications.length > 0) {
+                const originalUserId = applications[0].user_id;
+                console.log(`Trying alternative user_id: ${originalUserId} for email: ${contactRequest.email}`);
+
+                // Try fetching documents with the original user_id
+                const { data: altDocuments, error: altError } = await supabase
+                  .from('user_documents')
+                  .select('*')
+                  .eq('user_id', originalUserId)
+                  .order('uploaded_at', { ascending: false });
+
+                if (!altError && altDocuments) {
+                  documents = altDocuments;
+                  console.log(`Found ${altDocuments.length} documents with alternative user_id`);
+                }
+              }
+            }
+          }
 
           if (docsError) throw docsError;
 

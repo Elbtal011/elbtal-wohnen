@@ -60,7 +60,7 @@ const LeadDocumentsSection: React.FC<LeadDocumentsSectionProps> = ({
     try {
       // Fetch user documents if lead is registered
       if (lead.isRegistered && lead.user_id) {
-        const userData = await getUserDocuments(lead.user_id);
+        const userData = await getUserDocuments(lead.user_id, lead.id);
         setUserDocuments(userData.documents || []);
       }
 
