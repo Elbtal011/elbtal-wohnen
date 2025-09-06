@@ -118,17 +118,33 @@ serve(async (req) => {
         const normalizeEmail = (e: string) => (e || '').toLowerCase().trim();
         const normalizePhone = (p: string) => (p || '').replace(/[^0-9]/g, '');
 
+        // 1) Map email -> user_id using applications when available
         const emailToUserId = new Map<string, string>();
         (applications || []).forEach((app: any) => {
           const em = normalizeEmail(app.email);
           if (em && app.user_id && !emailToUserId.has(em)) emailToUserId.set(em, app.user_id);
         });
+
+        // 2) For remaining emails, map via auth.users (RPC) to cover users who registered but didn't apply
+        const requestEmails: string[] = Array.from(new Set((requests || []).map((r: any) => normalizeEmail(r.email)).filter(Boolean)));
+        const unmappedEmails = requestEmails.filter((em) => !emailToUserId.has(em));
+        if (unmappedEmails.length > 0) {
+          const { data: authMappings, error: authMapErr } = await supabase.rpc('map_emails_to_user_ids', { emails: unmappedEmails });
+          if (authMapErr) {
+            console.warn('Email->user_id RPC mapping failed:', authMapErr);
+          } else if (authMappings && Array.isArray(authMappings)) {
+            authMappings.forEach((row: any) => {
+              const em = normalizeEmail(row.email);
+              if (em && row.user_id && !emailToUserId.has(em)) emailToUserId.set(em, row.user_id);
+            });
+          }
+        }
+
+        console.log(`Total email->user_id mappings available: ${emailToUserId.size}`);
+        console.log('Sample mappings:', Array.from(emailToUserId.entries()).slice(0, 5));
+
+        // 3) Preload document counts for all inferred users
         const uniqueUserIds = Array.from(new Set(Array.from(emailToUserId.values())));
-
-        console.log(`Found ${emailToUserId.size} email->user_id mappings from applications`);
-        console.log(`Sample mappings:`, Array.from(emailToUserId.entries()).slice(0, 5));
-
-        // Preload document counts for inferred users
         const docsByUserId = new Map<string, number>();
         if (uniqueUserIds.length > 0) {
           const { data: docs, error: docsErr } = await supabase
@@ -140,10 +156,12 @@ serve(async (req) => {
               docsByUserId.set(d.user_id, (docsByUserId.get(d.user_id) || 0) + 1);
             });
             console.log(`Found documents for ${docsByUserId.size} users, total docs: ${docs.length}`);
+          } else if (docsErr) {
+            console.error('Preload user_documents error:', docsErr);
           }
         }
 
-        // Combine contact requests with application/doc info
+        // 4) Combine contact requests with application/auth/doc info
         const requestsWithApplications = requests.map((request: any) => {
           const reqEmail = normalizeEmail(request.email);
           const reqPhone = normalizePhone(request.telefon);
@@ -154,14 +172,15 @@ serve(async (req) => {
           });
 
           const inferred_user_id = emailToUserId.get(reqEmail) || (matched.find((a: any) => a.user_id)?.user_id || null);
-          const has_documents = inferred_user_id ? ((docsByUserId.get(inferred_user_id) || 0) > 0) : false;
-          const is_registered = matched.length > 0 || has_documents;
+          const documents_count = inferred_user_id ? (docsByUserId.get(inferred_user_id) || 0) : 0;
+          const has_documents = documents_count > 0;
+          const is_registered = Boolean(inferred_user_id) || matched.length > 0 || has_documents;
 
           if (reqEmail === 'moritz.bl@gmx.de' || reqEmail === 'luca.patzner@icloud.com') {
-            console.log(`DEBUG ${reqEmail}: matched=${matched.length}, inferred_user_id=${inferred_user_id}, has_documents=${has_documents}, is_registered=${is_registered}`);
+            console.log(`DEBUG ${reqEmail}: matched=${matched.length}, inferred_user_id=${inferred_user_id}, documents_count=${documents_count}, has_documents=${has_documents}, is_registered=${is_registered}`);
           }
 
-          return { ...request, applications: matched, inferred_user_id, has_documents, is_registered };
+          return { ...request, applications: matched, inferred_user_id, has_documents, documents_count, is_registered };
         });
 
         return new Response(
