@@ -1,0 +1,106 @@
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Download, FileDown, Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+
+const DataExport = () => {
+  const [isExporting, setIsExporting] = useState(false);
+  const { toast } = useToast();
+
+  const downloadCSV = (csvContent: string, filename: string) => {
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleExport = async () => {
+    setIsExporting(true);
+    
+    try {
+      console.log('Starting export...');
+      
+      const { data, error } = await supabase.functions.invoke('export-data', {
+        method: 'POST'
+      });
+
+      if (error) {
+        console.error('Export error:', error);
+        throw error;
+      }
+
+      console.log('Export response:', data);
+
+      if (data?.contact_requests?.csv) {
+        downloadCSV(
+          data.contact_requests.csv, 
+          `contact_requests_${new Date().toISOString().split('T')[0]}.csv`
+        );
+      }
+
+      if (data?.property_applications?.csv) {
+        downloadCSV(
+          data.property_applications.csv, 
+          `property_applications_${new Date().toISOString().split('T')[0]}.csv`
+        );
+      }
+
+      toast({
+        title: 'Export erfolgreich',
+        description: `${data.contact_requests.count} Kontaktanfragen und ${data.property_applications.count} Bewerbungen exportiert`,
+      });
+
+    } catch (error) {
+      console.error('Export failed:', error);
+      toast({
+        title: 'Export fehlgeschlagen',
+        description: 'Fehler beim Exportieren der Daten',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <FileDown className="h-5 w-5" />
+          Datenexport
+        </CardTitle>
+        <CardDescription>
+          Exportiere alle Kontaktanfragen und Bewerbungen als CSV-Dateien
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Button 
+          onClick={handleExport} 
+          disabled={isExporting}
+          className="w-full"
+        >
+          {isExporting ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Exportiere...
+            </>
+          ) : (
+            <>
+              <Download className="h-4 w-4 mr-2" />
+              CSV Dateien exportieren
+            </>
+          )}
+        </Button>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default DataExport;

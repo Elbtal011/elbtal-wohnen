@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { Building2, MessageSquare, MapPin, TrendingUp } from 'lucide-react';
+import DataExport from '@/components/DataExport';
 
 interface AdminOverviewProps {
   onTabChange: (tab: string) => void;
@@ -205,6 +206,11 @@ const AdminOverview: React.FC<AdminOverviewProps> = ({ onTabChange }) => {
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Data Export Section */}
+      <div className="mt-6">
+        <DataExport />
       </div>
     </div>
   );

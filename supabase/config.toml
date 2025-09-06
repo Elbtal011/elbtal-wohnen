@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.send-application-notification]
 verify_jwt = false
+
+[functions.export-data]
+verify_jwt = false
