@@ -11,7 +11,6 @@ import { supabase } from '@/integrations/supabase/client';
 const LeadsExportWithDocuments = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
-  const [cutoffDate, setCutoffDate] = useState('');
   const [importFile, setImportFile] = useState<File | null>(null);
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
@@ -20,24 +19,13 @@ const LeadsExportWithDocuments = () => {
     setIsExporting(true);
     
     try {
-      console.log('Starting export with documents...', { cutoffDate });
-      
-      const { data, error } = await supabase.functions.invoke('leads-export-with-documents', {
-        body: { cutoffDate: cutoffDate || null }
-      });
+      console.log('Starting export with documents...');
 
-      if (error) {
-        console.error('Export error:', error);
-        throw error;
-      }
-
-      // The response should be a blob (ZIP file)
+      // Call the edge function directly to receive a ZIP blob
       const response = await fetch(`https://msujaimgdxhxmtlaabvn.supabase.co/functions/v1/leads-export-with-documents`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ cutoffDate: cutoffDate || null })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
       });
 
       if (!response.ok) {
@@ -157,21 +145,9 @@ const LeadsExportWithDocuments = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="cutoff-date">
-                  Ab Datum exportieren (optional)
-                </Label>
-                <Input
-                  id="cutoff-date"
-                  type="datetime-local"
-                  value={cutoffDate}
-                  onChange={(e) => setCutoffDate(e.target.value)}
-                  placeholder="Alle Daten exportieren"
-                />
-                <p className="text-sm text-muted-foreground">
-                  Leer lassen, um alle Leads zu exportieren. Datum eingeben, um nur neuere Leads zu exportieren.
-                </p>
-              </div>
+              <p className="text-sm text-muted-foreground">
+                Exportiert immer sämtliche aktuellen Leads und deren Dokumente.
+              </p>
               
               <Button 
                 onClick={handleExportWithDocuments} 

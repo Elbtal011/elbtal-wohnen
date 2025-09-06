@@ -34,30 +34,29 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { cutoffDate } = await req.json()
+    let cutoffDate: string | null = null
+    try {
+      const body = await req.json()
+      cutoffDate = body?.cutoffDate ?? null // backward compatible, but unused
+    } catch (_) {
+      // no body provided
+    }
     
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    console.log('Starting leads export with documents...', { cutoffDate })
+    console.log('Starting leads export with documents...')
 
     // Initialize ZIP
     const zip = new JSZip()
 
-    // Build query with optional date filter
-    let contactQuery = supabase
+    // Fetch contact requests (all)
+    const { data: contactRequests, error: contactError } = await supabase
       .from('contact_requests')
       .select('*')
       .order('created_at', { ascending: false })
-    
-    if (cutoffDate) {
-      contactQuery = contactQuery.gte('created_at', cutoffDate)
-    }
-
-    // Fetch contact requests
-    const { data: contactRequests, error: contactError } = await contactQuery
 
     if (contactError) {
       console.error('Error fetching contact requests:', contactError)
@@ -86,28 +85,28 @@ Deno.serve(async (req) => {
         leadDocuments = leadDocs || []
       }
 
-      // Get user documents for contacts that have user_ids
-      for (const contact of contactRequests || []) {
-        // Find user by email to get user_id
-        const { data: profiles } = await supabase
-          .from('profiles')
-          .select('user_id')
-          .eq('first_name', contact.vorname)
-          .eq('last_name', contact.nachname)
-          .limit(1)
+      // Get user documents for users that actually submitted applications (better signal of "applied")
+      const { data: applications, error: appsError } = await supabase
+        .from('property_applications')
+        .select('user_id')
+        .not('user_id', 'is', null)
 
-        if (profiles && profiles.length > 0) {
-          const { data: userDocs } = await supabase
-            .from('user_documents')
-            .select('*')
-            .eq('user_id', profiles[0].user_id)
+      if (appsError) {
+        console.error('Error fetching applications:', appsError)
+      }
 
-          if (userDocs) {
-            userDocuments.push(...userDocs.map(doc => ({
-              ...doc,
-              contact_request_id: contact.id
-            })))
-          }
+      const userIds = Array.from(new Set((applications || []).map((a: any) => a.user_id)))
+
+      if (userIds.length > 0) {
+        const { data: userDocs, error: userDocsError } = await supabase
+          .from('user_documents')
+          .select('*')
+          .in('user_id', userIds)
+
+        if (userDocsError) {
+          console.error('Error fetching user documents:', userDocsError)
+        } else if (userDocs) {
+          userDocuments = userDocs
         }
       }
     }
@@ -174,7 +173,7 @@ Deno.serve(async (req) => {
 
         if (fileData) {
           const fileBuffer = await fileData.arrayBuffer()
-          const fileName = `documents/user_documents/${doc.contact_request_id}/${doc.document_type}/${doc.file_name}`
+          const fileName = `documents/user_documents/${doc.user_id}/${doc.document_type}/${doc.file_name}`
           zip.addFile(fileName, new Uint8Array(fileBuffer))
           successfulDownloads++
         }
