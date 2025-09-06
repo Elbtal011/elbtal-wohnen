@@ -199,9 +199,9 @@ Deno.serve(async (req) => {
 
     zip.addFile('export_info.json', JSON.stringify(exportInfo, null, 2))
 
-    // Generate ZIP
-    console.log('Generating ZIP file...')
-    const zipData = await zip.generateAsync({ type: 'uint8array', compression: 'DEFLATE' })
+    // Generate ZIP (use STORE to minimize CPU)
+    console.log('Generating ZIP file (no compression)...')
+    const zipData = await zip.generateAsync({ type: 'uint8array', compression: 'STORE' })
 
     console.log(`Export complete! ZIP size: ${zipData.length} bytes`)
 
