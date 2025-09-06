@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { supabase } from '@/integrations/supabase/client';
 import { useAdminAPI } from '@/hooks/useAdminAPI';
 import { useToast } from '@/hooks/use-toast';
-import { Upload, FileText, Trash2, Download } from 'lucide-react';
+import { Upload, FileText, Trash2, Download, Eye } from 'lucide-react';
 import { DOCUMENT_TYPES } from '@/config/adminConfig';
 
 interface Lead {
@@ -19,6 +21,7 @@ interface UserDocument {
   file_name: string;
   file_path: string;
   uploaded_at: string;
+  content_type?: string;
 }
 
 interface LeadDocument {
@@ -28,6 +31,7 @@ interface LeadDocument {
   file_path: string;
   uploaded_by: string;
   created_at: string;
+  content_type?: string;
 }
 
 interface LeadDocumentsSectionProps {
@@ -45,6 +49,8 @@ const LeadDocumentsSection: React.FC<LeadDocumentsSectionProps> = ({
   const [uploadingDocument, setUploadingDocument] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedDocumentType, setSelectedDocumentType] = useState<string>('');
+  const [viewDocument, setViewDocument] = useState<UserDocument | LeadDocument | null>(null);
+  const [documentUrl, setDocumentUrl] = useState<string | null>(null);
   
   const { getUserDocuments, getLeadDocuments, uploadLeadDocument, deleteLeadDocument } = useAdminAPI();
   const { toast } = useToast();
@@ -124,13 +130,59 @@ const LeadDocumentsSection: React.FC<LeadDocumentsSectionProps> = ({
     }
   };
 
-  const downloadDocument = async (filePath: string, fileName: string) => {
+  const handleViewDocument = async (doc: UserDocument | LeadDocument, isUserDocument: boolean = false) => {
     try {
-      // Implementation would depend on your storage setup
-      // This is a placeholder for the download functionality
+      setViewDocument(doc);
+      
+      const token = localStorage.getItem('adminToken');
+      const action = isUserDocument ? 'get_user_document_download_url' : 'get_document_download_url';
+      
+      const { data, error } = await supabase.functions.invoke('admin-management', {
+        body: {
+          action,
+          token,
+          filePath: doc.file_path
+        }
+      });
+
+      if (error) throw error;
+      setDocumentUrl(data.url);
+    } catch (error) {
+      console.error('View document error:', error);
       toast({
-        title: 'Download',
-        description: 'Download-Funktionalität wird implementiert.'
+        title: 'Fehler',
+        description: 'Dokument konnte nicht geladen werden.',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const downloadDocument = async (filePath: string, fileName: string, isUserDocument: boolean = false) => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const action = isUserDocument ? 'get_user_document_download_url' : 'get_document_download_url';
+      
+      const { data, error } = await supabase.functions.invoke('admin-management', {
+        body: {
+          action,
+          token,
+          filePath: filePath
+        }
+      });
+
+      if (error) throw error;
+
+      // Create download link
+      const link = document.createElement('a');
+      link.href = data.url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast({
+        title: 'Download gestartet',
+        description: `${fileName} wird heruntergeladen.`
       });
     } catch (error) {
       console.error('Error downloading document:', error);
@@ -197,13 +249,22 @@ const LeadDocumentsSection: React.FC<LeadDocumentsSectionProps> = ({
                     </div>
                   </div>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => downloadDocument(doc.file_path, doc.file_name)}
-                >
-                  <Download className="h-4 w-4" />
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleViewDocument(doc, true)}
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => downloadDocument(doc.file_path, doc.file_name, true)}
+                  >
+                    <Download className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             ))}
           </div>
@@ -232,7 +293,14 @@ const LeadDocumentsSection: React.FC<LeadDocumentsSectionProps> = ({
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => downloadDocument(doc.file_path, doc.file_name)}
+                    onClick={() => handleViewDocument(doc, false)}
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => downloadDocument(doc.file_path, doc.file_name, false)}
                   >
                     <Download className="h-4 w-4" />
                   </Button>
@@ -259,6 +327,47 @@ const LeadDocumentsSection: React.FC<LeadDocumentsSectionProps> = ({
           <p className="text-sm">Laden Sie Dokumente für diesen Lead hoch</p>
         </div>
       )}
+
+      {/* Document Viewer Modal */}
+      <Dialog open={!!viewDocument} onOpenChange={() => {
+        setViewDocument(null);
+        setDocumentUrl(null);
+      }}>
+        <DialogContent className="max-w-4xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>
+              {viewDocument?.file_name}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {documentUrl && viewDocument && (
+            <div className="flex-1 min-h-[600px]">
+              {viewDocument.content_type === 'application/pdf' ? (
+                <iframe
+                  src={documentUrl}
+                  className="w-full h-[600px] border rounded"
+                  title={viewDocument.file_name}
+                />
+              ) : (
+                <img
+                  src={documentUrl}
+                  alt={viewDocument.file_name}
+                  className="max-w-full max-h-[600px] mx-auto object-contain"
+                />
+              )}
+              
+              <div className="flex justify-center gap-2 mt-4">
+                <Button asChild>
+                  <a href={documentUrl} download={viewDocument.file_name} className="gap-2">
+                    <Download className="h-4 w-4" />
+                    Herunterladen
+                  </a>
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
