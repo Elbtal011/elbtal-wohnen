@@ -180,11 +180,12 @@ const LeadsManagement: React.FC = () => {
         const registeredByApplication = Boolean(applicationUserId);
         const registeredByAppsArray = Array.isArray(lead.applications) && lead.applications.length > 0;
         const isRegisteredFromServer = (lead as any).is_registered;
+        const registeredByLabel = (lead.lead_label || '').toLowerCase().trim() === 'property application';
 
         return {
           ...lead,
-          isRegistered: (typeof isRegisteredFromServer === 'boolean' ? isRegisteredFromServer : false) 
-            || registeredByAuth || registeredByApplication || registeredByAppsArray,
+          isRegistered: (typeof isRegisteredFromServer === 'boolean' ? isRegisteredFromServer : false)
+            || registeredByAuth || registeredByApplication || registeredByAppsArray || registeredByLabel,
           user_id: member ? member.user_id : (applicationUserId || null)
         };
       });
