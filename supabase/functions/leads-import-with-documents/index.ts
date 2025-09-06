@@ -11,6 +11,7 @@ interface ImportResult {
   message: string
   details: {
     contactRequests: { inserted: number; updated: number; skipped: number }
+    propertyApplications: { inserted: number; updated: number; skipped: number }
     leadDocuments: { inserted: number; updated: number; skipped: number }
     userDocuments: { inserted: number; updated: number; skipped: number }
     files: { uploaded: number; failed: number; skipped: number }
@@ -103,6 +104,7 @@ Deno.serve(async (req) => {
       message: '',
       details: {
         contactRequests: { inserted: 0, updated: 0, skipped: 0 },
+        propertyApplications: { inserted: 0, updated: 0, skipped: 0 },
         leadDocuments: { inserted: 0, updated: 0, skipped: 0 },
         userDocuments: { inserted: 0, updated: 0, skipped: 0 },
         files: { uploaded: 0, failed: 0, skipped: 0 }
@@ -129,6 +131,7 @@ Deno.serve(async (req) => {
     }
 
     let contactRequestsCSV = await readText(['data/contact_requests.csv', 'contact_requests.csv'])
+    let propertyApplicationsCSV = await readText(['data/property_applications.csv', 'property_applications.csv'])
     let leadDocumentsCSV = await readText(['data/lead_documents.csv', 'lead_documents.csv'])
     let userDocumentsCSV = await readText([
       'data/user_documents_metadata.csv',
@@ -141,6 +144,10 @@ Deno.serve(async (req) => {
     if (!contactRequestsCSV) {
       const f = formData.get('contactRequestsCSV')
       if (typeof f === 'string' && f.trim().length > 0) contactRequestsCSV = f
+    }
+    if (!propertyApplicationsCSV) {
+      const f = formData.get('propertyApplicationsCSV')
+      if (typeof f === 'string' && f.trim().length > 0) propertyApplicationsCSV = f
     }
     if (!leadDocumentsCSV) {
       const f = formData.get('leadDocumentsCSV')
@@ -157,10 +164,12 @@ Deno.serve(async (req) => {
 
     // Parse CSV data
     const contactRequests = parseCSV(contactRequestsCSV)
+    const propertyApplications = propertyApplicationsCSV ? parseCSV(propertyApplicationsCSV) : []
     const leadDocuments = leadDocumentsCSV ? parseCSV(leadDocumentsCSV) : []
     const userDocuments = userDocumentsCSV ? parseCSV(userDocumentsCSV) : []
 
     console.log(`Importing ${contactRequests.length} contact requests`)
+    console.log(`Importing ${propertyApplications.length} property applications`)
     console.log(`Importing ${leadDocuments.length} lead documents`)
     console.log(`Importing ${userDocuments.length} user documents`)
 
@@ -181,6 +190,20 @@ Deno.serve(async (req) => {
         result.details.contactRequests.skipped += part.length
       } else {
         result.details.contactRequests.inserted += part.length
+      }
+    }
+
+    // Import property applications (bulk upsert)
+    for (const part of chunkArray(propertyApplications, 500)) {
+      const { error } = await supabase
+        .from('property_applications')
+        .upsert(part, { onConflict: 'id' })
+
+      if (error) {
+        result.errors.push(`Failed to upsert ${part.length} property applications: ${error.message}`)
+        result.details.propertyApplications.skipped += part.length
+      } else {
+        result.details.propertyApplications.inserted += part.length
       }
     }
 

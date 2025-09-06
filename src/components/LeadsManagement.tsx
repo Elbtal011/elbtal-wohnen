@@ -157,10 +157,19 @@ const LeadsManagement: React.FC = () => {
         const member = (membersResult.data?.members || []).find((m: any) => 
           m.email && lead.email && m.email.toLowerCase() === lead.email.toLowerCase()
         );
+
+        // Fallback: if no auth user found (after restores), infer registration from applications
+        const applicationUserId = Array.isArray(lead.applications)
+          ? lead.applications.find((app) => app.user_id)?.user_id ?? null
+          : null;
+
+        const registeredByAuth = memberEmails.has(lead.email?.toLowerCase());
+        const registeredByApplication = Boolean(applicationUserId);
+
         return {
           ...lead,
-          isRegistered: memberEmails.has(lead.email?.toLowerCase()),
-          user_id: member ? member.user_id : null
+          isRegistered: registeredByAuth || registeredByApplication,
+          user_id: member ? member.user_id : (applicationUserId || null)
         };
       });
 
