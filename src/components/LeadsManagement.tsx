@@ -182,7 +182,8 @@ const LeadsManagement: React.FC = () => {
                 body: {
                   action: 'get_user_documents',
                   token,
-                  user_id: lead.user_id
+                  user_id: lead.user_id,
+                  contact_request_id: lead.id
                 }
               });
               return {

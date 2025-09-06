@@ -114,10 +114,12 @@ serve(async (req) => {
           console.error('Error fetching applications:', appsError);
         }
 
-        // Combine contact requests with application info
+        // Combine contact requests with application info (case-insensitive email match)
         const requestsWithApplications = requests.map(request => ({
           ...request,
-          applications: applications?.filter(app => app.email === request.email) || []
+          applications: (applications || []).filter(app =>
+            (app.email || '').toLowerCase().trim() === (request.email || '').toLowerCase().trim()
+          )
         }));
 
         return new Response(
