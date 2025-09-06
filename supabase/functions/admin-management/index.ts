@@ -114,20 +114,46 @@ serve(async (req) => {
           console.error('Error fetching applications:', appsError);
         }
 
-        // Combine contact requests with application info (robust match by email or phone)
+        // Build helper maps for inference
         const normalizeEmail = (e: string) => (e || '').toLowerCase().trim();
         const normalizePhone = (p: string) => (p || '').replace(/[^0-9]/g, '');
-        const requestsWithApplications = requests.map(request => {
+
+        const emailToUserId = new Map<string, string>();
+        (applications || []).forEach((app: any) => {
+          const em = normalizeEmail(app.email);
+          if (em && app.user_id && !emailToUserId.has(em)) emailToUserId.set(em, app.user_id);
+        });
+        const uniqueUserIds = Array.from(new Set(Array.from(emailToUserId.values())));
+
+        // Preload document counts for inferred users
+        const docsByUserId = new Map<string, number>();
+        if (uniqueUserIds.length > 0) {
+          const { data: docs, error: docsErr } = await supabase
+            .from('user_documents')
+            .select('user_id')
+            .in('user_id', uniqueUserIds);
+          if (!docsErr && docs) {
+            docs.forEach((d: any) => {
+              docsByUserId.set(d.user_id, (docsByUserId.get(d.user_id) || 0) + 1);
+            });
+          }
+        }
+
+        // Combine contact requests with application/doc info
+        const requestsWithApplications = requests.map((request: any) => {
           const reqEmail = normalizeEmail(request.email);
           const reqPhone = normalizePhone(request.telefon);
-          const matched = (applications || []).filter(app => {
+          const matched = (applications || []).filter((app: any) => {
             const appEmail = normalizeEmail(app.email);
             const appPhone = normalizePhone(app.telefon);
             return (appEmail && appEmail === reqEmail) || (appPhone && reqPhone && appPhone === reqPhone);
           });
-          const derived_user_id = matched.find(a => a.user_id)?.user_id || null;
-          const is_registered = matched.length > 0;
-          return { ...request, applications: matched, inferred_user_id: derived_user_id, is_registered };
+
+          const inferred_user_id = emailToUserId.get(reqEmail) || (matched.find((a: any) => a.user_id)?.user_id || null);
+          const has_documents = inferred_user_id ? ((docsByUserId.get(inferred_user_id) || 0) > 0) : false;
+          const is_registered = matched.length > 0 || has_documents;
+
+          return { ...request, applications: matched, inferred_user_id, has_documents, is_registered };
         });
 
         return new Response(

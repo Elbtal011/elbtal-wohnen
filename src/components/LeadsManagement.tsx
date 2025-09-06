@@ -190,30 +190,11 @@ const LeadsManagement: React.FC = () => {
         };
       });
 
-      // Check for documents for registered users
-      const leadsWithDocuments = await Promise.all(
-        leadsWithStatus.map(async (lead) => {
-          if (lead.isRegistered && lead.user_id) {
-            try {
-              const { data } = await supabase.functions.invoke('admin-management', {
-                body: {
-                  action: 'get_user_documents',
-                  token,
-                  user_id: lead.user_id,
-                  contact_request_id: lead.id
-                }
-              });
-              return {
-                ...lead,
-                hasDocuments: (data?.documents || []).length > 0
-              };
-            } catch {
-              return { ...lead, hasDocuments: false };
-            }
-          }
-          return { ...lead, hasDocuments: false };
-        })
-      );
+      // Trust server-supplied document info to avoid per-lead calls
+      const leadsWithDocuments = leadsWithStatus.map((lead) => ({
+        ...lead,
+        hasDocuments: (lead as any).has_documents === true || lead.hasDocuments === true || false
+      }));
 
       setLeads(leadsWithDocuments);
     } catch (e) {
