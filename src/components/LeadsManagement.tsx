@@ -159,9 +159,9 @@ const LeadsManagement: React.FC = () => {
         );
 
         // Fallback: if no auth user found (after restores), infer registration from applications
-        const applicationUserId = Array.isArray(lead.applications)
-          ? lead.applications.find((app) => app.user_id)?.user_id ?? null
-          : null;
+        const applicationUserId = (lead as any).inferred_user_id || (Array.isArray(lead.applications)
+          ? (lead.applications.find((app: any) => app && typeof app.user_id === 'string' && app.user_id.trim().length === 36)?.user_id ?? null)
+          : null);
 
         const registeredByAuth = memberEmails.has(lead.email?.toLowerCase());
         const registeredByApplication = Boolean(applicationUserId);
@@ -468,7 +468,7 @@ const LeadsManagement: React.FC = () => {
     }
   };
 
-  const fetchUserDocuments = async (userId: string) => {
+  const fetchUserDocuments = async (userId: string, contactRequestId?: string) => {
     try {
       setLoadingDocuments(true);
       const adminToken = localStorage.getItem('adminToken');
@@ -478,7 +478,8 @@ const LeadsManagement: React.FC = () => {
         body: {
           action: 'get_user_documents',
           token: adminToken,
-          user_id: userId
+          user_id: userId,
+          contact_request_id: contactRequestId || selected?.id
         }
       });
 
@@ -716,7 +717,7 @@ const LeadsManagement: React.FC = () => {
     setOpen(true);
     // Fetch documents if user is registered
     if (lead.isRegistered && lead.user_id) {
-      fetchUserDocuments(lead.user_id);
+      fetchUserDocuments(lead.user_id, lead.id);
     } else {
       setUserDocuments([]);
     }

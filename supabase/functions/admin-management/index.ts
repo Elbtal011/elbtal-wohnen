@@ -125,7 +125,8 @@ serve(async (req) => {
             const appPhone = normalizePhone(app.telefon);
             return (appEmail && appEmail === reqEmail) || (appPhone && reqPhone && appPhone === reqPhone);
           });
-          return { ...request, applications: matched };
+          const inferred_user_id = matched.find(a => a.user_id)?.user_id || null;
+          return { ...request, applications: matched, inferred_user_id };
         });
 
         return new Response(
@@ -804,7 +805,7 @@ serve(async (req) => {
               .from('contact_requests')
               .select('email')
               .eq('id', contact_request_id)
-              .single();
+              .maybeSingle();
 
             if (!contactError && contactRequest?.email) {
               // Find property application with matching email to get the original user_id
