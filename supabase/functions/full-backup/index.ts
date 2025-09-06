@@ -96,57 +96,10 @@ Deno.serve(async (req) => {
       zip.addFile('data/lead_documents.csv', csvContent)
     }
 
-    // Download and add user documents to ZIP
+    // Skip binary file downloads to avoid timeouts; include only metadata CSVs
     let successfulDownloads = 0
     let failedDownloads = 0
-
-    const processFile = async (bucket: string, path: string, dest: string) => {
-      const { data: fileData, error: downloadError } = await supabase.storage
-        .from(bucket)
-        .download(path)
-      if (downloadError) return { ok: false, error: downloadError }
-      const fileBuffer = await fileData!.arrayBuffer()
-      zip.addFile(dest, new Uint8Array(fileBuffer))
-      return { ok: true }
-    }
-
-    if (userDocuments && userDocuments.length > 0) {
-      console.log('Starting user document downloads...')
-      for (const doc of userDocuments) {
-        try {
-          const res = await processFile('user-documents', doc.file_path, `documents/user_documents/${doc.user_id}/${doc.document_type}/${doc.file_name}`)
-          if (!res.ok) {
-            console.error(`Failed to download user doc ${doc.file_path}:`, res.error)
-            failedDownloads++
-          } else {
-            successfulDownloads++
-          }
-        } catch (error) {
-          console.error(`Error downloading user doc ${doc.file_path}:`, error)
-          failedDownloads++
-        }
-      }
-    }
-
-    if (leadDocuments && leadDocuments.length > 0) {
-      console.log('Starting lead document downloads...')
-      for (const doc of leadDocuments) {
-        try {
-          const res = await processFile('lead-documents', doc.file_path, `documents/lead_documents/${doc.contact_request_id}/${doc.document_type}/${doc.file_name}`)
-          if (!res.ok) {
-            console.error(`Failed to download lead doc ${doc.file_path}:`, res.error)
-            failedDownloads++
-          } else {
-            successfulDownloads++
-          }
-        } catch (error) {
-          console.error(`Error downloading lead doc ${doc.file_path}:`, error)
-          failedDownloads++
-        }
-      }
-    }
-
-    console.log(`Document download complete: ${successfulDownloads} successful, ${failedDownloads} failed`)
+    console.log('Skipping binary file downloads; including metadata only in ZIP')
 
     // Add backup info
     const backupInfo = {
