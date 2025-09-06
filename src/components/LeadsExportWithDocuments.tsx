@@ -85,11 +85,17 @@ const LeadsExportWithDocuments = () => {
         body: formData
       });
 
+      let result: any = null;
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        try {
+          const errJson = await response.json();
+          throw new Error(errJson?.error || errJson?.message || `HTTP ${response.status}`);
+        } catch {
+          throw new Error(`HTTP ${response.status}`);
+        }
       }
 
-      const result = await response.json();
+      result = await response.json();
 
       if (result.success) {
         toast({
@@ -97,18 +103,17 @@ const LeadsExportWithDocuments = () => {
           description: result.message,
         });
         setImportFile(null);
-        // Reset file input
         const fileInput = document.getElementById('import-file') as HTMLInputElement;
         if (fileInput) fileInput.value = '';
       } else {
-        throw new Error(result.message || 'Import failed');
+        throw new Error(result.error || result.message || 'Import failed');
       }
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Import failed:', error);
       toast({
         title: 'Import fehlgeschlagen',
-        description: 'Fehler beim Importieren der Leads mit Dokumenten',
+        description: error?.message || 'Fehler beim Importieren der Leads mit Dokumenten',
         variant: 'destructive'
       });
     } finally {

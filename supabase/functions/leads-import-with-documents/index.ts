@@ -18,30 +18,66 @@ interface ImportResult {
 }
 
 function parseCSV(csvContent: string): any[] {
-  const lines = csvContent.trim().split('\n')
-  if (lines.length === 0) return []
-  
-  const headers = lines[0].split(',').map(h => h.replace(/"/g, ''))
-  const data: any[] = []
-  
-  for (let i = 1; i < lines.length; i++) {
-    const values = lines[i].split(',').map(v => {
-      let value = v.replace(/"/g, '')
-      if (value === '') return null
-      if (!isNaN(Number(value))) return Number(value)
-      if (value === 'true') return true
-      if (value === 'false') return false
-      return value
-    })
-    
-    const row: any = {}
-    headers.forEach((header, index) => {
-      row[header] = values[index]
-    })
-    data.push(row)
+  // Robust CSV parser supporting quoted fields and commas/newlines inside quotes
+  const rows: string[][] = []
+  const line: string[] = []
+  let cur = ''
+  let inQuotes = false
+  for (let i = 0; i < csvContent.length; i++) {
+    const ch = csvContent[i]
+    if (inQuotes) {
+      if (ch === '"') {
+        // Escaped quote
+        if (i + 1 < csvContent.length && csvContent[i + 1] === '"') {
+          cur += '"'
+          i++
+        } else {
+          inQuotes = false
+        }
+      } else {
+        cur += ch
+      }
+    } else {
+      if (ch === '"') {
+        inQuotes = true
+      } else if (ch === ',') {
+        line.push(cur)
+        cur = ''
+      } else if (ch === '\n' || ch === '\r') {
+        if (cur !== '' || line.length) {
+          line.push(cur)
+          rows.push([...line])
+          line.length = 0
+          cur = ''
+        }
+        // consume \r\n pairs
+        if (ch === '\r' && i + 1 < csvContent.length && csvContent[i + 1] === '\n') i++
+      } else {
+        cur += ch
+      }
+    }
   }
-  
-  return data
+  if (cur !== '' || line.length) {
+    line.push(cur)
+    rows.push([...line])
+  }
+  if (rows.length === 0) return []
+  const headers = rows[0].map(h => h.trim())
+  const dataRows = rows.slice(1)
+  const toValue = (value: string) => {
+    if (value === '') return null
+    const lower = value.toLowerCase()
+    if (lower === 'true') return true
+    if (lower === 'false') return false
+    const n = Number(value)
+    if (!Number.isNaN(n) && /^-?\d+(\.\d+)?$/.test(value)) return n
+    return value
+  }
+  return dataRows.map(cols => {
+    const obj: any = {}
+    headers.forEach((h, idx) => { obj[h] = toValue(cols[idx] ?? '') })
+    return obj
+  })
 }
 
 Deno.serve(async (req) => {
@@ -135,7 +171,7 @@ Deno.serve(async (req) => {
           .from('contact_requests')
           .select('id')
           .eq('id', contact.id)
-          .single()
+          .maybeSingle()
 
         if (existing) {
           // Update existing
@@ -177,7 +213,7 @@ Deno.serve(async (req) => {
           .from('lead_documents')
           .select('id')
           .eq('id', doc.id)
-          .single()
+          .maybeSingle()
 
         if (existing) {
           result.details.leadDocuments.skipped++
@@ -208,7 +244,7 @@ Deno.serve(async (req) => {
           .from('user_documents')
           .select('id')
           .eq('id', doc.id)
-          .single()
+          .maybeSingle()
 
         if (existing) {
           result.details.userDocuments.skipped++
