@@ -178,10 +178,13 @@ const LeadsManagement: React.FC = () => {
 
         const registeredByAuth = memberEmails.has(normEmail(lead.email));
         const registeredByApplication = Boolean(applicationUserId);
+        const registeredByAppsArray = Array.isArray(lead.applications) && lead.applications.length > 0;
+        const isRegisteredFromServer = (lead as any).is_registered;
 
         return {
           ...lead,
-          isRegistered: registeredByAuth || registeredByApplication,
+          isRegistered: (typeof isRegisteredFromServer === 'boolean' ? isRegisteredFromServer : false) 
+            || registeredByAuth || registeredByApplication || registeredByAppsArray,
           user_id: member ? member.user_id : (applicationUserId || null)
         };
       });

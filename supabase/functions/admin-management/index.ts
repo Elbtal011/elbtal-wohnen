@@ -125,8 +125,9 @@ serve(async (req) => {
             const appPhone = normalizePhone(app.telefon);
             return (appEmail && appEmail === reqEmail) || (appPhone && reqPhone && appPhone === reqPhone);
           });
-          const inferred_user_id = matched.find(a => a.user_id)?.user_id || null;
-          return { ...request, applications: matched, inferred_user_id };
+          const derived_user_id = matched.find(a => a.user_id)?.user_id || null;
+          const is_registered = matched.length > 0;
+          return { ...request, applications: matched, inferred_user_id: derived_user_id, is_registered };
         });
 
         return new Response(
