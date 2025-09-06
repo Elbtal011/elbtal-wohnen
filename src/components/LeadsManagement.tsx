@@ -19,7 +19,8 @@ import {
 } from '@/components/ui/pagination';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Calendar, Eye, Mail, Phone, Tag, Plus, Trash2, ArrowRight, Download, FileText, Upload, X, Edit } from 'lucide-react';
+import { Calendar, Eye, Mail, Phone, Tag, Plus, Trash2, ArrowRight, Download, FileText, Upload, X, Edit, Archive } from 'lucide-react';
+import LeadsExportWithDocuments from '@/components/LeadsExportWithDocuments';
 import * as XLSX from 'xlsx';
 import LeadLabelBadge from '@/components/LeadLabelBadge';
 import AddLeadDialog from '@/components/AddLeadDialog';
@@ -794,6 +795,8 @@ const LeadsManagement: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <LeadsExportWithDocuments />
 
       <Card>
         <CardHeader>

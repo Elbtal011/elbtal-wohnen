@@ -23,3 +23,9 @@ verify_jwt = false
 
 [functions.full-backup]
 verify_jwt = false
+
+[functions.leads-export-with-documents]
+verify_jwt = false
+
+[functions.leads-import-with-documents]
+verify_jwt = false

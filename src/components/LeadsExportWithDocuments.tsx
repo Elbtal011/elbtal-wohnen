@@ -1,0 +1,230 @@
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Archive, Download, Loader2, Upload } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+
+const LeadsExportWithDocuments = () => {
+  const [isExporting, setIsExporting] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+  const [cutoffDate, setCutoffDate] = useState('');
+  const [importFile, setImportFile] = useState<File | null>(null);
+  const { toast } = useToast();
+
+  const handleExportWithDocuments = async () => {
+    setIsExporting(true);
+    
+    try {
+      console.log('Starting export with documents...', { cutoffDate });
+      
+      const { data, error } = await supabase.functions.invoke('leads-export-with-documents', {
+        body: { cutoffDate: cutoffDate || null }
+      });
+
+      if (error) {
+        console.error('Export error:', error);
+        throw error;
+      }
+
+      // The response should be a blob (ZIP file)
+      const response = await fetch(`https://msujaimgdxhxmtlaabvn.supabase.co/functions/v1/leads-export-with-documents`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ cutoffDate: cutoffDate || null })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      // Get the ZIP file as blob
+      const blob = await response.blob();
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `leads_with_documents_${new Date().toISOString().split('T')[0]}.zip`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast({
+        title: 'Export erfolgreich',
+        description: 'Leads und Dokumente wurden als ZIP-Datei heruntergeladen',
+      });
+
+    } catch (error) {
+      console.error('Export failed:', error);
+      toast({
+        title: 'Export fehlgeschlagen',
+        description: 'Fehler beim Exportieren der Leads mit Dokumenten',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleImportWithDocuments = async () => {
+    if (!importFile) {
+      toast({
+        title: 'Keine Datei ausgewählt',
+        description: 'Bitte wählen Sie eine ZIP-Datei zum Importieren aus',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setIsImporting(true);
+    
+    try {
+      console.log('Starting import with documents...');
+      
+      const formData = new FormData();
+      formData.append('zipFile', importFile);
+
+      const response = await fetch(`https://msujaimgdxhxmtlaabvn.supabase.co/functions/v1/leads-import-with-documents`, {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      if (result.success) {
+        toast({
+          title: 'Import erfolgreich',
+          description: result.message,
+        });
+        setImportFile(null);
+        // Reset file input
+        const fileInput = document.getElementById('import-file') as HTMLInputElement;
+        if (fileInput) fileInput.value = '';
+      } else {
+        throw new Error(result.message || 'Import failed');
+      }
+
+    } catch (error) {
+      console.error('Import failed:', error);
+      toast({
+        title: 'Import fehlgeschlagen',
+        description: 'Fehler beim Importieren der Leads mit Dokumenten',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Export Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Archive className="h-5 w-5" />
+            Leads mit Dokumenten exportieren
+          </CardTitle>
+          <CardDescription>
+            Exportiert alle Leads und deren zugehörige Dokumente als ZIP-Datei
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="cutoff-date">
+              Ab Datum exportieren (optional)
+            </Label>
+            <Input
+              id="cutoff-date"
+              type="datetime-local"
+              value={cutoffDate}
+              onChange={(e) => setCutoffDate(e.target.value)}
+              placeholder="Alle Daten exportieren"
+            />
+            <p className="text-sm text-muted-foreground">
+              Leer lassen, um alle Leads zu exportieren. Datum eingeben, um nur neuere Leads zu exportieren.
+            </p>
+          </div>
+          
+          <Button 
+            onClick={handleExportWithDocuments} 
+            disabled={isExporting || isImporting}
+            className="w-full"
+          >
+            {isExporting ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Exportiere Leads mit Dokumenten...
+              </>
+            ) : (
+              <>
+                <Download className="h-4 w-4 mr-2" />
+                Leads mit Dokumenten exportieren
+              </>
+            )}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Import Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Upload className="h-5 w-5" />
+            Leads mit Dokumenten importieren
+          </CardTitle>
+          <CardDescription>
+            Importiert Leads und Dokumente aus einer zuvor exportierten ZIP-Datei
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="import-file">
+              ZIP-Datei auswählen
+            </Label>
+            <Input
+              id="import-file"
+              type="file"
+              accept=".zip"
+              onChange={(e) => setImportFile(e.target.files?.[0] || null)}
+            />
+            <p className="text-sm text-muted-foreground">
+              Wählen Sie eine ZIP-Datei aus, die zuvor mit dem Export-Tool erstellt wurde.
+            </p>
+          </div>
+          
+          <Button 
+            onClick={handleImportWithDocuments} 
+            disabled={isExporting || isImporting || !importFile}
+            variant="outline"
+            className="w-full"
+          >
+            {isImporting ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Importiere Leads mit Dokumenten...
+              </>
+            ) : (
+              <>
+                <Upload className="h-4 w-4 mr-2" />
+                Leads mit Dokumenten importieren
+              </>
+            )}
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default LeadsExportWithDocuments;
