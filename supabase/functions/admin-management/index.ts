@@ -229,6 +229,8 @@ serve(async (req) => {
 
           return { ...request, lead_label: label, applications: matched, inferred_user_id, has_documents, documents_count, is_registered };
 
+        });
+
         return new Response(
           JSON.stringify({ 
             requests: requestsWithApplications,
