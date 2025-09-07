@@ -903,7 +903,7 @@ const LeadsManagement: React.FC = () => {
                                 <div>🌍 {details['Staatsangehörigkeit']}</div>
                               )}
                               {details['Nettoeinkommen'] && (
-                                <div>💰 {details['Nettoeinkommen']} €</div>
+                                <div>💰 {details['Nettoeinkommen']}</div>
                               )}
                               <div>📅 {new Date(lead.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}</div>
                               <div>🏠 {lead.property?.title || 'Allgemein'}</div>
@@ -929,7 +929,7 @@ const LeadsManagement: React.FC = () => {
                         </TableCell>
                         <TableCell className="hidden lg:table-cell">
                           <div className="text-xs text-muted-foreground">
-                            {details['Nettoeinkommen'] ? `${details['Nettoeinkommen']}€` : '-'}
+                            {details['Nettoeinkommen'] ? details['Nettoeinkommen'] : '-'}
                           </div>
                         </TableCell>
                         <TableCell className="hidden sm:table-cell">
@@ -1160,7 +1160,7 @@ const LeadsManagement: React.FC = () => {
                         <>
                           {det['Geburtsdatum'] && <div><strong>Geburtsdatum:</strong> {det['Geburtsdatum']}</div>}
                           {det['Einzugsdatum'] && <div><strong>Einzugsdatum:</strong> {det['Einzugsdatum']}</div>}
-                          {det['Nettoeinkommen'] && <div><strong>Nettoeinkommen:</strong> {det['Nettoeinkommen']} €</div>}
+                          {det['Nettoeinkommen'] && <div><strong>Nettoeinkommen:</strong> {det['Nettoeinkommen']}</div>}
                           {det['Geburtsort'] && <div><strong>Geburtsort:</strong> {det['Geburtsort']}</div>}
                           {det['Staatsangehörigkeit'] && <div><strong>Staatsangehörigkeit:</strong> {det['Staatsangehörigkeit']}</div>}
                         </>
