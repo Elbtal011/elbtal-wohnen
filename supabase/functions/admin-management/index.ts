@@ -223,13 +223,47 @@ serve(async (req) => {
           if (reqEmail === 'moritz.bl@gmx.de' || reqEmail === 'luca.patzner@icloud.com') {
             console.log(`DEBUG ${reqEmail}: matched=${matched.length}, inferred_user_id=${inferred_user_id}, user_docs=${user_docs_count}, lead_docs=${lead_docs_count}, has_documents=${has_documents}, is_registered=${is_registered}`);
           }
-          const label = (request.lead_label && String(request.lead_label).trim().length > 0)
+
+          // Prefer existing label; otherwise infer "Property Application" when we have an application match
+          const effective_label = (request.lead_label && String(request.lead_label).trim().length > 0)
             ? request.lead_label
-            : (matched.length > 0 ? 'Property Application' : request.lead_label);
+            : (matched.length > 0 || has_documents ? 'Property Application' : request.lead_label);
 
-          return { ...request, lead_label: label, applications: matched, inferred_user_id, has_documents, documents_count, is_registered };
-
+          return { 
+            ...request, 
+            lead_label: effective_label, 
+            applications: matched, 
+            inferred_user_id, 
+            has_documents, 
+            documents_count, 
+            is_registered 
+          };
         });
+
+        // 5) Auto-fix empty labels in DB when we can confidently infer
+        try {
+          const idsNeedingLabel = requestsWithApplications
+            .filter((r: any) => !r.lead_label || String(r.lead_label).trim().length === 0)
+            .filter((r: any) => (Array.isArray(r.applications) && r.applications.length > 0) || r.documents_count > 0)
+            .map((r: any) => r.id);
+          if (idsNeedingLabel.length > 0) {
+            const { error: updErr } = await supabase
+              .from('contact_requests')
+              .update({ lead_label: 'Property Application' })
+              .in('id', idsNeedingLabel);
+            if (updErr) {
+              console.warn('Auto label update failed:', updErr);
+            } else {
+              console.log(`Auto-updated ${idsNeedingLabel.length} lead labels to "Property Application"`);
+              // reflect in payload
+              requestsWithApplications.forEach((r: any) => {
+                if (idsNeedingLabel.includes(r.id)) r.lead_label = 'Property Application';
+              });
+            }
+          }
+        } catch (e) {
+          console.warn('Auto label update threw:', e);
+        }
 
         return new Response(
           JSON.stringify({ 

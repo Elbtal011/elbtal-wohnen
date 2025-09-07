@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/pagination';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Calendar, Eye, Mail, Phone, Tag, Plus, Trash2, ArrowRight, Download, FileText, Upload, X, Edit, Archive } from 'lucide-react';
+import { Calendar, Eye, Mail, Phone, Tag, Plus, Trash2, ArrowRight, Download, FileText, Upload, X, Edit, Archive, Paperclip } from 'lucide-react';
 import LeadsExportWithDocuments from '@/components/LeadsExportWithDocuments';
 import * as XLSX from 'xlsx';
 import LeadLabelBadge from '@/components/LeadLabelBadge';
@@ -48,6 +48,7 @@ interface Lead {
   user_id?: string | null;
   applications?: PropertyApplication[];
   hasDocuments?: boolean;
+  documentsCount?: number;
 }
 
 interface PropertyApplication {
@@ -193,7 +194,10 @@ const LeadsManagement: React.FC = () => {
       // Trust server-supplied document info to avoid per-lead calls
       const leadsWithDocuments = leadsWithStatus.map((lead) => ({
         ...lead,
-        hasDocuments: (lead as any).has_documents === true || lead.hasDocuments === true || false
+        hasDocuments: (lead as any).has_documents === true 
+          || lead.hasDocuments === true 
+          || (((lead as any).documents_count ?? 0) > 0),
+        documentsCount: (lead as any).documents_count ?? (lead as any).documentsCount ?? 0,
       }));
 
       setLeads(leadsWithDocuments);
@@ -891,12 +895,13 @@ const LeadsManagement: React.FC = () => {
                                      {!['postident1', 'postident2', 'contract'].includes(lead.lead_stage) && lead.lead_stage}
                                    </Badge>
                                  )}
-                                 {/* Document Upload Badge */}
-                                 {lead.hasDocuments && (
-                                   <Badge variant="outline" className="text-xs px-2 py-0 bg-purple-50 text-purple-700 border-purple-200">
-                                     Bewerbung eingereicht
-                                   </Badge>
-                                 )}
+                                  {/* Document Upload Badge */}
+                                  {((lead.documentsCount ?? 0) > 0) && (
+                                    <Badge variant="outline" className="text-xs px-2 py-0 bg-purple-50 text-purple-700 border-purple-200">
+                                      <Paperclip className="h-3 w-3 mr-1" />
+                                      {lead.documentsCount} Dokument{lead.documentsCount !== 1 ? 'e' : ''}
+                                    </Badge>
+                                  )}
                               </div>
                             {/* Show contact info on small screens */}
                             <div className="md:hidden space-y-1">
