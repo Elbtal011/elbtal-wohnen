@@ -245,85 +245,11 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Extract and upload actual files from ZIP to Supabase Storage
-    console.log('Starting file extraction and upload...')
-    
-    // Process lead documents
-    for (const leadDoc of leadDocuments) {
-      if (leadDoc.file_path) {
-        try {
-          const zipFilePath = `documents/lead_documents/${leadDoc.file_path.split('/').pop()}`
-          const file = zip.file(zipFilePath)
-          
-          if (file) {
-            const fileBuffer = await file.async('uint8array')
-            
-            const { error: uploadError } = await supabase.storage
-              .from('lead-documents')
-              .upload(leadDoc.file_path, fileBuffer, {
-                contentType: leadDoc.content_type || 'application/octet-stream',
-                upsert: true
-              })
-            
-            if (uploadError) {
-              console.error(`Failed to upload lead document ${leadDoc.file_path}:`, uploadError)
-              result.details.files.failed++
-              result.errors.push(`Failed to upload lead document ${leadDoc.file_name}: ${uploadError.message}`)
-            } else {
-              result.details.files.uploaded++
-              console.log(`Uploaded lead document: ${leadDoc.file_path}`)
-            }
-          } else {
-            result.details.files.skipped++
-            console.log(`Lead document file not found in ZIP: ${zipFilePath}`)
-          }
-        } catch (error) {
-          result.details.files.failed++
-          result.errors.push(`Error processing lead document ${leadDoc.file_name}: ${error}`)
-        }
-      }
-    }
-    
-    // Process user documents
-    for (const userDoc of userDocuments) {
-      if (userDoc.file_path) {
-        try {
-          const zipFilePath = `documents/user_documents/${userDoc.file_path.split('/').pop()}`
-          const file = zip.file(zipFilePath)
-          
-          if (file) {
-            const fileBuffer = await file.async('uint8array')
-            
-            const { error: uploadError } = await supabase.storage
-              .from('user-documents')
-              .upload(userDoc.file_path, fileBuffer, {
-                contentType: userDoc.content_type || 'application/octet-stream',
-                upsert: true
-              })
-            
-            if (uploadError) {
-              console.error(`Failed to upload user document ${userDoc.file_path}:`, uploadError)
-              result.details.files.failed++
-              result.errors.push(`Failed to upload user document ${userDoc.file_name}: ${uploadError.message}`)
-            } else {
-              result.details.files.uploaded++
-              console.log(`Uploaded user document: ${userDoc.file_path}`)
-            }
-          } else {
-            result.details.files.skipped++
-            console.log(`User document file not found in ZIP: ${zipFilePath}`)
-          }
-        } catch (error) {
-          result.details.files.failed++
-          result.errors.push(`Error processing user document ${userDoc.file_name}: ${error}`)
-        }
-      }
-    }
-    
-    console.log(`File upload completed: ${result.details.files.uploaded} uploaded, ${result.details.files.failed} failed, ${result.details.files.skipped} skipped`)
+    // Import completed - metadata restored to reconnect leads with existing Storage files
+    console.log('Metadata import completed - leads should now show their existing documents')
 
     result.success = true
-    result.message = `Import completed: ${result.details.contactRequests.inserted + result.details.contactRequests.updated} contacts, ${result.details.leadDocuments.inserted} lead docs, ${result.details.userDocuments.inserted} user docs, ${result.details.files.uploaded} files uploaded`
+    result.message = `Import completed: ${result.details.contactRequests.inserted + result.details.contactRequests.updated} contacts, ${result.details.leadDocuments.inserted} lead docs, ${result.details.userDocuments.inserted} user docs restored`
 
     console.log('Import completed:', result)
 
