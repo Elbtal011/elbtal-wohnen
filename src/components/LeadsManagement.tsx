@@ -218,10 +218,15 @@ const LeadsManagement: React.FC = () => {
   };
   const selectAllFiltered = (checked: boolean) => {
     setSelectedIds(prev => {
-      if (!checked) return new Set(filtered.map(l => l.id));
-      // if header checkbox was checked -> uncheck all
       const next = new Set(prev);
-      filtered.forEach(l => next.delete(l.id));
+      // Only work with current page leads
+      paginatedLeads.forEach(l => {
+        if (checked) {
+          next.add(l.id);
+        } else {
+          next.delete(l.id);
+        }
+      });
       return next;
     });
   };
@@ -354,7 +359,10 @@ const LeadsManagement: React.FC = () => {
   const handleDeleteSelected = async () => {
     const ids = Array.from(selectedIds);
     if (!ids.length) return;
-    if (!confirm(`Möchtest du ${ids.length} Lead(s) löschen?`)) return;
+    
+    // Show detailed confirmation with count
+    const confirmed = confirm(`⚠️ WARNUNG: Möchten Sie wirklich ${ids.length} Lead(s) dauerhaft löschen?\n\nDiese Aktion kann nicht rückgängig gemacht werden.`);
+    if (!confirmed) return;
     try {
       const token = localStorage.getItem('adminToken');
       const { data, error } = await supabase.functions.invoke('admin-management', {
@@ -794,8 +802,13 @@ const LeadsManagement: React.FC = () => {
           <div className="flex gap-2 items-center">
             {selectedIds.size > 0 && (
               <>
-                <span className="text-sm text-muted-foreground">{selectedIds.size} ausgewählt</span>
-                <Button variant="destructive" onClick={handleDeleteSelected} className="hover-scale"><Trash2 className="h-4 w-4 mr-1" /> Löschen</Button>
+                <Badge variant="secondary" className="px-3 py-1">
+                  {selectedIds.size} von {paginatedLeads.length} auf dieser Seite ausgewählt
+                </Badge>
+                <Button variant="destructive" onClick={handleDeleteSelected} className="hover-scale">
+                  <Trash2 className="h-4 w-4 mr-1" /> 
+                  Löschen ({selectedIds.size})
+                </Button>
               </>
             )}
             <Button variant="secondary" onClick={handleExportCSV} className="hover-scale">Export CSV</Button>
@@ -826,11 +839,10 @@ const LeadsManagement: React.FC = () => {
                   <TableRow>
                     <TableHead className="w-8">
                       <Checkbox
-                        checked={filtered.length > 0 && filtered.every(l => selectedIds.has(l.id))}
+                        checked={paginatedLeads.length > 0 && paginatedLeads.every(l => selectedIds.has(l.id))}
                         onCheckedChange={(v) => {
-                          const allIds = new Set(filtered.map(l => l.id));
-                          const isAllSelected = filtered.every(l => selectedIds.has(l.id));
-                          setSelectedIds(isAllSelected ? new Set() : allIds);
+                          const isAllSelected = paginatedLeads.every(l => selectedIds.has(l.id));
+                          selectAllFiltered(!isAllSelected);
                         }}
                         aria-label="Alle auswählen"
                       />
