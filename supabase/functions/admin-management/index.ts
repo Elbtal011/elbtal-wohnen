@@ -183,10 +183,17 @@ serve(async (req) => {
           try {
             const level1 = await storage.list(uid, { limit: 1000 });
             let count = 0;
-            const folders = (level1?.data || []).filter((e: any) => e.name);
-            for (const f of folders) {
-              const sub = await storage.list(`${uid}/${f.name}`, { limit: 1000 });
-              count += (sub?.data || []).filter((e: any) => e.name && !('metadata' in e && (e as any).metadata?.isFolder)).length;
+            const entries = level1?.data || [];
+            for (const entry of entries) {
+              if ((entry as any).id) {
+                // Direct file at root of the user folder
+                count += 1;
+              } else if (entry.name) {
+                // Likely a subfolder (document type)
+                const sub = await storage.list(`${uid}/${entry.name}`, { limit: 1000 });
+                const files = (sub?.data || []).filter((e: any) => Boolean(e.id));
+                count += files.length;
+              }
             }
             if (count > 0) {
               docsByUserId.set(uid, count);
@@ -216,9 +223,11 @@ serve(async (req) => {
           if (reqEmail === 'moritz.bl@gmx.de' || reqEmail === 'luca.patzner@icloud.com') {
             console.log(`DEBUG ${reqEmail}: matched=${matched.length}, inferred_user_id=${inferred_user_id}, user_docs=${user_docs_count}, lead_docs=${lead_docs_count}, has_documents=${has_documents}, is_registered=${is_registered}`);
           }
+          const label = (request.lead_label && String(request.lead_label).trim().length > 0)
+            ? request.lead_label
+            : (matched.length > 0 ? 'Property Application' : request.lead_label);
 
-          return { ...request, applications: matched, inferred_user_id, has_documents, documents_count, is_registered };
-        });
+          return { ...request, lead_label: label, applications: matched, inferred_user_id, has_documents, documents_count, is_registered };
 
         return new Response(
           JSON.stringify({ 
