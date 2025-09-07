@@ -114,6 +114,21 @@ serve(async (req) => {
           console.error('Error fetching applications:', appsError);
         }
 
+        // Load lead document counts grouped by contact_request_id (admin uploads)
+        const leadDocsCount = new Map<string, number>();
+        const { data: leadDocsRaw, error: leadDocsErr } = await supabase
+          .from('lead_documents')
+          .select('contact_request_id');
+        if (!leadDocsErr && Array.isArray(leadDocsRaw)) {
+          leadDocsRaw.forEach((row: any) => {
+            const id = row.contact_request_id as string;
+            if (!id) return;
+            leadDocsCount.set(id, (leadDocsCount.get(id) || 0) + 1);
+          });
+        } else if (leadDocsErr) {
+          console.warn('Lead documents count error (non-fatal):', leadDocsErr);
+        }
+
         // Build helper maps for inference
         const normalizeEmail = (e: string) => (e || '').toLowerCase().trim();
         const normalizePhone = (p: string) => (p || '').replace(/[^0-9]/g, '');
@@ -143,7 +158,7 @@ serve(async (req) => {
         console.log(`Total email->user_id mappings available: ${emailToUserId.size}`);
         console.log('Sample mappings:', Array.from(emailToUserId.entries()).slice(0, 5));
 
-        // 3) Preload document counts for all inferred users
+        // 3) Preload document counts for all inferred users from user_documents table
         const uniqueUserIds = Array.from(new Set(Array.from(emailToUserId.values())));
         const docsByUserId = new Map<string, number>();
         if (uniqueUserIds.length > 0) {
@@ -155,9 +170,29 @@ serve(async (req) => {
             docs.forEach((d: any) => {
               docsByUserId.set(d.user_id, (docsByUserId.get(d.user_id) || 0) + 1);
             });
-            console.log(`Found documents for ${docsByUserId.size} users, total docs: ${docs.length}`);
+            console.log(`Found documents for ${docsByUserId.size} users in user_documents, total docs: ${docs.length}`);
           } else if (docsErr) {
             console.error('Preload user_documents error:', docsErr);
+          }
+        }
+
+        // 3b) For users with 0 records in user_documents, fall back to Storage listing
+        const storage = supabase.storage.from('user-documents');
+        for (const uid of uniqueUserIds) {
+          if (docsByUserId.has(uid)) continue;
+          try {
+            const level1 = await storage.list(uid, { limit: 1000 });
+            let count = 0;
+            const folders = (level1?.data || []).filter((e: any) => e.name);
+            for (const f of folders) {
+              const sub = await storage.list(`${uid}/${f.name}`, { limit: 1000 });
+              count += (sub?.data || []).filter((e: any) => e.name && !('metadata' in e && (e as any).metadata?.isFolder)).length;
+            }
+            if (count > 0) {
+              docsByUserId.set(uid, count);
+            }
+          } catch (e) {
+            console.warn('Storage listing fallback failed for user', uid, e);
           }
         }
 
@@ -172,12 +207,14 @@ serve(async (req) => {
           });
 
           const inferred_user_id = emailToUserId.get(reqEmail) || (matched.find((a: any) => a.user_id)?.user_id || null);
-          const documents_count = inferred_user_id ? (docsByUserId.get(inferred_user_id) || 0) : 0;
+          const user_docs_count = inferred_user_id ? (docsByUserId.get(inferred_user_id) || 0) : 0;
+          const lead_docs_count = leadDocsCount.get(request.id) || 0;
+          const documents_count = user_docs_count + lead_docs_count;
           const has_documents = documents_count > 0;
           const is_registered = Boolean(inferred_user_id) || matched.length > 0 || has_documents;
 
           if (reqEmail === 'moritz.bl@gmx.de' || reqEmail === 'luca.patzner@icloud.com') {
-            console.log(`DEBUG ${reqEmail}: matched=${matched.length}, inferred_user_id=${inferred_user_id}, documents_count=${documents_count}, has_documents=${has_documents}, is_registered=${is_registered}`);
+            console.log(`DEBUG ${reqEmail}: matched=${matched.length}, inferred_user_id=${inferred_user_id}, user_docs=${user_docs_count}, lead_docs=${lead_docs_count}, has_documents=${has_documents}, is_registered=${is_registered}`);
           }
 
           return { ...request, applications: matched, inferred_user_id, has_documents, documents_count, is_registered };
