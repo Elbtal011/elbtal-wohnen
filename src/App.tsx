@@ -17,6 +17,7 @@ import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import Auth from "./pages/Auth";
 import UserProfile from "./pages/UserProfile";
+import CSVAnalyzer from "./pages/CSVAnalyzer";
 import NotFound from "./pages/NotFound";
 import ScrollToTop from "./components/ScrollToTop";
 
@@ -43,6 +44,7 @@ const App = () => (
         <Route path="/admin1244/dashboard" element={<AdminDashboard />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/profile" element={<UserProfile />} />
+        <Route path="/debug-csv-analyzer" element={<CSVAnalyzer />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
