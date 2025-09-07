@@ -693,6 +693,13 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      map_emails_to_user_ids: {
+        Args: { emails: string[] }
+        Returns: {
+          email: string
+          user_id: string
+        }[]
+      }
       trigger_daily_backup: {
         Args: Record<PropertyKey, never>
         Returns: undefined
