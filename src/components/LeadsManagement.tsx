@@ -1177,6 +1177,19 @@ const LeadsManagement: React.FC = () => {
                           </div>
                         </div>
                       ) : null}
+                      {(() => {
+                        const det = extractDetails(selected.nachricht);
+                        const gd = selected.geburtsdatum 
+                          ? new Date(selected.geburtsdatum).toLocaleDateString('de-DE') 
+                          : det['Geburtsdatum'];
+                        const go = selected.geburtsort || det['Geburtsort'];
+                        return (
+                          <>
+                            {gd && <div><strong>Geburtsdatum:</strong> {gd}</div>}
+                            {go && <div><strong>Geburtsort:</strong> {go}</div>}
+                          </>
+                        );
+                      })()}
                     </div>
                     <div className="space-y-3 pt-4 border-t">
                       <div><strong>Datum:</strong> {new Date(selected.created_at).toLocaleString('de-DE')}</div>
@@ -1193,10 +1206,8 @@ const LeadsManagement: React.FC = () => {
                       )}
                       {(() => { const det = extractDetails(selected.nachricht); return (
                         <>
-                          {det['Geburtsdatum'] && <div><strong>Geburtsdatum:</strong> {det['Geburtsdatum']}</div>}
                           {det['Einzugsdatum'] && <div><strong>Einzugsdatum:</strong> {det['Einzugsdatum']}</div>}
                           {det['Nettoeinkommen'] && <div><strong>Nettoeinkommen:</strong> {det['Nettoeinkommen']}</div>}
-                          {det['Geburtsort'] && <div><strong>Geburtsort:</strong> {det['Geburtsort']}</div>}
                           {det['Staatsangehörigkeit'] && <div><strong>Staatsangehörigkeit:</strong> {det['Staatsangehörigkeit']}</div>}
                         </>
                       ); })()}
