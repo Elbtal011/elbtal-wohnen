@@ -8,7 +8,7 @@ import { Building, Users, Award, Target, Heart, Shield, TrendingUp, Clock, Star,
 const Unternehmen = () => {
   const milestones = [{
     year: "1988",
-    title: "Gründung in Dresden",
+    title: "Gründung in München",
     description: "Start als kleine Immobilienverwaltung mit Fokus auf persönlichen Service"
   }, {
     year: "1995",
@@ -235,7 +235,7 @@ const Unternehmen = () => {
                 <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
                 <h3 className="font-semibold mb-3">Lokale Expertise</h3>
                 <p className="text-sm text-muted-foreground">
-                  Tiefgreifende Marktkenntnis in Dresden und Umgebung seit über 35 Jahren.
+                  Tiefgreifende Marktkenntnis in München und Umgebung seit über 35 Jahren.
                 </p>
               </div>
               <div className="text-center">
@@ -264,7 +264,7 @@ const Unternehmen = () => {
             </div>
             <h2 className="text-3xl font-bold mb-4 text-foreground">Lernen Sie uns kennen</h2>
             <p className="text-xl mb-8 text-muted-foreground">
-              Besuchen Sie uns in unserem Büro in Dresden oder vereinbaren Sie einen persönlichen Beratungstermin.
+              Besuchen Sie uns in unserem Büro in München oder vereinbaren Sie einen persönlichen Beratungstermin.
             </p>
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
