@@ -49,6 +49,8 @@ interface Lead {
   applications?: PropertyApplication[];
   hasDocuments?: boolean;
   documentsCount?: number;
+  geburtsdatum?: string | null;
+  geburtsort?: string | null;
 }
 
 interface PropertyApplication {
@@ -723,7 +725,23 @@ const LeadsManagement: React.FC = () => {
   };
 
   const openDetails = (lead: Lead) => {
-    setSelected(lead);
+    // Enrich lead data with birth information from property applications
+    let enrichedLead = { ...lead };
+    
+    if (lead.applications && lead.applications.length > 0) {
+      // Get birth information from the most recent application
+      const latestApplication = lead.applications
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0];
+      
+      if (latestApplication.geburtsdatum) {
+        enrichedLead.geburtsdatum = latestApplication.geburtsdatum;
+      }
+      if (latestApplication.geburtsort) {
+        enrichedLead.geburtsort = latestApplication.geburtsort;
+      }
+    }
+    
+    setSelected(enrichedLead);
     setOpen(true);
     // Fetch documents if user is registered
     if (lead.isRegistered && lead.user_id) {
