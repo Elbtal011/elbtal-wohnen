@@ -34,6 +34,7 @@ const [nachname, setNachname] = useState('');
 const [email, setEmail] = useState('');
 const [telefon, setTelefon] = useState('');
 const [adresse, setAdresse] = useState('');
+const [nummer, setNummer] = useState('');
 const [plz, setPlz] = useState('');
 const [ort, setOrt] = useState('');
 const [geburtsort, setGeburtsort] = useState('');
@@ -61,7 +62,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       email,
       telefon,
       strasse: adresse,
-      nummer: '',
+      nummer: nummer,
       plz,
       ort: ort,
       nachricht: `${deineNachricht}\n\nGeburtsort: ${geburtsort}\nStaatsangehörigkeit: ${staatsangehoerigkeit}\nGeburtsdatum: ${geburtsdatum}${isDialog ? `\nEinzugsdatum: ${einzugsdatum}` : ''}\nNettoeinkommen: ${nettoeinkommen}`,
@@ -88,6 +89,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     setEmail('');
     setTelefon('');
     setAdresse('');
+    setNummer('');
     setPlz('');
     setOrt('');
     setGeburtsort('');
@@ -164,15 +166,29 @@ const handleSubmit = async (e: React.FormEvent) => {
         </div>
       </div>
 
-      <div>
-        <Label htmlFor="adresse">Adresse *</Label>
-        <Input
-          id="adresse"
-          value={adresse}
-          onChange={(e) => setAdresse(e.target.value)}
-          required
-          className="mt-2"
-        />
+      <div className="grid grid-cols-3 gap-4">
+        <div className="col-span-2">
+          <Label htmlFor="adresse">Straße *</Label>
+          <Input
+            id="adresse"
+            value={adresse}
+            onChange={(e) => setAdresse(e.target.value)}
+            required
+            className="mt-2"
+            placeholder="z.B. Musterstraße"
+          />
+        </div>
+        <div>
+          <Label htmlFor="nummer">Hausnummer *</Label>
+          <Input
+            id="nummer"
+            value={nummer}
+            onChange={(e) => setNummer(e.target.value)}
+            required
+            className="mt-2"
+            placeholder="z.B. 15"
+          />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
