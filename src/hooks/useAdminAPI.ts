@@ -72,8 +72,8 @@ export const useAdminAPI = () => {
     return callAdminFunction('delete_lead_document', { documentId });
   };
 
-  const getPropertyApplicationData = async (email: string, created_at: string) => {
-    return callAdminFunction('get_property_application_data', { email, created_at });
+  const getPropertyApplicationData = async (email: string) => {
+    return callAdminFunction('get_property_application_data', { email });
   };
 
   return {

@@ -67,9 +67,34 @@ const LeadDetailsModal: React.FC<LeadDetailsModalProps> = ({
   useEffect(() => {
     if (lead) {
       const details = extractDetails(lead.nachricht);
-      
-      // For property application leads, fetch additional data from property_applications table
-      if (lead.lead_label === 'Property Application') {
+
+      // If applications are preloaded on the lead, prefer them
+      const apps: any[] = (lead as any).applications || [];
+      if (Array.isArray(apps) && apps.length > 0) {
+        const appData = apps.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0];
+        const addressParts = appData?.adresse ? String(appData.adresse).trim().split(/\s+/) : [];
+        let strasse = '', nummer = '';
+        if (addressParts.length > 1) {
+          nummer = addressParts[addressParts.length - 1];
+          strasse = addressParts.slice(0, -1).join(' ');
+        } else if (addressParts.length === 1) {
+          strasse = addressParts[0];
+        }
+        setEditForm({
+          vorname: lead.vorname || appData?.vorname || '',
+          nachname: lead.nachname || appData?.nachname || '',
+          email: lead.email || appData?.email || '',
+          telefon: lead.telefon || appData?.telefon || '',
+          strasse: strasse || lead.strasse || '',
+          nummer: nummer || lead.nummer || '',
+          plz: appData?.postleitzahl || lead.plz || '',
+          ort: appData?.ort || lead.ort || '',
+          nettoeinkommen: appData?.nettoeinkommen?.toString() || details['Nettoeinkommen'] || '',
+          geburtsdatum: appData?.geburtsdatum || lead.geburtsdatum || details['Geburtsdatum'] || '',
+          geburtsort: appData?.geburtsort || lead.geburtsort || details['Geburtsort'] || ''
+        });
+      } else if ((lead.lead_label || '').toLowerCase().includes('property application') || !lead.strasse) {
+        // Otherwise, attempt to fetch by email when it's a property application or address is missing
         fetchPropertyApplicationData();
       } else {
         setEditForm({
@@ -91,29 +116,24 @@ const LeadDetailsModal: React.FC<LeadDetailsModalProps> = ({
 
   const fetchPropertyApplicationData = async () => {
     if (!lead) return;
-    
     try {
-      const data = await getPropertyApplicationData(lead.email, lead.created_at);
-      
+      const data = await getPropertyApplicationData(lead.email);
       if (data && data.length > 0) {
         const appData = data[0];
         const details = extractDetails(lead.nachricht);
-        
-        // Parse the complete address from property application
-        const addressParts = appData.adresse ? appData.adresse.split(' ') : [];
+        const addressParts = appData.adresse ? String(appData.adresse).trim().split(/\s+/) : [];
         let strasse = '', nummer = '';
-        
-        if (addressParts.length > 0) {
-          // Last part should be house number, rest is street name
+        if (addressParts.length > 1) {
           nummer = addressParts[addressParts.length - 1];
           strasse = addressParts.slice(0, -1).join(' ');
+        } else if (addressParts.length === 1) {
+          strasse = addressParts[0];
         }
-        
         setEditForm({
-          vorname: lead.vorname || '',
-          nachname: lead.nachname || '',
-          email: lead.email || '',
-          telefon: lead.telefon || '',
+          vorname: lead.vorname || appData?.vorname || '',
+          nachname: lead.nachname || appData?.nachname || '',
+          email: lead.email || appData?.email || '',
+          telefon: lead.telefon || appData?.telefon || '',
           strasse: strasse || lead.strasse || '',
           nummer: nummer || lead.nummer || '',
           plz: appData.postleitzahl || lead.plz || '',
@@ -125,21 +145,6 @@ const LeadDetailsModal: React.FC<LeadDetailsModalProps> = ({
       }
     } catch (error) {
       console.error('Error fetching property application data:', error);
-      // Fallback to original data
-      const details = extractDetails(lead.nachricht);
-      setEditForm({
-        vorname: lead.vorname || '',
-        nachname: lead.nachname || '',
-        email: lead.email || '',
-        telefon: lead.telefon || '',
-        strasse: lead.strasse || '',
-        nummer: lead.nummer || '',
-        plz: lead.plz || '',
-        ort: lead.ort || '',
-        nettoeinkommen: details['Nettoeinkommen'] || '',
-        geburtsdatum: lead.geburtsdatum || details['Geburtsdatum'] || '',
-        geburtsort: lead.geburtsort || details['Geburtsort'] || ''
-      });
     }
   };
 
