@@ -341,7 +341,9 @@ const LeadDetailsModal: React.FC<LeadDetailsModalProps> = ({
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {Object.entries(details).map(([key, value]) => (
+                  {Object.entries(details)
+                    .filter(([key]) => key !== 'Geburtsdatum' && key !== 'Geburtsort')
+                    .map(([key, value]) => (
                     <div key={key}>
                       <div className="font-medium text-sm text-muted-foreground">{key}</div>
                       <div className="text-sm">{value}</div>
