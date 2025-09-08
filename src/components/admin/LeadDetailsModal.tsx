@@ -284,6 +284,12 @@ const LeadDetailsModal: React.FC<LeadDetailsModalProps> = ({
                       </span>
                     </div>
                   )}
+                  {(lead.geburtsort || details['Geburtsort']) && (
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-muted-foreground" />
+                      <span>Geburtsort: {lead.geburtsort || details['Geburtsort']}</span>
+                    </div>
+                  )}
                   {(lead.geburtsdatum || details['Geburtsdatum']) && (
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -292,12 +298,6 @@ const LeadDetailsModal: React.FC<LeadDetailsModalProps> = ({
                           ? new Date(lead.geburtsdatum).toLocaleDateString('de-DE')
                           : details['Geburtsdatum']
                       }</span>
-                    </div>
-                  )}
-                  {(lead.geburtsort || details['Geburtsort']) && (
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-muted-foreground" />
-                      <span>Geburtsort: {lead.geburtsort || details['Geburtsort']}</span>
                     </div>
                   )}
                   <div className="flex items-center gap-2">

@@ -1185,8 +1185,8 @@ const LeadsManagement: React.FC = () => {
                         const go = selected.geburtsort || det['Geburtsort'];
                         return (
                           <>
-                            {gd && <div><strong>Geburtsdatum:</strong> {gd}</div>}
                             {go && <div><strong>Geburtsort:</strong> {go}</div>}
+                            {gd && <div><strong>Geburtsdatum:</strong> {gd}</div>}
                           </>
                         );
                       })()}
