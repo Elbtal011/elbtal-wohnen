@@ -187,6 +187,7 @@ const LeadsManagement: React.FC = () => {
 
         return {
           ...lead,
+          applications: (lead as any).applications || [],
           isRegistered: (typeof isRegisteredFromServer === 'boolean' ? isRegisteredFromServer : false)
             || registeredByAuth || registeredByApplication || registeredByAppsArray || registeredByLabel,
           user_id: member ? member.user_id : (applicationUserId || null)
