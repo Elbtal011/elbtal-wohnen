@@ -61,11 +61,71 @@ const LeadDetailsModal: React.FC<LeadDetailsModalProps> = ({
     geburtsdatum: '',
     geburtsort: ''
   });
-  const { callAdminFunction } = useAdminAPI();
+  const { callAdminFunction, getPropertyApplicationData } = useAdminAPI();
   const { toast } = useToast();
 
   useEffect(() => {
     if (lead) {
+      const details = extractDetails(lead.nachricht);
+      
+      // For property application leads, fetch additional data from property_applications table
+      if (lead.lead_label === 'Property Application') {
+        fetchPropertyApplicationData();
+      } else {
+        setEditForm({
+          vorname: lead.vorname || '',
+          nachname: lead.nachname || '',
+          email: lead.email || '',
+          telefon: lead.telefon || '',
+          strasse: lead.strasse || '',
+          nummer: lead.nummer || '',
+          plz: lead.plz || '',
+          ort: lead.ort || '',
+          nettoeinkommen: details['Nettoeinkommen'] || '',
+          geburtsdatum: lead.geburtsdatum || details['Geburtsdatum'] || '',
+          geburtsort: lead.geburtsort || details['Geburtsort'] || ''
+        });
+      }
+    }
+  }, [lead]);
+
+  const fetchPropertyApplicationData = async () => {
+    if (!lead) return;
+    
+    try {
+      const data = await getPropertyApplicationData(lead.email, lead.created_at);
+      
+      if (data && data.length > 0) {
+        const appData = data[0];
+        const details = extractDetails(lead.nachricht);
+        
+        // Parse the complete address from property application
+        const addressParts = appData.adresse ? appData.adresse.split(' ') : [];
+        let strasse = '', nummer = '';
+        
+        if (addressParts.length > 0) {
+          // Last part should be house number, rest is street name
+          nummer = addressParts[addressParts.length - 1];
+          strasse = addressParts.slice(0, -1).join(' ');
+        }
+        
+        setEditForm({
+          vorname: lead.vorname || '',
+          nachname: lead.nachname || '',
+          email: lead.email || '',
+          telefon: lead.telefon || '',
+          strasse: strasse || lead.strasse || '',
+          nummer: nummer || lead.nummer || '',
+          plz: appData.postleitzahl || lead.plz || '',
+          ort: appData.ort || lead.ort || '',
+          nettoeinkommen: appData.nettoeinkommen?.toString() || details['Nettoeinkommen'] || '',
+          geburtsdatum: appData.geburtsdatum || lead.geburtsdatum || details['Geburtsdatum'] || '',
+          geburtsort: appData.geburtsort || lead.geburtsort || details['Geburtsort'] || ''
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching property application data:', error);
+      // Fallback to original data
       const details = extractDetails(lead.nachricht);
       setEditForm({
         vorname: lead.vorname || '',
@@ -81,7 +141,7 @@ const LeadDetailsModal: React.FC<LeadDetailsModalProps> = ({
         geburtsort: lead.geburtsort || details['Geburtsort'] || ''
       });
     }
-  }, [lead]);
+  };
 
   const handleSaveEdit = async () => {
     if (!lead) return;
@@ -275,12 +335,12 @@ const LeadDetailsModal: React.FC<LeadDetailsModalProps> = ({
                     <Phone className="h-4 w-4 text-muted-foreground" />
                     <span>{lead.telefon}</span>
                   </div>
-                  {(lead.strasse || lead.plz || lead.ort) && (
+                  {(editForm.strasse || editForm.plz || editForm.ort || lead.strasse || lead.plz || lead.ort) && (
                     <div className="flex items-center gap-2">
                       <MapPin className="h-4 w-4 text-muted-foreground" />
                       <span>
-                        {[lead.strasse, lead.nummer].filter(Boolean).join(' ')}{' '}
-                        {[lead.plz, lead.ort].filter(Boolean).join(' ')}
+                        {[editForm.strasse || lead.strasse, editForm.nummer || lead.nummer].filter(Boolean).join(' ')}{' '}
+                        {[editForm.plz || lead.plz, editForm.ort || lead.ort].filter(Boolean).join(' ')}
                       </span>
                     </div>
                   )}

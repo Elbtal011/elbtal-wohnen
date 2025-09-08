@@ -598,6 +598,34 @@ serve(async (req) => {
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
 
+      case 'get_property_application_data':
+        try {
+          const { email, created_at } = data;
+          
+          // Get property application data by email and similar creation time
+          const { data: appData, error: appError } = await supabase
+            .from('property_applications')
+            .select('*')
+            .eq('email', email)
+            .gte('created_at', new Date(new Date(created_at).getTime() - 5 * 60 * 1000).toISOString()) // Within 5 minutes
+            .lte('created_at', new Date(new Date(created_at).getTime() + 5 * 60 * 1000).toISOString())
+            .order('created_at', { ascending: false })
+            .limit(1);
+
+          if (appError) throw appError;
+
+          return new Response(
+            JSON.stringify(appData || []),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        } catch (error) {
+          console.error('Get property application data error:', error);
+          return new Response(
+            JSON.stringify({ error: 'Failed to get property application data', details: error.message }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
       case 'get_members':
         try {
           // Fetch all profiles (optional extra data)
