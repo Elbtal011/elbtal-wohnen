@@ -586,7 +586,7 @@ const UserProfile = () => {
                                 <FileText className="h-4 w-4" />
                                 <span className="text-sm">{doc.file_name}</span>
                                 <span className="text-xs text-muted-foreground">
-                                  {new Date(doc.uploaded_at).toLocaleDateString()}
+                                  {new Date(doc.uploaded_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                                 </span>
                               </div>
                               <Button

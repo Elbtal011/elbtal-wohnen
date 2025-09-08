@@ -30,6 +30,8 @@ interface Lead {
   isRegistered?: boolean;
   user_id?: string | null;
   hasDocuments?: boolean;
+  geburtsdatum?: string | null;
+  geburtsort?: string | null;
 }
 
 interface LeadDetailsModalProps {
@@ -55,7 +57,9 @@ const LeadDetailsModal: React.FC<LeadDetailsModalProps> = ({
     nummer: '',
     plz: '',
     ort: '',
-    nettoeinkommen: ''
+    nettoeinkommen: '',
+    geburtsdatum: '',
+    geburtsort: ''
   });
   const { callAdminFunction } = useAdminAPI();
   const { toast } = useToast();
@@ -72,7 +76,9 @@ const LeadDetailsModal: React.FC<LeadDetailsModalProps> = ({
         nummer: lead.nummer || '',
         plz: lead.plz || '',
         ort: lead.ort || '',
-        nettoeinkommen: details['Nettoeinkommen'] || ''
+        nettoeinkommen: details['Nettoeinkommen'] || '',
+        geburtsdatum: lead.geburtsdatum || details['Geburtsdatum'] || '',
+        geburtsort: lead.geburtsort || details['Geburtsort'] || ''
       });
     }
   }, [lead]);
@@ -231,6 +237,26 @@ const LeadDetailsModal: React.FC<LeadDetailsModalProps> = ({
                       placeholder="z.B. 2500 €"
                     />
                   </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="geburtsdatum">Geburtsdatum</Label>
+                      <Input
+                        id="geburtsdatum"
+                        type="date"
+                        value={editForm.geburtsdatum}
+                        onChange={(e) => setEditForm(prev => ({ ...prev, geburtsdatum: e.target.value }))}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="geburtsort">Geburtsort</Label>
+                      <Input
+                        id="geburtsort"
+                        value={editForm.geburtsort}
+                        onChange={(e) => setEditForm(prev => ({ ...prev, geburtsort: e.target.value }))}
+                        placeholder="z.B. München"
+                      />
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <>
@@ -258,9 +284,31 @@ const LeadDetailsModal: React.FC<LeadDetailsModalProps> = ({
                       </span>
                     </div>
                   )}
+                  {(lead.geburtsdatum || details['Geburtsdatum']) && (
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <span>Geburtsdatum: {
+                        lead.geburtsdatum 
+                          ? new Date(lead.geburtsdatum).toLocaleDateString('de-DE')
+                          : details['Geburtsdatum']
+                      }</span>
+                    </div>
+                  )}
+                  {(lead.geburtsort || details['Geburtsort']) && (
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-muted-foreground" />
+                      <span>Geburtsort: {lead.geburtsort || details['Geburtsort']}</span>
+                    </div>
+                  )}
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span>{new Date(lead.created_at).toLocaleString('de-DE')}</span>
+                    <span>Erstellt: {new Date(lead.created_at).toLocaleDateString('de-DE', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}</span>
                   </div>
                 </>
               )}

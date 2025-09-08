@@ -922,7 +922,7 @@ const LeadsManagement: React.FC = () => {
                               {details['Nettoeinkommen'] && (
                                 <div>💰 {details['Nettoeinkommen']}</div>
                               )}
-                              <div>📅 {new Date(lead.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}</div>
+                              <div>📅 {new Date(lead.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })}</div>
                               <div>🏠 {lead.property?.title || 'Allgemein'}</div>
                             </div>
                           </div>
@@ -971,7 +971,7 @@ const LeadsManagement: React.FC = () => {
                         <TableCell className="hidden sm:table-cell">
                           <div className="flex items-center gap-1 text-xs">
                             <Calendar className="h-3 w-3" />
-                            {new Date(lead.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}
+                            {new Date(lead.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                           </div>
                         </TableCell>
                         <TableCell className="hidden md:table-cell">

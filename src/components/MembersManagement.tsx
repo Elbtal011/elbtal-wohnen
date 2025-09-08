@@ -354,7 +354,7 @@ const MembersManagement = () => {
                     </TableCell>
                     <TableCell>
                       <div className="text-sm text-muted-foreground">
-                        {new Date(member.created_at).toLocaleDateString()}
+                        {new Date(member.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                       </div>
                     </TableCell>
                     <TableCell>
