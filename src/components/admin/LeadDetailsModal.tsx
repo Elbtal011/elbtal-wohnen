@@ -344,8 +344,9 @@ const LeadDetailsModal: React.FC<LeadDetailsModalProps> = ({
                     <div className="flex items-center gap-2">
                       <MapPin className="h-4 w-4 text-muted-foreground" />
                       <span>
-                        {[editForm.strasse || lead.strasse, editForm.nummer || lead.nummer].filter(Boolean).join(' ')}{' '}
-                        {[editForm.plz || lead.plz, editForm.ort || lead.ort].filter(Boolean).join(' ')}
+                        {([editForm.strasse || lead.strasse, editForm.nummer || lead.nummer].filter(Boolean).join(' '))}
+                        {([editForm.plz || lead.plz, editForm.ort || lead.ort].filter(Boolean).length > 0 ? ', ' : '')}
+                        {([editForm.plz || lead.plz, editForm.ort || lead.ort].filter(Boolean).join(' '))}
                       </span>
                     </div>
                   )}

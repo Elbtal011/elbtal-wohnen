@@ -26,6 +26,7 @@ import LeadLabelBadge from '@/components/LeadLabelBadge';
 import AddLeadDialog from '@/components/AddLeadDialog';
 import LeadDetailsModal from '@/components/admin/LeadDetailsModal';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useAdminAPI } from '@/hooks/useAdminAPI';
 
 interface Lead {
   id: string;
@@ -127,6 +128,7 @@ const LeadsManagement: React.FC = () => {
   const [loadingDocuments, setLoadingDocuments] = useState(false);
   const [uploadingDocument, setUploadingDocument] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const { backfillMissingAddresses } = useAdminAPI();
 
   const fetchLeads = async () => {
     try {
@@ -213,6 +215,29 @@ const LeadsManagement: React.FC = () => {
   };
 
   useEffect(() => { fetchLeads(); }, []);
+
+  // One-time backfill for missing addresses from property applications
+  useEffect(() => {
+    const run = async () => {
+      try {
+        const token = localStorage.getItem('adminToken');
+        if (!token) return;
+        if (localStorage.getItem('addressesBackfilled') === '1') return;
+        const res = await backfillMissingAddresses();
+        if (res && typeof res.updated === 'number') {
+          if (res.updated > 0) {
+            toast({ title: 'Adressen aktualisiert', description: `${res.updated} Leads ergänzt.` });
+            await fetchLeads();
+          }
+          localStorage.setItem('addressesBackfilled', '1');
+        }
+      } catch (e) {
+        console.warn('Backfill addresses failed', e);
+      }
+    };
+    run();
+  }, []);
+
 
   // selection helpers
   const isSelected = (id: string) => selectedIds.has(id);

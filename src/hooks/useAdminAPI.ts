@@ -76,6 +76,10 @@ export const useAdminAPI = () => {
     return callAdminFunction('get_property_application_data', { email });
   };
 
+  const backfillMissingAddresses = async () => {
+    return callAdminFunction('backfill_missing_addresses');
+  };
+
   return {
     isLoading,
     callAdminFunction,
@@ -88,6 +92,7 @@ export const useAdminAPI = () => {
     getLeadDocuments,
     uploadLeadDocument,
     deleteLeadDocument,
-    getPropertyApplicationData
+    getPropertyApplicationData,
+    backfillMissingAddresses
   };
 };

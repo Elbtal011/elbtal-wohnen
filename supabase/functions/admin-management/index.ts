@@ -624,6 +624,88 @@ serve(async (req) => {
           );
         }
 
+      case 'backfill_missing_addresses':
+        try {
+          console.log('Starting backfill of missing addresses');
+          // 1) Load all contact requests with missing street or house number
+          const { data: requests, error: reqErr } = await supabase
+            .from('contact_requests')
+            .select('*')
+            .order('created_at', { ascending: false });
+          if (reqErr) throw reqErr;
+
+          const needsBackfill = (requests || []).filter((r: any) => {
+            const empty = (v: any) => v === null || v === undefined || String(v).trim() === '';
+            return empty(r.strasse) || empty(r.nummer);
+          });
+
+          let updated = 0;
+          const updatedIds: string[] = [];
+          const report: any[] = [];
+
+          for (const r of needsBackfill) {
+            if (!r?.email) continue;
+            // Find most recent property application by email
+            const { data: apps, error: appErr } = await supabase
+              .from('property_applications')
+              .select('*')
+              .eq('email', r.email)
+              .order('created_at', { ascending: false })
+              .limit(1);
+            if (appErr) { console.warn('App query error for', r.email, appErr); continue; }
+            const app = apps && apps[0];
+            if (!app || !app.adresse) continue;
+
+            // Robust address parsing: split into street + house number (last token with a digit)
+            const raw = String(app.adresse).trim().replace(/,+/g, ' ');
+            const parts = raw.split(/\s+/);
+            let house = '';
+            let street = raw;
+            for (let i = parts.length - 1; i >= 0; i--) {
+              if (/\d/.test(parts[i])) { // token containing a digit is our house number segment
+                house = parts.slice(i).join(' ');
+                street = parts.slice(0, i).join(' ').trim();
+                break;
+              }
+            }
+            street = street.trim();
+            house = house.trim();
+
+            // Prepare update payload
+            const upd: any = {};
+            if (street) upd.strasse = street;
+            if (house) upd.nummer = house;
+            if (app.postleitzahl && (!r.plz || String(r.plz).trim() === '')) upd.plz = app.postleitzahl;
+            if (app.ort && (!r.ort || String(r.ort).trim() === '')) upd.ort = app.ort;
+
+            if (Object.keys(upd).length === 0) continue;
+
+            const { error: updErr } = await supabase
+              .from('contact_requests')
+              .update(upd)
+              .eq('id', r.id);
+            if (!updErr) {
+              updated += 1;
+              updatedIds.push(r.id);
+              report.push({ id: r.id, email: r.email, applied: { adresse: app.adresse, postleitzahl: app.postleitzahl, ort: app.ort }, updated: upd });
+            } else {
+              console.warn('Update failed for', r.id, updErr);
+            }
+          }
+
+          console.log(`Backfill complete. Updated ${updated} records.`);
+          return new Response(
+            JSON.stringify({ updated, updatedIds, report }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        } catch (error) {
+          console.error('Backfill error:', error);
+          return new Response(
+            JSON.stringify({ error: 'Failed to backfill addresses', details: (error as any).message }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
       case 'get_members':
         try {
           // Fetch all profiles (optional extra data)
