@@ -13,8 +13,7 @@ import CustomDatePicker from '@/components/CustomDatePicker';
 interface ContactFormData {
   vorname: string;
   nachname: string;
-  strasse: string;
-  nummer: string;
+  adresse: string;
   plz: string;
   ort: string;
   geburtsort: string;
@@ -45,8 +44,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
 const [formData, setFormData] = useState<ContactFormData>({
   vorname: '',
   nachname: '',
-  strasse: '',
-  nummer: '',
+  adresse: '',
   plz: '',
   ort: '',
   geburtsort: '',
@@ -79,8 +77,8 @@ const [formData, setFormData] = useState<ContactFormData>({
         propertyId: formData.propertyId,
         vorname: formData.vorname,
         nachname: formData.nachname,
-        strasse: formData.strasse,
-        nummer: formData.nummer,
+        strasse: formData.adresse,
+        nummer: '',
         plz: formData.plz,
         ort: formData.ort,
         nachricht: `Geburtsort: ${formData.geburtsort}\nStaatsangehörigkeit: ${formData.staatsangehoerigkeit}\nGeburtsdatum: ${formData.geburtsdatum}\nEinzugsdatum: ${formData.einzugsdatum}\nNettoeinkommen: ${formData.nettoeinkommen}`,
@@ -104,8 +102,7 @@ const [formData, setFormData] = useState<ContactFormData>({
       setFormData({
         vorname: '',
         nachname: '',
-        strasse: '',
-        nummer: '',
+        adresse: '',
         plz: '',
         ort: '',
         geburtsort: '',
@@ -158,29 +155,15 @@ const [formData, setFormData] = useState<ContactFormData>({
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
-        <div className="col-span-2">
-          <Label htmlFor="strasse">Straße *</Label>
-          <Input
-            id="strasse"
-            value={formData.strasse}
-            onChange={(e) => handleInputChange('strasse', e.target.value)}
-            required
-            className="mt-2"
-            placeholder="z.B. Musterstraße"
-          />
-        </div>
-        <div>
-          <Label htmlFor="nummer">Hausnummer *</Label>
-          <Input
-            id="nummer"
-            value={formData.nummer}
-            onChange={(e) => handleInputChange('nummer', e.target.value)}
-            required
-            className="mt-2"
-            placeholder="z.B. 15"
-          />
-        </div>
+      <div>
+        <Label htmlFor="adresse">Adresse *</Label>
+        <Input
+          id="adresse"
+          value={formData.adresse}
+          onChange={(e) => handleInputChange('adresse', e.target.value)}
+          required
+          className="mt-2"
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
