@@ -664,6 +664,30 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_get_property_applications: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          adresse: string
+          created_at: string
+          einzugsdatum: string
+          email: string
+          geburtsdatum: string
+          geburtsort: string
+          id: string
+          nachname: string
+          nachricht: string
+          nettoeinkommen: number
+          ort: string
+          postleitzahl: string
+          property_id: string
+          staatsangehoerigkeit: string
+          status: string
+          telefon: string
+          updated_at: string
+          user_id: string
+          vorname: string
+        }[]
+      }
       cleanup_old_backups: {
         Args: Record<PropertyKey, never>
         Returns: undefined

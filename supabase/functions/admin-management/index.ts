@@ -101,14 +101,36 @@ serve(async (req) => {
 
         if (reqError) throw reqError
 
-        // Get property applications for all users
+        // Get property applications for all users using secure admin function
         const { data: applications, error: appsError } = await supabase
-          .from('property_applications')
-          .select(`
-            *,
-            property:properties(title, address, city:cities(name))
-          `)
-          .order('created_at', { ascending: false })
+          .rpc('admin_get_property_applications')
+        
+        // If we got applications, enrich them with property data
+        let enrichedApplications = null;
+        if (applications && !appsError) {
+          const propertyIds = [...new Set(applications.map(app => app.property_id).filter(Boolean))];
+          
+          if (propertyIds.length > 0) {
+            const { data: propertyData } = await supabase
+              .from('properties')
+              .select('id, title, address, city:cities(name)')
+              .in('id', propertyIds);
+            
+            // Create a map for quick lookup
+            const propertyMap = new Map();
+            if (propertyData) {
+              propertyData.forEach(prop => propertyMap.set(prop.id, prop));
+            }
+            
+            // Enrich applications with property data
+            enrichedApplications = applications.map(app => ({
+              ...app,
+              property: app.property_id ? propertyMap.get(app.property_id) : null
+            }));
+          } else {
+            enrichedApplications = applications;
+          }
+        }
 
         if (appsError) {
           console.error('Error fetching applications:', appsError);
@@ -135,7 +157,7 @@ serve(async (req) => {
 
         // 1) Map email -> user_id using applications when available
         const emailToUserId = new Map<string, string>();
-        (applications || []).forEach((app: any) => {
+        (enrichedApplications || []).forEach((app: any) => {
           const em = normalizeEmail(app.email);
           if (em && app.user_id && !emailToUserId.has(em)) emailToUserId.set(em, app.user_id);
         });
@@ -207,7 +229,7 @@ serve(async (req) => {
         const requestsWithApplications = requests.map((request: any) => {
           const reqEmail = normalizeEmail(request.email);
           const reqPhone = normalizePhone(request.telefon);
-          const matched = (applications || []).filter((app: any) => {
+          const matched = (enrichedApplications || []).filter((app: any) => {
             const appEmail = normalizeEmail(app.email);
             const appPhone = normalizePhone(app.telefon);
             return (appEmail && appEmail === reqEmail) || (appPhone && reqPhone && appPhone === reqPhone);
@@ -268,7 +290,7 @@ serve(async (req) => {
         return new Response(
           JSON.stringify({ 
             requests: requestsWithApplications,
-            applications: applications || []
+            applications: enrichedApplications || []
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
