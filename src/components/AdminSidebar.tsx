@@ -85,6 +85,11 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, onTabChange, adm
       icon: MessageSquare,
     },
     {
+      id: 'employees',
+      label: 'Mitarbeiter & Admins',
+      icon: User,
+    },
+    {
       id: 'members',
       label: 'Mitglieder',
       icon: Users,

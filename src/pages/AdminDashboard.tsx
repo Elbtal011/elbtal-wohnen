@@ -6,6 +6,7 @@ import PropertiesManagement from '@/components/PropertiesManagement';
 import ContactRequestsManagement from '@/components/ContactRequestsManagement';
 import CitiesManagement from '@/components/CitiesManagement';
 import MembersManagement from '@/components/MembersManagement';
+import EmployeesManagement from '@/components/EmployeesManagement';
 import AdminOverview from '@/components/AdminOverview';
 import AnalyticsReporting from '@/components/AnalyticsReporting';
 import BackupManagement from '@/components/BackupManagement';
@@ -43,6 +44,8 @@ const AdminDashboard = () => {
         return <PropertiesManagement />;
       case 'contacts':
         return <ContactRequestsManagement />;
+      case 'employees':
+        return <EmployeesManagement />;
       case 'members':
         return <MembersManagement />;
       case 'leads':

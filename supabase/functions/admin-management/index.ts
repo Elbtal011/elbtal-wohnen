@@ -1380,6 +1380,18 @@ serve(async (req) => {
           );
         }
 
+      case 'get_admin_users':
+        return await handleGetAdminUsers(supabase, token);
+      
+      case 'toggle_admin_status':
+        return await handleToggleAdminStatus(supabase, token, data);
+      
+      case 'update_admin_role':
+        return await handleUpdateAdminRole(supabase, token, data);
+      
+      case 'delete_admin_user':
+        return await handleDeleteAdminUser(supabase, token, data);
+
       default:
         return new Response(
           JSON.stringify({ error: 'Invalid action' }),
@@ -1401,3 +1413,214 @@ serve(async (req) => {
     )
   }
 })
+
+// Admin users management functions
+async function handleGetAdminUsers(supabase: any, token: string) {
+  console.log('Getting admin users');
+  
+  // Verify admin token
+  const { data: sessionData, error: sessionError } = await supabase
+    .from('admin_sessions')
+    .select('user_id')
+    .eq('token', token)
+    .eq('is_active', true)
+    .gt('expires_at', new Date().toISOString())
+    .single();
+
+  if (sessionError || !sessionData) {
+    throw new Error('Unauthorized');
+  }
+
+  const { data: users, error } = await supabase
+    .from('admin_users')
+    .select('id, username, email, role, is_active, created_at, last_login')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching admin users:', error);
+    throw new Error('Failed to fetch admin users');
+  }
+
+  return new Response(
+    JSON.stringify({ users }),
+    { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+  );
+}
+
+async function handleToggleAdminStatus(supabase: any, token: string, body: any) {
+  console.log('Toggling admin status');
+  
+  const { user_id, is_active } = body;
+  
+  // Verify admin token and get role
+  const { data: sessionData, error: sessionError } = await supabase
+    .from('admin_sessions')
+    .select('user_id, admin_users!inner(role)')
+    .eq('token', token)
+    .eq('is_active', true)
+    .gt('expires_at', new Date().toISOString())
+    .single();
+
+  if (sessionError || !sessionData) {
+    throw new Error('Unauthorized');
+  }
+
+  // Only admins can toggle status
+  const requestingUserRole = (sessionData as any).admin_users.role;
+  if (requestingUserRole !== 'admin') {
+    throw new Error('Only admins can manage user status');
+  }
+
+  const { error } = await supabase
+    .from('admin_users')
+    .update({ is_active })
+    .eq('id', user_id);
+
+  if (error) {
+    console.error('Error toggling admin status:', error);
+    throw new Error('Failed to update user status');
+  }
+
+  // Log the action
+  await supabase
+    .from('audit_log')
+    .insert([{
+      table_name: 'admin_users',
+      operation: 'STATUS_TOGGLE',
+      details: {
+        target_user_id: user_id,
+        new_status: is_active,
+        changed_by: sessionData.user_id
+      }
+    }]);
+
+  return new Response(
+    JSON.stringify({ success: true }),
+    { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+  );
+}
+
+async function handleUpdateAdminRole(supabase: any, token: string, body: any) {
+  console.log('Updating admin role');
+  
+  const { user_id, role } = body;
+  
+  // Verify admin token and get role
+  const { data: sessionData, error: sessionError } = await supabase
+    .from('admin_sessions')
+    .select('user_id, admin_users!inner(role)')
+    .eq('token', token)
+    .eq('is_active', true)
+    .gt('expires_at', new Date().toISOString())
+    .single();
+
+  if (sessionError || !sessionData) {
+    throw new Error('Unauthorized');
+  }
+
+  // Only admins can change roles
+  const requestingUserRole = (sessionData as any).admin_users.role;
+  if (requestingUserRole !== 'admin') {
+    throw new Error('Only admins can change user roles');
+  }
+
+  const { error } = await supabase
+    .from('admin_users')
+    .update({ role })
+    .eq('id', user_id);
+
+  if (error) {
+    console.error('Error updating admin role:', error);
+    throw new Error('Failed to update user role');
+  }
+
+  // Log the action
+  await supabase
+    .from('audit_log')
+    .insert([{
+      table_name: 'admin_users',
+      operation: 'ROLE_UPDATE',
+      details: {
+        target_user_id: user_id,
+        new_role: role,
+        changed_by: sessionData.user_id
+      }
+    }]);
+
+  return new Response(
+    JSON.stringify({ success: true }),
+    { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+  );
+}
+
+async function handleDeleteAdminUser(supabase: any, token: string, body: any) {
+  console.log('Deleting admin user');
+  
+  const { user_id } = body;
+  
+  // Verify admin token and get role
+  const { data: sessionData, error: sessionError } = await supabase
+    .from('admin_sessions')
+    .select('user_id, admin_users!inner(role)')
+    .eq('token', token)
+    .eq('is_active', true)
+    .gt('expires_at', new Date().toISOString())
+    .single();
+
+  if (sessionError || !sessionData) {
+    throw new Error('Unauthorized');
+  }
+
+  // Only admins can delete users
+  const requestingUserRole = (sessionData as any).admin_users.role;
+  if (requestingUserRole !== 'admin') {
+    throw new Error('Only admins can delete users');
+  }
+
+  // Don't allow deleting yourself
+  if (sessionData.user_id === user_id) {
+    throw new Error('Cannot delete your own account');
+  }
+
+  // Get user info before deletion for logging
+  const { data: userInfo } = await supabase
+    .from('admin_users')
+    .select('username, email, role')
+    .eq('id', user_id)
+    .single();
+
+  // Delete user sessions first
+  await supabase
+    .from('admin_sessions')
+    .delete()
+    .eq('user_id', user_id);
+
+  // Delete user
+  const { error } = await supabase
+    .from('admin_users')
+    .delete()
+    .eq('id', user_id);
+
+  if (error) {
+    console.error('Error deleting admin user:', error);
+    throw new Error('Failed to delete user');
+  }
+
+  // Log the action
+  await supabase
+    .from('audit_log')
+    .insert([{
+      table_name: 'admin_users',
+      operation: 'USER_DELETED',
+      details: {
+        deleted_user_id: user_id,
+        deleted_user_info: userInfo,
+        deleted_by: sessionData.user_id
+      }
+    }]);
+
+  return new Response(
+    JSON.stringify({ success: true }),
+    { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+  );
+}

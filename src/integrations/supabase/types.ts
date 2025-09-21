@@ -52,28 +52,34 @@ export type Database = {
       admin_users: {
         Row: {
           created_at: string
+          email: string | null
           id: string
           is_active: boolean
           last_login: string | null
           password_hash: string
+          role: string
           updated_at: string
           username: string
         }
         Insert: {
           created_at?: string
+          email?: string | null
           id?: string
           is_active?: boolean
           last_login?: string | null
           password_hash: string
+          role?: string
           updated_at?: string
           username: string
         }
         Update: {
           created_at?: string
+          email?: string | null
           id?: string
           is_active?: boolean
           last_login?: string | null
           password_hash?: string
+          role?: string
           updated_at?: string
           username?: string
         }
