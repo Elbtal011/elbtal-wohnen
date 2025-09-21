@@ -382,7 +382,12 @@ const UserProfile = () => {
               {/* Profile Image Section */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Profilbild</CardTitle>
+                  <CardTitle>
+                    {profileData.first_name || profileData.last_name 
+                      ? `${profileData.first_name} ${profileData.last_name}`.trim() 
+                      : 'Profilbild'
+                    }
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="flex items-center space-x-4">
                   <Avatar className="h-24 w-24">
