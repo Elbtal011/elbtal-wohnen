@@ -105,11 +105,12 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, onTabChange, adm
       label: 'Analytics',
       icon: BarChart3,
     },
-    {
+    // Only show backup management for admin users
+    ...(adminUser?.role === 'admin' ? [{
       id: 'backup',
       label: 'Backup',
       icon: Database,
-    },
+    }] : []),
   ];
 
   const leadsSubItems = [
