@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 import { Upload, FileText, Trash2, LogOut } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
@@ -27,6 +28,7 @@ interface ProfileData {
   geburtsort: string;
   nettoeinkommen: string;
   profile_image_url: string;
+  verified: boolean;
 }
 
 interface UserDocument {
@@ -70,6 +72,7 @@ const UserProfile = () => {
     geburtsort: '',
     nettoeinkommen: '',
     profile_image_url: '',
+    verified: false,
   });
   const [documents, setDocuments] = useState<UserDocument[]>([]);
   const [applications, setApplications] = useState<PropertyApplication[]>([]);
@@ -112,6 +115,7 @@ const UserProfile = () => {
           geburtsort: data.geburtsort || '',
           nettoeinkommen: data.nettoeinkommen?.toString() || '',
           profile_image_url: data.profile_image_url || '',
+          verified: data.verified || false,
         });
       }
     } catch (error) {
@@ -382,11 +386,22 @@ const UserProfile = () => {
               {/* Profile Image Section */}
               <Card>
                 <CardHeader>
-                  <CardTitle>
+                  <CardTitle className="flex items-center gap-2">
                     {profileData.first_name || profileData.last_name 
                       ? `${profileData.first_name} ${profileData.last_name}`.trim() 
                       : 'Profilbild'
                     }
+                    {profileData.first_name || profileData.last_name ? (
+                      <Badge 
+                        variant={profileData.verified ? "default" : "secondary"}
+                        className={profileData.verified 
+                          ? "bg-yellow-500 text-white ml-2" 
+                          : "bg-gray-300 text-gray-600 ml-2"
+                        }
+                      >
+                        {profileData.verified ? 'Verifiziert' : 'Unverifiziert'}
+                      </Badge>
+                    ) : null}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="flex items-center space-x-4">

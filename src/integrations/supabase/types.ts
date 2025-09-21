@@ -321,6 +321,7 @@ export type Database = {
           telefon: string | null
           updated_at: string
           user_id: string
+          verified: boolean
         }
         Insert: {
           anrede?: string | null
@@ -339,6 +340,7 @@ export type Database = {
           telefon?: string | null
           updated_at?: string
           user_id: string
+          verified?: boolean
         }
         Update: {
           anrede?: string | null
@@ -357,6 +359,7 @@ export type Database = {
           telefon?: string | null
           updated_at?: string
           user_id?: string
+          verified?: boolean
         }
         Relationships: []
       }
@@ -693,6 +696,14 @@ export type Database = {
           user_id: string
           vorname: string
         }[]
+      }
+      admin_update_user_verification: {
+        Args: {
+          admin_token: string
+          is_verified: boolean
+          target_user_id: string
+        }
+        Returns: boolean
       }
       cleanup_old_backups: {
         Args: Record<PropertyKey, never>

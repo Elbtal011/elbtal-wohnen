@@ -730,7 +730,7 @@ serve(async (req) => {
 
       case 'get_members':
         try {
-          // Fetch all profiles (optional extra data)
+          // Fetch all profiles (optional extra data) including verified field
           const { data: profiles, error: profilesError } = await supabase
             .from('profiles')
             .select('*')
@@ -758,7 +758,8 @@ serve(async (req) => {
               user_id: u.id,
               id: profile?.id ?? u.id, // keep a stable id
               email: u.email ?? 'N/A',
-              created_at: profile?.created_at ?? u.created_at
+              created_at: profile?.created_at ?? u.created_at,
+              verified: profile?.verified ?? false // Include verification status
             }
           })
 
@@ -1376,6 +1377,42 @@ serve(async (req) => {
           console.error('Delete members error:', error);
           return new Response(
             JSON.stringify({ error: 'Failed to delete members', details: error.message }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+      case 'update_user_verification':
+        try {
+          const { userId, verified } = data;
+          
+          if (!userId || typeof verified !== 'boolean') {
+            return new Response(
+              JSON.stringify({ error: 'User ID and verified status are required' }),
+              { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          }
+
+          // Call the database function to update verification status
+          const { data: result, error: updateError } = await supabase
+            .rpc('admin_update_user_verification', {
+              target_user_id: userId,
+              is_verified: verified,
+              admin_token: token
+            });
+
+          if (updateError) throw updateError;
+
+          return new Response(
+            JSON.stringify({ 
+              success: true, 
+              message: `User verification status updated to ${verified ? 'verified' : 'unverified'}` 
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        } catch (error) {
+          console.error('Update user verification error:', error);
+          return new Response(
+            JSON.stringify({ error: 'Failed to update user verification', details: error.message }),
             { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }

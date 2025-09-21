@@ -23,10 +23,13 @@ import {
   FileText, 
   Eye, 
   Download,
-  User
+  User,
+  Shield,
+  ShieldCheck
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { Switch } from '@/components/ui/switch';
 
 interface Member {
   id: string;
@@ -44,6 +47,7 @@ interface Member {
   profile_image_url: string;
   created_at: string;
   email: string;
+  verified: boolean;
 }
 
 interface UserDocument {
@@ -232,6 +236,32 @@ const MembersManagement = ({ adminUser }: MembersManagementProps) => {
     }
   };
 
+  const handleToggleVerification = async (member: Member) => {
+    try {
+      const adminToken = localStorage.getItem('adminToken');
+      if (!adminToken) {
+        throw new Error('Admin token not found');
+      }
+
+      const { data, error } = await supabase.functions.invoke('admin-management', {
+        body: {
+          action: 'update_user_verification',
+          token: adminToken,
+          userId: member.user_id,
+          verified: !member.verified
+        }
+      });
+
+      if (error) throw error;
+
+      toast.success(`Nutzer ${!member.verified ? 'verifiziert' : 'unverifiziert'}`);
+      fetchMembers(); // Refresh the list
+    } catch (error) {
+      console.error('Error toggling verification:', error);
+      toast.error('Fehler beim Aktualisieren der Verifizierung');
+    }
+  };
+
   const getDocumentTypeLabel = (type: string) => {
     switch (type) {
       case 'gehaltsnachweis':
@@ -315,6 +345,7 @@ const MembersManagement = ({ adminUser }: MembersManagementProps) => {
                   <TableHead>Kontakt</TableHead>
                   <TableHead>Adresse</TableHead>
                   <TableHead>Einkommen</TableHead>
+                  <TableHead>Verifiziert</TableHead>
                   <TableHead>Registriert</TableHead>
                   <TableHead>Aktionen</TableHead>
                 </TableRow>
@@ -363,6 +394,31 @@ const MembersManagement = ({ adminUser }: MembersManagementProps) => {
                           {member.nettoeinkommen.toLocaleString()} €
                         </Badge>
                       )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          checked={member.verified}
+                          onCheckedChange={() => handleToggleVerification(member)}
+                          disabled={!adminUser || adminUser.role !== 'admin'}
+                        />
+                        <Badge 
+                          variant={member.verified ? "default" : "secondary"}
+                          className={member.verified ? "bg-yellow-500 text-white" : "bg-gray-300 text-gray-600"}
+                        >
+                          {member.verified ? (
+                            <>
+                              <ShieldCheck className="h-3 w-3 mr-1" />
+                              Verifiziert
+                            </>
+                          ) : (
+                            <>
+                              <Shield className="h-3 w-3 mr-1" />
+                              Unverifiziert
+                            </>
+                          )}
+                        </Badge>
+                      </div>
                     </TableCell>
                     <TableCell>
                       <div className="text-sm text-muted-foreground">
