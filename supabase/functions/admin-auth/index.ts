@@ -56,7 +56,7 @@ serve(async (req) => {
         .delete()
         .lt('expires_at', new Date().toISOString())
 
-      // Support login by username OR email; verify hash generated during invite: btoa(password + username)
+      // Support login by username OR email; check both old and new hash formats for compatibility
       const identifier = username as string;
       const isEmail = identifier.includes('@');
 
@@ -77,10 +77,16 @@ serve(async (req) => {
         );
       }
 
-      // Compute expected hash using username from DB to support email login
-      const expectedHash = btoa(`${password}${userRecord.username}`);
-      if (expectedHash !== userRecord.password_hash) {
-        console.log('Invalid credentials - password mismatch');
+      // Try both hash formats for backward compatibility:
+      // 1. New format: btoa(password + username) - used for invited users
+      // 2. Old format: btoa(password) - used for original admin users
+      const newFormatHash = btoa(`${password}${userRecord.username}`);
+      const oldFormatHash = btoa(password);
+      
+      console.log('Checking password formats for user:', userRecord.username);
+      
+      if (userRecord.password_hash !== newFormatHash && userRecord.password_hash !== oldFormatHash) {
+        console.log('Invalid credentials - password mismatch (tried both formats)');
         return new Response(
           JSON.stringify({ error: 'Invalid credentials' }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
