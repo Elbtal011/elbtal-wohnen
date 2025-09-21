@@ -50,34 +50,44 @@ serve(async (req) => {
         )
       }
 
-      // Hash password
-      const passwordHash = btoa(password)
-      console.log('Password hash:', passwordHash)
-
       // Clean up expired sessions first
       await supabase
         .from('admin_sessions')
         .delete()
         .lt('expires_at', new Date().toISOString())
 
-      // Find user with matching credentials
-      const { data: user, error: userError } = await supabase
+      // Support login by username OR email; verify hash generated during invite: btoa(password + username)
+      const identifier = username as string;
+      const isEmail = identifier.includes('@');
+
+      // Look up user by identifier first (without password)
+      const { data: userRecord, error: userError } = await supabase
         .from('admin_users')
-        .select('id, username')
-        .eq('username', username)
-        .eq('password_hash', passwordHash)
-        .eq('is_active', true)
-        .maybeSingle()
+        .select('id, username, password_hash, is_active')
+        .eq(isEmail ? 'email' : 'username', identifier)
+        .maybeSingle();
 
-      console.log('User lookup:', { found: !!user, error: userError?.message })
+      console.log('User lookup:', { found: !!userRecord, error: userError?.message });
 
-      if (userError || !user) {
-        console.log('Invalid credentials')
+      if (userError || !userRecord || userRecord.is_active === false) {
+        console.log('Invalid credentials - user not found or inactive');
         return new Response(
           JSON.stringify({ error: 'Invalid credentials' }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
-        )
+        );
       }
+
+      // Compute expected hash using username from DB to support email login
+      const expectedHash = btoa(`${password}${userRecord.username}`);
+      if (expectedHash !== userRecord.password_hash) {
+        console.log('Invalid credentials - password mismatch');
+        return new Response(
+          JSON.stringify({ error: 'Invalid credentials' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+        );
+      }
+
+      const user = { id: userRecord.id, username: userRecord.username };
 
       // Generate session token
       const sessionToken = generateSessionToken()
