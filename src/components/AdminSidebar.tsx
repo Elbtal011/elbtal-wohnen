@@ -84,11 +84,12 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, onTabChange, adm
       label: 'Anfragen',
       icon: MessageSquare,
     },
-    {
+    // Only show employee management for admin users
+    ...(adminUser?.role === 'admin' ? [{
       id: 'employees',
       label: 'Mitarbeiter & Admins',
       icon: User,
-    },
+    }] : []),
     {
       id: 'members',
       label: 'Mitglieder',
@@ -221,7 +222,9 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, onTabChange, adm
             </Avatar>
             <div className="flex flex-col items-start min-w-0 flex-1">
               <span className="text-sm font-medium truncate">{adminUser?.username || 'Admin'}</span>
-              <span className="text-xs text-muted-foreground">Administrator</span>
+              <span className="text-xs text-muted-foreground">
+                {adminUser?.role === 'admin' ? 'Administrator' : 'Mitarbeiter'}
+              </span>
             </div>
             <LogOut className="h-4 w-4" />
           </SidebarMenuButton>

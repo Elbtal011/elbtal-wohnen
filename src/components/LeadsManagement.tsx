@@ -108,7 +108,17 @@ const DEFAULT_LABELS = [
   'Property Application'
 ];
 
-const LeadsManagement: React.FC = () => {
+interface AdminUser {
+  id: string;
+  username: string;
+  role: string;
+}
+
+interface LeadsManagementProps {
+  adminUser?: AdminUser;
+}
+
+const LeadsManagement: React.FC<LeadsManagementProps> = ({ adminUser }) => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [registeredEmails, setRegisteredEmails] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
@@ -853,10 +863,12 @@ const LeadsManagement: React.FC = () => {
                 <Badge variant="secondary" className="px-3 py-1">
                   {selectedIds.size} von {paginatedLeads.length} auf dieser Seite ausgewählt
                 </Badge>
-                <Button variant="destructive" onClick={handleDeleteSelected} className="hover-scale">
-                  <Trash2 className="h-4 w-4 mr-1" /> 
-                  Löschen ({selectedIds.size})
-                </Button>
+                {adminUser?.role === 'admin' && (
+                  <Button variant="destructive" onClick={handleDeleteSelected} className="hover-scale">
+                    <Trash2 className="h-4 w-4 mr-1" /> 
+                    Löschen ({selectedIds.size})
+                  </Button>
+                )}
               </>
             )}
             <Button variant="secondary" onClick={handleExportCSV} className="hover-scale">Export CSV</Button>

@@ -39,7 +39,17 @@ interface Lead {
   ort?: string | null;
 }
 
-const PostIdent1Management: React.FC = () => {
+interface AdminUser {
+  id: string;
+  username: string;
+  role: string;
+}
+
+interface PostIdent1ManagementProps {
+  adminUser?: AdminUser;
+}
+
+const PostIdent1Management: React.FC<PostIdent1ManagementProps> = ({ adminUser }) => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState('');

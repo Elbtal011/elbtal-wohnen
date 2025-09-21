@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 interface AdminUser {
   id: string;
   username: string;
+  role: string;
 }
 
 export const useAdminAuth = () => {
@@ -47,7 +48,24 @@ export const useAdminAuth = () => {
       }
 
       console.log('Auth verification successful');
-      setAdminUser(JSON.parse(userStr));
+      const userData = JSON.parse(userStr);
+      
+      // Fetch the user's role from the database
+      try {
+        const { data: roleData, error: roleError } = await supabase.functions.invoke('admin-management', {
+          body: { action: 'get_current_user_role', token }
+        });
+        
+        if (roleError) {
+          console.error('Error fetching user role:', roleError);
+        } else if (roleData?.role) {
+          userData.role = roleData.role;
+        }
+      } catch (roleErr) {
+        console.warn('Failed to fetch user role:', roleErr);
+      }
+      
+      setAdminUser(userData);
       
     } catch (error) {
       console.error('Auth check failed:', error);

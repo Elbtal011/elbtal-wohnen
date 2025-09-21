@@ -54,7 +54,17 @@ interface UserDocument {
   uploaded_at: string;
 }
 
-const MembersManagement = () => {
+interface AdminUser {
+  id: string;
+  username: string;
+  role: string;
+}
+
+interface MembersManagementProps {
+  adminUser?: AdminUser;
+}
+
+const MembersManagement = ({ adminUser }: MembersManagementProps) => {
   const [members, setMembers] = useState<Member[]>([]);
   const [filteredMembers, setFilteredMembers] = useState<Member[]>([]);
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
@@ -276,15 +286,17 @@ const MembersManagement = () => {
                   className="pl-8 w-64"
                 />
               </div>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={handleDeleteMembers}
-                disabled={selectedMembers.length === 0}
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Löschen ({selectedMembers.length})
-              </Button>
+              {adminUser?.role === 'admin' && (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleDeleteMembers}
+                  disabled={selectedMembers.length === 0}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Löschen ({selectedMembers.length})
+                </Button>
+              )}
             </div>
           </div>
         </CardHeader>

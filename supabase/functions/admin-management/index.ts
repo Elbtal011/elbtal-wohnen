@@ -1391,6 +1391,9 @@ serve(async (req) => {
       
       case 'delete_admin_user':
         return await handleDeleteAdminUser(supabase, token, data);
+      
+      case 'get_current_user_role':
+        return await handleGetCurrentUserRole(supabase, token);
 
       default:
         return new Response(
@@ -1621,6 +1624,30 @@ async function handleDeleteAdminUser(supabase: any, token: string, body: any) {
 
   return new Response(
     JSON.stringify({ success: true }),
+    { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+  );
+}
+
+async function handleGetCurrentUserRole(supabase: any, token: string) {
+  console.log('Getting current user role');
+  
+  // Verify admin token and get user role
+  const { data: sessionData, error: sessionError } = await supabase
+    .from('admin_sessions')
+    .select('user_id, admin_users!inner(role)')
+    .eq('token', token)
+    .eq('is_active', true)
+    .gt('expires_at', new Date().toISOString())
+    .single();
+
+  if (sessionError || !sessionData) {
+    throw new Error('Unauthorized');
+  }
+
+  const userRole = (sessionData as any).admin_users.role;
+  
+  return new Response(
+    JSON.stringify({ role: userRole }),
     { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
   );
 }

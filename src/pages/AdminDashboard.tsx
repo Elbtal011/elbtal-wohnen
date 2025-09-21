@@ -47,13 +47,13 @@ const AdminDashboard = () => {
       case 'employees':
         return <EmployeesManagement />;
       case 'members':
-        return <MembersManagement />;
+        return <MembersManagement adminUser={adminUser} />;
       case 'leads':
-        return <LeadsManagement />;
+        return <LeadsManagement adminUser={adminUser} />;
       case 'postident1':
-        return <PostIdent1Management />;
+        return <PostIdent1Management adminUser={adminUser} />;
       case 'postident2':
-        return <PostIdent2Management />;
+        return <PostIdent2Management adminUser={adminUser} />;
       case 'cities':
         return <CitiesManagement />;
       case 'analytics':
