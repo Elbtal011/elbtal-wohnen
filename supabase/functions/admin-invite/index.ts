@@ -163,7 +163,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     try {
       const emailResponse = await resend.emails.send({
-        from: 'Elbtal Wohnen Admin <admin@elbtal-wohnen.de>',
+        from: 'Elbtal Wohnen Admin <onboarding@resend.dev>',
         to: [email],
         subject: `Einladung zum Elbtal Wohnen Admin-System (${roleText})`,
         html: emailHtml,
