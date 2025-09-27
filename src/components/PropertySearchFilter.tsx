@@ -172,7 +172,7 @@ export const PropertySearchFilter = () => {
         </div>
 
         <div className="flex justify-end">
-          <Button onClick={handleSearch} className="w-auto px-8" size="lg">
+          <Button onClick={handleSearch} className="w-auto px-8 bg-gray-100 text-gray-700 hover:bg-blue-600 hover:text-white transition-colors" size="lg">
             Suchen
           </Button>
         </div>
