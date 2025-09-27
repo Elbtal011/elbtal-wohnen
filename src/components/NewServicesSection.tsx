@@ -1,41 +1,36 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Target, Briefcase, Headphones } from "lucide-react";
+
 const services = [{
-  icon: Target,
-  title: "Unsere ZIELE",
-  description: "Wir streben nach höchster Qualität in der Immobilienverwaltung und schaffen langfristige Werte für unsere Kunden. Unser Ziel ist es, durch professionelle Betreuung und transparente Kommunikation das Vertrauen unserer Mieter und Eigentümer zu gewinnen."
+  title: "Unsere Grundsätze",
+  description: "Seit jeher verpflichten wir uns höchsten Standards in der Immobilienverwaltung und schaffen beständige Werte für unsere geschätzte Kundschaft. Unser oberstes Bestreben liegt darin, durch gewissenhafte Betreuung und aufrichtige Kommunikation das wohlverdiente Vertrauen unserer Mieter sowie Eigentümer zu erlangen."
 }, {
-  icon: Briefcase,
-  title: "Unsere ­ANGEBOTE",
-  description: "Von der kompletten Hausverwaltung über Mietverwaltung bis hin zur technischen Betreuung bieten wir umfassende Dienstleistungen. Unsere Expertise umfasst Objektbetreuung, Mieterberatung, Instandhaltung und kaufmännische Verwaltung für alle Immobilienarten."
+  title: "Unser Leistungsspektrum",
+  description: "Von der vollumfänglichen Hausverwaltung über die sorgsame Mietverwaltung bis hin zur fachkundigen technischen Betreuung erstreckt sich unser bewährtes Dienstleistungsangebot. Unsere langjährige Erfahrung umfasst die Objektbetreuung, Mieterberatung, Instandhaltung sowie die kaufmännische Verwaltung sämtlicher Immobilienarten."
 }, {
-  icon: Headphones,
-  title: "Unser ­SERVICE",
-  description: "24/7 Erreichbarkeit für Notfälle, regelmäßige Objektbesichtigungen und proaktive Wartung stehen im Mittelpunkt unseres Service. Wir bieten persönliche Beratung, digitale Verwaltungslösungen und schnelle Problemlösung für alle Anliegen."
+  title: "Unser Kundenservice",
+  description: "Rund um die Uhr stehen wir für dringende Angelegenheiten zur Verfügung, führen regelmäßige Objektbesichtigungen durch und sorgen für vorbeugende Wartungsmaßnahmen. Wir bieten persönliche Fachberatung, moderne Verwaltungslösungen und zügige Problemlösung für sämtliche Anliegen unserer Klientel."
 }];
 export const NewServicesSection = () => {
   return (
-    <section className="py-20 bg-muted/30">
+    <section className="py-20 bg-background">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {services.map((service, index) => {
-            const IconComponent = service.icon;
-            return (
-              <Card key={index} className="h-full hover:shadow-xl transition-all duration-500 border-0 bg-card/80 backdrop-blur-sm">
-                <CardHeader className="text-center pb-4">
-                  <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <IconComponent className="h-10 w-10 text-primary" />
-                  </div>
-                  <CardTitle className="text-2xl font-bold tracking-tight">{service.title}</CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <p className="text-muted-foreground leading-relaxed text-center">
-                    {service.description}
-                  </p>
-                </CardContent>
-              </Card>
-            );
-          })}
+          {services.map((service, index) => (
+            <Card key={index} className="h-full border-2 border-foreground/20 bg-background shadow-lg">
+              <CardHeader className="text-center pb-6 border-b border-foreground/10">
+                <div className="w-16 h-1 bg-foreground/30 mx-auto mb-4"></div>
+                <CardTitle className="text-2xl font-serif font-bold text-foreground tracking-wide uppercase">
+                  {service.title}
+                </CardTitle>
+                <div className="w-16 h-1 bg-foreground/30 mx-auto mt-4"></div>
+              </CardHeader>
+              <CardContent className="pt-6 px-6">
+                <p className="text-foreground/80 leading-relaxed text-justify font-serif text-base">
+                  {service.description}
+                </p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
     </section>
