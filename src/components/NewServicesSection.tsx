@@ -18,12 +18,12 @@ export const NewServicesSection = () => {
           {services.map((service, index) => (
             <Card key={index} className="h-full border-2 border-foreground/20 bg-background">
               <CardHeader className="text-center pb-6 border-b border-foreground/10">
-                <CardTitle className="text-2xl font-serif font-bold text-foreground tracking-wide uppercase">
+                <CardTitle className="text-2xl font-bold text-foreground mb-4">
                   {service.title}
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-6 px-6">
-                <p className="text-foreground/80 leading-relaxed text-justify font-serif text-base">
+                <p className="text-muted-foreground leading-relaxed text-center">
                   {service.description}
                 </p>
               </CardContent>
