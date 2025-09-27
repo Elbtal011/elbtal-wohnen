@@ -70,7 +70,7 @@ export const SimplePropertyCard = ({ property }: SimplePropertyCardProps) => {
             <div className="space-y-3">
               {/* Header */}
               <div className="flex flex-col gap-2">
-                <h3 className="font-bold text-lg text-[hsl(var(--brand-blue))] line-clamp-2">
+                <h3 className="font-bold text-lg text-foreground line-clamp-2">
                   {property.title}
                 </h3>
                 <div className="flex items-center text-muted-foreground text-sm">
