@@ -73,6 +73,13 @@ export const SimplePropertyCard = ({ property }: SimplePropertyCardProps) => {
                 <h3 className="font-bold text-lg text-foreground line-clamp-2">
                   {property.title}
                 </h3>
+                
+                {/* Price */}
+                <div className="text-lg font-bold text-foreground">
+                  {formatPrice(property.price_monthly)}
+                  <span className="text-sm font-normal text-muted-foreground">/Monat</span>
+                </div>
+                
                 <div className="flex items-center text-muted-foreground text-sm">
                   <MapPin className="h-3 w-3 mr-1 flex-shrink-0" />
                   <span className="truncate">{`${property.postal_code ? property.postal_code + ' ' : ''}${property.city?.name || 'Stadt nicht verfügbar'}`}</span>
@@ -88,14 +95,6 @@ export const SimplePropertyCard = ({ property }: SimplePropertyCardProps) => {
                 <div className="text-foreground">
                   <span className="font-medium">Zimmer:</span>
                   <div className="font-bold">{property.rooms}</div>
-                </div>
-              </div>
-
-              {/* Price */}
-              <div className="pt-2 border-t border-border/50">
-                <div className="text-lg font-bold text-primary">
-                  {formatPrice(property.price_monthly)}
-                  <span className="text-sm font-normal text-muted-foreground">/Monat</span>
                 </div>
               </div>
             </div>
