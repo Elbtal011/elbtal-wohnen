@@ -16,13 +16,11 @@ export const NewServicesSection = () => {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {services.map((service, index) => (
-            <Card key={index} className="h-full border-2 border-foreground/20 bg-background shadow-lg">
+            <Card key={index} className="h-full border-2 border-foreground/20 bg-background">
               <CardHeader className="text-center pb-6 border-b border-foreground/10">
-                <div className="w-16 h-1 bg-foreground/30 mx-auto mb-4"></div>
                 <CardTitle className="text-2xl font-serif font-bold text-foreground tracking-wide uppercase">
                   {service.title}
                 </CardTitle>
-                <div className="w-16 h-1 bg-foreground/30 mx-auto mt-4"></div>
               </CardHeader>
               <CardContent className="pt-6 px-6">
                 <p className="text-foreground/80 leading-relaxed text-justify font-serif text-base">
