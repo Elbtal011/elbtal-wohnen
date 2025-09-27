@@ -17,7 +17,7 @@ export const NewServicesSection = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {services.map((service, index) => (
             <Card key={index} className="h-full border border-foreground/10 bg-background">
-              <CardHeader className="text-center pb-4">
+              <CardHeader className="text-center pb-2">
                 <CardTitle className="text-2xl font-bold text-foreground mb-2">
                   {service.title}
                 </CardTitle>
