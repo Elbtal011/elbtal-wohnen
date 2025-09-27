@@ -240,11 +240,11 @@ export const PropertyListings = ({ filters }: PropertyListingsProps) => {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-12">
+            <div className="flex items-center justify-center gap-2 mt-16">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground disabled:text-muted-foreground/50 disabled:cursor-not-allowed transition-colors"
+                className="px-3 py-2 text-base text-foreground hover:text-primary disabled:text-muted-foreground/50 disabled:cursor-not-allowed transition-colors"
               >
                 Zurück
               </button>
@@ -266,10 +266,10 @@ export const PropertyListings = ({ filters }: PropertyListingsProps) => {
                     <button
                       key={pageNum}
                       onClick={() => handlePageChange(pageNum)}
-                      className={`px-3 py-2 text-sm transition-colors ${
+                      className={`px-3 py-2 text-base transition-colors ${
                         currentPage === pageNum 
                           ? "text-primary font-semibold" 
-                          : "text-muted-foreground hover:text-foreground"
+                          : "text-foreground hover:text-primary"
                       }`}
                     >
                       {pageNum}
@@ -281,7 +281,7 @@ export const PropertyListings = ({ filters }: PropertyListingsProps) => {
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground disabled:text-muted-foreground/50 disabled:cursor-not-allowed transition-colors"
+                className="px-3 py-2 text-base text-foreground hover:text-primary disabled:text-muted-foreground/50 disabled:cursor-not-allowed transition-colors"
               >
                 Weiter
               </button>
