@@ -55,7 +55,7 @@ export const Header = () => {
               <img 
                 src="/lovable-uploads/f4bd2064-0f8f-4de3-9863-bc4d9797aa3f.png" 
                 alt="AMIEL - Immobilienverwaltung seit 1988" 
-                className="h-12 w-auto lg:h-12 md:h-10 h-8"
+                className="h-10 w-auto lg:h-10 md:h-8 h-6"
               />
             </Link>
           </div>
