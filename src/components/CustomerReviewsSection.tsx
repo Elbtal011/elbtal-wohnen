@@ -66,7 +66,7 @@ export const CustomerReviewsSection = () => {
     // Auto-play functionality
     const timer = setInterval(() => {
       api.scrollNext()
-    }, 1500)
+    }, 2500)
 
     return () => clearInterval(timer)
   }, [api])
@@ -99,6 +99,8 @@ export const CustomerReviewsSection = () => {
           opts={{
             align: "start",
             loop: true,
+            duration: 30,
+            skipSnaps: false,
           }}
           className="w-full"
         >
