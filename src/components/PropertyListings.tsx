@@ -240,16 +240,14 @@ export const PropertyListings = ({ filters }: PropertyListingsProps) => {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-8">
-              <Button
-                variant="outline"
-                size="sm"
+            <div className="flex items-center justify-center gap-2 mt-12">
+              <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
+                className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground disabled:text-muted-foreground/50 disabled:cursor-not-allowed transition-colors"
               >
-                <ChevronLeft className="h-4 w-4 mr-1" />
                 Zurück
-              </Button>
+              </button>
               
               <div className="flex items-center gap-1">
                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -265,28 +263,28 @@ export const PropertyListings = ({ filters }: PropertyListingsProps) => {
                   }
                   
                   return (
-                    <Button
+                    <button
                       key={pageNum}
-                      variant={currentPage === pageNum ? "default" : "outline"}
-                      size="sm"
                       onClick={() => handlePageChange(pageNum)}
-                      className="w-10 h-10"
+                      className={`px-3 py-2 text-sm transition-colors ${
+                        currentPage === pageNum 
+                          ? "text-primary font-semibold" 
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
                     >
                       {pageNum}
-                    </Button>
+                    </button>
                   );
                 })}
               </div>
               
-              <Button
-                variant="outline"
-                size="sm"
+              <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
+                className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground disabled:text-muted-foreground/50 disabled:cursor-not-allowed transition-colors"
               >
                 Weiter
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
+              </button>
             </div>
           )}
         </>
