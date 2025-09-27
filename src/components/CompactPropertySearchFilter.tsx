@@ -78,7 +78,7 @@ export const CompactPropertySearchFilter = ({ onFilterChange, initialFilters }: 
   };
 
   return (
-    <Card className="w-full bg-background border">
+    <Card className="w-full bg-background border border-gray-300 shadow-none">
       <div className="p-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
           {/* Location */}
