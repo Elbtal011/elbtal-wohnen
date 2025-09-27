@@ -66,7 +66,7 @@ export const SimplePropertyCard = ({ property }: SimplePropertyCardProps) => {
           </Link>
 
           {/* Content */}
-          <div className="flex-1 p-4 flex flex-col justify-between">
+          <div className="flex-1 p-4 pb-5 flex flex-col justify-between">
             <div className="space-y-3">
               {/* Header */}
               <div className="flex flex-col gap-2">
