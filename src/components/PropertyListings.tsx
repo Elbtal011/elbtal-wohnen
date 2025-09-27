@@ -19,7 +19,7 @@ export const PropertyListings = ({ filters }: PropertyListingsProps) => {
   const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'price_low' | 'price_high' | 'newest' | 'area'>('newest');
   const [totalCount, setTotalCount] = useState(0);
-  const itemsPerPage = 10;
+  const itemsPerPage = 9;
   
   // Get current page from URL parameters, default to 1
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
