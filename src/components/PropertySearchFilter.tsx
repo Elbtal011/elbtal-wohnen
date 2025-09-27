@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
-import { Search, MapPin, Home, Euro, Ruler, Users } from "lucide-react";
 export const PropertySearchFilter = () => {
   const navigate = useNavigate();
   const [searchData, setSearchData] = useState({
@@ -75,8 +74,7 @@ export const PropertySearchFilter = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {/* Location */}
           <div className="space-y-1 md:space-y-2">
-            <Label htmlFor="location" className="text-xs md:text-sm font-medium flex items-center gap-1 md:gap-2">
-              <MapPin className="h-3 w-3 md:h-4 md:w-4 text-primary" />
+            <Label htmlFor="location" className="text-xs md:text-sm font-medium">
               Standort
             </Label>
             <Select value={searchData.location} onValueChange={value => setSearchData({
@@ -97,8 +95,7 @@ export const PropertySearchFilter = () => {
 
           {/* Property Type */}
           <div className="space-y-1 md:space-y-2">
-            <Label htmlFor="propertyType" className="text-xs md:text-sm font-medium flex items-center gap-1 md:gap-2">
-              <Home className="h-3 w-3 md:h-4 md:w-4 text-primary" />
+            <Label htmlFor="propertyType" className="text-xs md:text-sm font-medium">
               Objektart
             </Label>
             <Select value={searchData.propertyType} onValueChange={value => setSearchData({
@@ -119,8 +116,7 @@ export const PropertySearchFilter = () => {
 
           {/* Min Price */}
           <div className="space-y-1 md:space-y-2">
-            <Label htmlFor="minPrice" className="text-xs md:text-sm font-medium flex items-center gap-1 md:gap-2">
-              <Euro className="h-3 w-3 md:h-4 md:w-4 text-primary" />
+            <Label htmlFor="minPrice" className="text-xs md:text-sm font-medium">
               Miete von
             </Label>
             <Input id="minPrice" type="number" placeholder="z.B. 500" className="h-12 text-xs md:text-sm" value={searchData.minPrice} onChange={e => setSearchData({
@@ -131,8 +127,7 @@ export const PropertySearchFilter = () => {
 
           {/* Max Price */}
           <div className="space-y-1 md:space-y-2">
-            <Label htmlFor="maxPrice" className="text-xs md:text-sm font-medium flex items-center gap-1 md:gap-2">
-              <Euro className="h-3 w-3 md:h-4 md:w-4 text-primary" />
+            <Label htmlFor="maxPrice" className="text-xs md:text-sm font-medium">
               Miete bis
             </Label>
             <Input id="maxPrice" type="number" placeholder="z.B. 2000" className="h-12 text-xs md:text-sm" value={searchData.maxPrice} onChange={e => setSearchData({
@@ -143,8 +138,7 @@ export const PropertySearchFilter = () => {
 
           {/* Area */}
           <div className="space-y-1 md:space-y-2">
-            <Label htmlFor="minArea" className="text-xs md:text-sm font-medium flex items-center gap-1 md:gap-2">
-              <Ruler className="h-3 w-3 md:h-4 md:w-4 text-primary" />
+            <Label htmlFor="minArea" className="text-xs md:text-sm font-medium">
               Fläche ab (m²)
             </Label>
             <Input id="minArea" type="number" placeholder="z.B. 50" className="h-12 text-xs md:text-sm" value={searchData.minArea} onChange={e => setSearchData({
@@ -155,8 +149,7 @@ export const PropertySearchFilter = () => {
 
           {/* Rooms */}
           <div className="space-y-1 md:space-y-2">
-            <Label htmlFor="rooms" className="text-xs md:text-sm font-medium flex items-center gap-1 md:gap-2">
-              <Users className="h-3 w-3 md:h-4 md:w-4 text-primary" />
+            <Label htmlFor="rooms" className="text-xs md:text-sm font-medium">
               Zimmer
             </Label>
             <Select value={searchData.rooms} onValueChange={value => setSearchData({
@@ -180,7 +173,6 @@ export const PropertySearchFilter = () => {
 
         <div className="flex justify-end">
           <Button onClick={handleSearch} className="w-auto px-8" size="lg">
-            <Search className="h-4 w-4 mr-2" />
             Suchen
           </Button>
         </div>
