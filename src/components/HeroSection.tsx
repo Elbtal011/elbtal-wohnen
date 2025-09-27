@@ -13,36 +13,23 @@ export const HeroSection = () => {
   // Change image every 4.5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % heroImages.length);
+      setCurrentImageIndex(prevIndex => (prevIndex + 1) % heroImages.length);
     }, 4500);
-
     return () => clearInterval(interval);
   }, [heroImages.length]);
-
-  return (
-    <section className="relative py-20 md:py-28 overflow-hidden">
+  return <section className="relative py-20 md:py-28 overflow-hidden">
       {/* Background Image Slider with Ken Burns Effect */}
       <div className="absolute inset-0">
-        {heroImages.map((image, index) => (
-          <div
-            key={index}
-            className={`absolute inset-0 transition-opacity duration-1000 ${
-              index === currentImageIndex ? 'opacity-100' : 'opacity-0'
-            }`}
-          >
-            <div
-              className="w-full h-full bg-cover bg-center animate-kenBurns"
-              style={{
-                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${image})`
-              }}
-            />
-          </div>
-        ))}
+        {heroImages.map((image, index) => <div key={index} className={`absolute inset-0 transition-opacity duration-1000 ${index === currentImageIndex ? 'opacity-100' : 'opacity-0'}`}>
+            <div className="w-full h-full bg-cover bg-center animate-kenBurns" style={{
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${image})`
+        }} />
+          </div>)}
       </div>
       {/* Content */}
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-10">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight drop-shadow-lg lg:text-5xl">Willkommen zum wohnen, arbeiten &amp; wohlfühlen</h1>
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight drop-shadow-lg lg:text-5xl">Ihr neues Zuhause zum Leben &amp; Arbeiten</h1>
           <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto leading-relaxed drop-shadow-md">
             Entdecken Sie erstklassige Mietwohnungen in Deutschlands beliebtesten Städten. 
             Professionell, vertrauenswürdig, persönlich.
@@ -53,6 +40,5 @@ export const HeroSection = () => {
           <PropertySearchFilter />
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
