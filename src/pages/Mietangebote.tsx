@@ -35,7 +35,7 @@ const Mietangebote = () => {
       <Header />
       <main>
         {/* Hero Section */}
-        <section className="bg-background border-b border-border py-12 md:py-16">
+        <section className="bg-[#FBFBFC] border-b border-border py-12 md:py-16">
           <div className="container mx-auto px-4">
             <div className="text-center">
               <h1 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
