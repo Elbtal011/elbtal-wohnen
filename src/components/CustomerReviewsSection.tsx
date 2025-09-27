@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselApi } from "@/components/ui/carousel";
 import { Star } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const reviews = [
   {
@@ -48,6 +49,28 @@ const reviews = [
 ];
 
 export const CustomerReviewsSection = () => {
+  const [api, setApi] = useState<CarouselApi>()
+  const [current, setCurrent] = useState(0)
+  const [count, setCount] = useState(0)
+
+  useEffect(() => {
+    if (!api) return
+
+    setCount(api.scrollSnapList().length)
+    setCurrent(api.selectedScrollSnap() + 1)
+
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap() + 1)
+    })
+
+    // Auto-play functionality
+    const timer = setInterval(() => {
+      api.scrollNext()
+    }, 1500)
+
+    return () => clearInterval(timer)
+  }, [api])
+
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, index) => (
       <Star
@@ -72,6 +95,7 @@ export const CustomerReviewsSection = () => {
         </div>
 
         <Carousel
+          setApi={setApi}
           opts={{
             align: "start",
             loop: true,
@@ -100,9 +124,23 @@ export const CustomerReviewsSection = () => {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious />
-          <CarouselNext />
         </Carousel>
+
+        {/* Dots indicator */}
+        <div className="flex justify-center mt-8 space-x-2">
+          {Array.from({ length: Math.ceil(reviews.length / 3) }).map((_, index) => (
+            <button
+              key={index}
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                Math.floor((current - 1) / 3) === index
+                  ? "bg-primary scale-110"
+                  : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
+              }`}
+              onClick={() => api?.scrollTo(index * 3)}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
+        </div>
 
         <div className="text-center mt-12">
           <div className="inline-flex items-center gap-2 bg-background rounded-lg p-4 shadow-sm">
