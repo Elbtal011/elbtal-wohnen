@@ -4,7 +4,6 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { CompactPropertySearchFilter, FilterData } from "@/components/CompactPropertySearchFilter";
 import { PropertyListings } from "@/components/PropertyListings";
-
 const Mietangebote = () => {
   const [searchParams] = useSearchParams();
   const [filters, setFilters] = useState<FilterData | undefined>(undefined);
@@ -17,21 +16,19 @@ const Mietangebote = () => {
       minPrice: searchParams.get('minPrice') || '',
       maxPrice: searchParams.get('maxPrice') || '',
       minArea: searchParams.get('minArea') || '',
-      rooms: searchParams.get('rooms') || '',
+      rooms: searchParams.get('rooms') || ''
     };
-    
+
     // Only set filters if at least one parameter exists
     const hasFilters = Object.values(urlFilters).some(value => value !== '');
     if (hasFilters) {
       setFilters(urlFilters);
     }
   }, [searchParams]);
-
   const handleFilterChange = (newFilters: FilterData) => {
     setFilters(newFilters);
   };
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <Header />
       <main>
         {/* Hero Section */}
@@ -41,9 +38,7 @@ const Mietangebote = () => {
               <h1 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
                 Mietangebote
               </h1>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Entdecken Sie unsere hochwertigen Mietwohnungen in den besten Lagen Deutschlands
-              </p>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">Lernen Sie unsere hochwertigen Mietwohnungen in den begehrtesten Regionen Deutschlands kennen.</p>
             </div>
           </div>
         </section>
@@ -51,10 +46,7 @@ const Mietangebote = () => {
         {/* Search Filter */}
         <section className="py-6 bg-white">
           <div className="container mx-auto px-4">
-            <CompactPropertySearchFilter 
-              onFilterChange={handleFilterChange} 
-              initialFilters={filters}
-            />
+            <CompactPropertySearchFilter onFilterChange={handleFilterChange} initialFilters={filters} />
           </div>
         </section>
 
@@ -66,8 +58,6 @@ const Mietangebote = () => {
         </section>
       </main>
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Mietangebote;
