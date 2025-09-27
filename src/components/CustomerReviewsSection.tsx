@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Star } from "lucide-react";
 
 const reviews = [
@@ -70,26 +71,38 @@ export const CustomerReviewsSection = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {reviews.map((review) => (
-            <Card key={review.id} className="h-full hover:shadow-lg transition-all duration-300">
-              <CardContent className="p-6">
-                <div className="flex items-center mb-4">
-                  <div className="flex">{renderStars(review.rating)}</div>
-                </div>
-                
-                <p className="text-muted-foreground mb-4 leading-relaxed">
-                  "{review.text}"
-                </p>
-                
-                <div className="border-t pt-4">
-                  <h4 className="font-semibold text-foreground">{review.name}</h4>
-                  <p className="text-sm text-muted-foreground">{review.location}</p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <Carousel
+          opts={{
+            align: "start",
+            loop: true,
+          }}
+          className="w-full max-w-5xl mx-auto"
+        >
+          <CarouselContent className="-ml-2 md:-ml-4">
+            {reviews.map((review) => (
+              <CarouselItem key={review.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+                <Card className="h-full hover:shadow-lg transition-all duration-300">
+                  <CardContent className="p-6">
+                    <div className="flex items-center mb-4">
+                      <div className="flex">{renderStars(review.rating)}</div>
+                    </div>
+                    
+                    <p className="text-muted-foreground mb-4 leading-relaxed">
+                      "{review.text}"
+                    </p>
+                    
+                    <div className="border-t pt-4">
+                      <h4 className="font-semibold text-foreground">{review.name}</h4>
+                      <p className="text-sm text-muted-foreground">{review.location}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious />
+          <CarouselNext />
+        </Carousel>
 
         <div className="text-center mt-12">
           <div className="inline-flex items-center gap-2 bg-background rounded-lg p-4 shadow-sm">
