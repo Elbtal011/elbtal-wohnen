@@ -49,7 +49,7 @@ const Mietangebote = () => {
         </section>
 
         {/* Search Filter */}
-        <section className="py-6 bg-muted/30">
+        <section className="py-6 bg-white">
           <div className="container mx-auto px-4">
             <CompactPropertySearchFilter 
               onFilterChange={handleFilterChange} 
