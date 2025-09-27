@@ -78,7 +78,7 @@ export const CompactPropertySearchFilter = ({ onFilterChange, initialFilters }: 
   };
 
   return (
-    <Card className="w-full bg-background border shadow-sm">
+    <Card className="w-full bg-background border">
       <div className="p-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
           {/* Location */}
@@ -169,7 +169,7 @@ export const CompactPropertySearchFilter = ({ onFilterChange, initialFilters }: 
           <div className="space-y-1">
             <Button 
               onClick={handleSearch}
-              className="w-full h-12 px-3 text-sm"
+              className="w-full h-12 px-3 text-sm bg-white text-foreground border border-border hover:bg-primary hover:text-white transition-colors"
               size="sm"
             >
               Suchen
