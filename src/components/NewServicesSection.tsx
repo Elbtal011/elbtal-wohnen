@@ -12,11 +12,11 @@ const services = [{
 }];
 export const NewServicesSection = () => {
   return (
-    <section className="py-20 bg-background">
+    <section className="py-20" style={{backgroundColor: '#F9F9FA'}}>
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {services.map((service, index) => (
-            <Card key={index} className="h-full border border-foreground/10 bg-background">
+            <Card key={index} className="h-full border border-foreground/10 bg-white">
               <CardHeader className="text-center pb-2">
                 <CardTitle className="text-2xl font-bold text-foreground mb-2">
                   {service.title}
