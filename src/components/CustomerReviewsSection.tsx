@@ -76,7 +76,7 @@ export const CustomerReviewsSection = () => {
             align: "start",
             loop: true,
           }}
-          className="w-full max-w-5xl mx-auto"
+          className="w-full"
         >
           <CarouselContent className="-ml-2 md:-ml-4">
             {reviews.map((review) => (
