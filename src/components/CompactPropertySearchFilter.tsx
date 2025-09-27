@@ -11,7 +11,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
-import { Search, MapPin, Home, Euro, Ruler, Users } from "lucide-react";
 
 export interface FilterData {
   location: string;
@@ -173,7 +172,6 @@ export const CompactPropertySearchFilter = ({ onFilterChange, initialFilters }: 
               className="w-full h-12 px-3 text-sm"
               size="sm"
             >
-              <Search className="h-4 w-4 mr-1" />
               Suchen
             </Button>
           </div>
