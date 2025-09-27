@@ -10,11 +10,11 @@ export const HeroSection = () => {
   const heroImages = [heroSlider1, heroSlider2, heroSlider3, heroSlider4];
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Change image every 1.4 seconds
+  // Change image every 4.5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImageIndex((prevIndex) => (prevIndex + 1) % heroImages.length);
-    }, 1400);
+    }, 4500);
 
     return () => clearInterval(interval);
   }, [heroImages.length]);
@@ -63,7 +63,7 @@ export const HeroSection = () => {
             }`}
           >
             <div
-              className="w-full h-full bg-cover bg-center animate-[kenBurns_1.4s_ease-in-out_infinite]"
+              className="w-full h-full bg-cover bg-center animate-kenBurns"
               style={{
                 backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${image})`
               }}
