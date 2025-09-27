@@ -17,12 +17,12 @@ export const NewServicesSection = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {services.map((service, index) => (
             <Card key={index} className="h-full border-2 border-foreground/20 bg-background">
-              <CardHeader className="text-center pb-6 border-b border-foreground/10">
-                <CardTitle className="text-2xl font-bold text-foreground mb-4">
+              <CardHeader className="text-center pb-4">
+                <CardTitle className="text-2xl font-bold text-foreground mb-2">
                   {service.title}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="pt-6 px-6">
+              <CardContent className="pt-4 px-6">
                 <p className="text-muted-foreground leading-relaxed text-center">
                   {service.description}
                 </p>
