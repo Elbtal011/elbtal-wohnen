@@ -178,8 +178,8 @@ export const PropertySearchFilter = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 col-span-full">
-          <Button onClick={handleSearch} className="w-full" size="lg">
+        <div className="flex justify-end">
+          <Button onClick={handleSearch} className="w-auto px-8" size="lg">
             <Search className="h-4 w-4 mr-2" />
             Suchen
           </Button>
