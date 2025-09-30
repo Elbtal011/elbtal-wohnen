@@ -179,7 +179,7 @@ const PropertyDetails = () => {
                 propertyId={property.id}
                 propertyTitle={property.title}
                 trigger={
-                  <Button className="w-full bg-background text-foreground border border-input hover:bg-primary hover:text-primary-foreground transition-colors" size="lg">
+                  <Button className="bg-background text-foreground border border-input hover:bg-primary hover:text-primary-foreground transition-colors" size="lg">
                     Für Immobilie bewerben
                   </Button>
                 }
