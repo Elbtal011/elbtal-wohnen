@@ -163,10 +163,10 @@ const Vermietungsablauf = () => {
               Kontaktieren Sie uns noch heute und starten Sie Ihren Weg zur Traumwohnung.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" variant="outline" className="bg-white hover:bg-primary hover:text-white">
+              <Button size="lg" variant="outline" className="bg-white hover:bg-primary hover:text-white border-gray-400">
                 +49 089 244 108 610
               </Button>
-              <Button size="lg" variant="outline" className="bg-white hover:bg-primary hover:text-white">
+              <Button size="lg" variant="outline" className="bg-white hover:bg-primary hover:text-white border-gray-400">
                 info@amiel-immobilienverwaltung.de
               </Button>
             </div>
