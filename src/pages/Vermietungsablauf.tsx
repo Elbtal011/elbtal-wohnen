@@ -50,9 +50,7 @@ const Vermietungsablauf = () => {
       <div className="container mx-auto px-4 py-16">
         {/* Hero Section */}
         <div className="text-center mb-16">
-          <Badge className="mb-4 bg-primary/10 text-primary">
-            Vermietungsablauf
-          </Badge>
+          
           <h1 className="text-4xl md:text-5xl font-bold mb-6">Ihr Weg ins neue Zuhause</h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">Von der ersten Anfrage bis zur Schlüsselübergabe – wir stehen Ihnen während des gesamten Vermietungsprozesses kompetent zur Seite.</p>
         </div>
