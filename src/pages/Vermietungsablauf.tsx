@@ -42,12 +42,6 @@ const Vermietungsablauf = () => {
     icon: FileText,
     description: "Bei positiver Prüfung erfolgt die Vertragsunterzeichnung.",
     details: ["Mietvertragserstellung", "Vertragsberatung", "Kautionsabwicklung"]
-  }, {
-    number: 7,
-    title: "Schlüsselübergabe",
-    icon: Key,
-    description: "Am Einzugstermin erhalten Sie die Schlüssel und alle wichtigen Informationen.",
-    details: ["Übergabeprotokoll", "Schlüsselübergabe", "Einweisung in die Haustechnik"]
   }];
   const requiredDocuments = ["Ausgefüllte Selbstauskunft", "Einkommensnachweise der letzten 3 Monate", "Arbeitsvertrag oder Beschäftigungsnachweis", "SCHUFA-Auskunft (nicht älter als 3 Monate)", "Mietschuldenfreiheitsbescheinigung", "Personalausweis oder Reisepass", "Bei Selbstständigen: BWA und Steuerbescheid"];
   return <div className="min-h-screen bg-background">
