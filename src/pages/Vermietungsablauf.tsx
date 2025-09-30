@@ -156,22 +156,17 @@ const Vermietungsablauf = () => {
         </div>
 
         {/* Contact CTA */}
-        <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+        <Card className="border">
           <CardContent className="text-center p-12">
-            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-              <HeartHandshake className="h-8 w-8 text-primary" />
-            </div>
             <h2 className="text-3xl font-bold mb-4 text-foreground">Bereit für Ihre neue Wohnung?</h2>
             <p className="text-xl mb-8 text-muted-foreground">
               Kontaktieren Sie uns noch heute und starten Sie Ihren Weg zur Traumwohnung.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" variant="default">
-                <Phone className="h-5 w-5 mr-2" />
+              <Button size="lg" variant="outline" className="bg-white hover:bg-primary hover:text-white">
                 +49 089 244 108 610
               </Button>
-              <Button size="lg" variant="outline">
-                <Mail className="h-5 w-5 mr-2" />
+              <Button size="lg" variant="outline" className="bg-white hover:bg-primary hover:text-white">
                 info@amiel-immobilienverwaltung.de
               </Button>
             </div>
