@@ -191,8 +191,13 @@ const Leistungsübersicht = () => {
             {mainServices.map((service, index) => (
               <Card key={index} className="h-full">
                 <CardHeader>
-                  <div>
-                    <CardTitle className="text-xl">{service.title}</CardTitle>
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+                      <service.icon className="h-8 w-8 text-primary" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-xl">{service.title}</CardTitle>
+                    </div>
                   </div>
                   <p className="text-muted-foreground">{service.description}</p>
                 </CardHeader>
@@ -200,6 +205,7 @@ const Leistungsübersicht = () => {
                   <ul className="space-y-3">
                     {service.features.map((feature, idx) => (
                       <li key={idx} className="flex items-start gap-2">
+                        <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
                         <span className="text-sm">{feature}</span>
                       </li>
                     ))}
