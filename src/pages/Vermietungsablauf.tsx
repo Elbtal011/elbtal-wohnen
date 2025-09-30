@@ -116,7 +116,7 @@ const Vermietungsablauf = () => {
           <div className="grid md:grid-cols-3 gap-8">
             <Card>
               <CardHeader>
-                <Clock className="h-12 w-12 text-primary mb-4" />
+                <Clock className="h-12 w-12 text-black mb-4" />
                 <CardTitle>Schnelle Bearbeitung</CardTitle>
               </CardHeader>
               <CardContent>
@@ -129,7 +129,7 @@ const Vermietungsablauf = () => {
 
             <Card>
               <CardHeader>
-                <Users className="h-12 w-12 text-primary mb-4" />
+                <Users className="h-12 w-12 text-black mb-4" />
                 <CardTitle>Persönliche Betreuung</CardTitle>
               </CardHeader>
               <CardContent>
@@ -142,7 +142,7 @@ const Vermietungsablauf = () => {
 
             <Card>
               <CardHeader>
-                <Shield className="h-12 w-12 text-primary mb-4" />
+                <Shield className="h-12 w-12 text-black mb-4" />
                 <CardTitle>Sicherheit & Transparenz</CardTitle>
               </CardHeader>
               <CardContent>
