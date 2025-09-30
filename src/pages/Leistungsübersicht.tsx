@@ -142,8 +142,8 @@ const Leistungsübersicht = () => {
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {additionalServices.map((service, index) => <Card key={index} className="text-center p-6">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <service.icon className="h-8 w-8 text-primary" />
+                <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                  <service.icon className="h-8 w-8 text-foreground" />
                 </div>
                 <h3 className="text-lg font-semibold mb-2">{service.title}</h3>
                 <p className="text-muted-foreground text-sm">{service.description}</p>
