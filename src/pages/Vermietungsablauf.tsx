@@ -4,115 +4,53 @@ import { Footer } from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Search, 
-  FileText, 
-  CheckCircle, 
-  Key, 
-  Clock, 
-  Users, 
-  Shield, 
-  Phone,
-  Mail,
-  Calendar,
-  Home,
-  HeartHandshake
-} from 'lucide-react';
-
+import { Search, FileText, CheckCircle, Key, Clock, Users, Shield, Phone, Mail, Calendar, Home, HeartHandshake } from 'lucide-react';
 const Vermietungsablauf = () => {
-  const steps = [
-    {
-      number: 1,
-      title: "Erste Kontaktaufnahme",
-      icon: Phone,
-      description: "Sie kontaktieren uns telefonisch, per E-Mail oder über unser Kontaktformular.",
-      details: [
-        "Kostenlose Erstberatung",
-        "Bedarfsanalyse Ihrer Wohnwünsche",
-        "Terminvereinbarung für Besichtigungen"
-      ]
-    },
-    {
-      number: 2,
-      title: "Objektauswahl",
-      icon: Search,
-      description: "Gemeinsam finden wir die passende Immobilie für Ihre Bedürfnisse.",
-      details: [
-        "Präsentation geeigneter Objekte",
-        "Detaillierte Objektinformationen",
-        "Terminkoordination für Besichtigungen"
-      ]
-    },
-    {
-      number: 3,
-      title: "Besichtigung",
-      icon: Home,
-      description: "Persönliche Besichtigung der ausgewählten Immobilien mit unseren Experten.",
-      details: [
-        "Fachkundige Objektführung",
-        "Beantwortung aller Fragen",
-        "Aufzeigen von Besonderheiten"
-      ]
-    },
-    {
-      number: 4,
-      title: "Bewerbungsunterlagen",
-      icon: FileText,
-      description: "Zusammenstellung der erforderlichen Unterlagen für Ihre Bewerbung.",
-      details: [
-        "Selbstauskunft",
-        "Einkommensnachweise",
-        "SCHUFA-Auskunft",
-        "Mietschuldenfreiheitsbescheinigung"
-      ]
-    },
-    {
-      number: 5,
-      title: "Prüfung & Zusage",
-      icon: CheckCircle,
-      description: "Wir prüfen Ihre Unterlagen und geben Ihnen schnellstmöglich eine Rückmeldung.",
-      details: [
-        "Bonitätsprüfung",
-        "Referenzprüfung",
-        "Entscheidung binnen 48 Stunden"
-      ]
-    },
-    {
-      number: 6,
-      title: "Vertragsabschluss",
-      icon: FileText,
-      description: "Bei positiver Prüfung erfolgt die Vertragsunterzeichnung.",
-      details: [
-        "Mietvertragserstellung",
-        "Vertragsberatung",
-        "Kautionsabwicklung"
-      ]
-    },
-    {
-      number: 7,
-      title: "Schlüsselübergabe",
-      icon: Key,
-      description: "Am Einzugstermin erhalten Sie die Schlüssel und alle wichtigen Informationen.",
-      details: [
-        "Übergabeprotokoll",
-        "Schlüsselübergabe",
-        "Einweisung in die Haustechnik"
-      ]
-    }
-  ];
-
-  const requiredDocuments = [
-    "Ausgefüllte Selbstauskunft",
-    "Einkommensnachweise der letzten 3 Monate",
-    "Arbeitsvertrag oder Beschäftigungsnachweis", 
-    "SCHUFA-Auskunft (nicht älter als 3 Monate)",
-    "Mietschuldenfreiheitsbescheinigung",
-    "Personalausweis oder Reisepass",
-    "Bei Selbstständigen: BWA und Steuerbescheid"
-  ];
-
-  return (
-    <div className="min-h-screen bg-background">
+  const steps = [{
+    number: 1,
+    title: "Erste Kontaktaufnahme",
+    icon: Phone,
+    description: "Sie kontaktieren uns telefonisch, per E-Mail oder über unser Kontaktformular.",
+    details: ["Kostenlose Erstberatung", "Bedarfsanalyse Ihrer Wohnwünsche", "Terminvereinbarung für Besichtigungen"]
+  }, {
+    number: 2,
+    title: "Objektauswahl",
+    icon: Search,
+    description: "Gemeinsam finden wir die passende Immobilie für Ihre Bedürfnisse.",
+    details: ["Präsentation geeigneter Objekte", "Detaillierte Objektinformationen", "Terminkoordination für Besichtigungen"]
+  }, {
+    number: 3,
+    title: "Besichtigung",
+    icon: Home,
+    description: "Persönliche Besichtigung der ausgewählten Immobilien mit unseren Experten.",
+    details: ["Fachkundige Objektführung", "Beantwortung aller Fragen", "Aufzeigen von Besonderheiten"]
+  }, {
+    number: 4,
+    title: "Bewerbungsunterlagen",
+    icon: FileText,
+    description: "Zusammenstellung der erforderlichen Unterlagen für Ihre Bewerbung.",
+    details: ["Selbstauskunft", "Einkommensnachweise", "SCHUFA-Auskunft", "Mietschuldenfreiheitsbescheinigung"]
+  }, {
+    number: 5,
+    title: "Prüfung & Zusage",
+    icon: CheckCircle,
+    description: "Wir prüfen Ihre Unterlagen und geben Ihnen schnellstmöglich eine Rückmeldung.",
+    details: ["Bonitätsprüfung", "Referenzprüfung", "Entscheidung binnen 48 Stunden"]
+  }, {
+    number: 6,
+    title: "Vertragsabschluss",
+    icon: FileText,
+    description: "Bei positiver Prüfung erfolgt die Vertragsunterzeichnung.",
+    details: ["Mietvertragserstellung", "Vertragsberatung", "Kautionsabwicklung"]
+  }, {
+    number: 7,
+    title: "Schlüsselübergabe",
+    icon: Key,
+    description: "Am Einzugstermin erhalten Sie die Schlüssel und alle wichtigen Informationen.",
+    details: ["Übergabeprotokoll", "Schlüsselübergabe", "Einweisung in die Haustechnik"]
+  }];
+  const requiredDocuments = ["Ausgefüllte Selbstauskunft", "Einkommensnachweise der letzten 3 Monate", "Arbeitsvertrag oder Beschäftigungsnachweis", "SCHUFA-Auskunft (nicht älter als 3 Monate)", "Mietschuldenfreiheitsbescheinigung", "Personalausweis oder Reisepass", "Bei Selbstständigen: BWA und Steuerbescheid"];
+  return <div className="min-h-screen bg-background">
       <Header />
       
       <div className="container mx-auto px-4 py-16">
@@ -121,22 +59,16 @@ const Vermietungsablauf = () => {
           <Badge className="mb-4 bg-primary/10 text-primary">
             Vermietungsablauf
           </Badge>
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            Ihr Weg zur neuen Wohnung
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Von der ersten Kontaktaufnahme bis zur Schlüsselübergabe - wir begleiten Sie 
-            professionell durch den gesamten Vermietungsprozess.
-          </p>
+          <h1 className="text-4xl md:text-5xl font-bold mb-6">Ihr Weg ins neue Zuhause</h1>
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">Von der ersten Anfrage bis zur Schlüsselübergabe – wir stehen Ihnen während des gesamten Vermietungsprozesses kompetent zur Seite.</p>
         </div>
 
         {/* Process Steps */}
         <div className="mb-20">
-          <h2 className="text-3xl font-bold text-center mb-12">Der Vermietungsprozess in 7 Schritten</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">Der Vermietungsablauf in 7 Schritten</h2>
           
           <div className="grid md:grid-cols-2 gap-6">
-            {steps.map((step, index) => (
-              <Card key={step.number} className="relative overflow-hidden border-l-4 border-l-primary bg-background shadow-sm hover:shadow-md transition-shadow h-full">
+            {steps.map((step, index) => <Card key={step.number} className="relative overflow-hidden border-l-4 border-l-primary bg-background shadow-sm hover:shadow-md transition-shadow h-full">
                 <CardContent className="p-6">
                   <div className="flex flex-col gap-4">
                     {/* Step Number and Title */}
@@ -153,18 +85,15 @@ const Vermietungsablauf = () => {
                       </p>
                       
                       <div className="space-y-2">
-                        {step.details.map((detail, idx) => (
-                          <div key={idx} className="flex items-start gap-2">
+                        {step.details.map((detail, idx) => <div key={idx} className="flex items-start gap-2">
                             <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />
                             <span className="text-xs text-muted-foreground">{detail}</span>
-                          </div>
-                        ))}
+                          </div>)}
                       </div>
                     </div>
                   </div>
                 </CardContent>
-              </Card>
-            ))}
+              </Card>)}
           </div>
         </div>
 
@@ -184,12 +113,10 @@ const Vermietungsablauf = () => {
             </CardHeader>
             <CardContent>
               <div className="grid md:grid-cols-2 gap-4">
-                {requiredDocuments.map((doc, index) => (
-                  <div key={index} className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                {requiredDocuments.map((doc, index) => <div key={index} className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
                     <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
                     <span>{doc}</span>
-                  </div>
-                ))}
+                  </div>)}
               </div>
             </CardContent>
           </Card>
@@ -266,8 +193,6 @@ const Vermietungsablauf = () => {
       </div>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Vermietungsablauf;
