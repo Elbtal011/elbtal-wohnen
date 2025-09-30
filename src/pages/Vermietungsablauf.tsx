@@ -139,17 +139,11 @@ const Vermietungsablauf = () => {
               <Card key={step.number} className="relative overflow-hidden border-l-4 border-l-primary bg-background shadow-sm hover:shadow-md transition-shadow h-full">
                 <CardContent className="p-6">
                   <div className="flex flex-col gap-4">
-                    {/* Step Number Circle and Title */}
-                    <div className="flex items-center gap-4">
-                      <div className="flex-shrink-0">
-                        <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center text-white text-lg font-bold shadow-lg">
-                          {step.number}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <step.icon className="h-5 w-5 text-primary" />
-                        <h3 className="text-lg font-semibold text-foreground">{step.title}</h3>
-                      </div>
+                    {/* Step Number and Title */}
+                    <div className="mb-2">
+                      <h3 className="text-lg font-semibold text-foreground">
+                        {step.number}. {step.title}
+                      </h3>
                     </div>
                     
                     {/* Content */}
