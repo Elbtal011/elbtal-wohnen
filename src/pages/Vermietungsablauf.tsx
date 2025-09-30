@@ -67,8 +67,8 @@ const Vermietungsablauf = () => {
         <div className="mb-20">
           <h2 className="text-3xl font-bold text-center mb-12">Der Vermietungsablauf in 7 Schritten</h2>
           
-          <div className="grid md:grid-cols-2 gap-6">
-            {steps.map((step, index) => <Card key={step.number} className="relative overflow-hidden border-l-4 border-l-primary bg-background shadow-sm hover:shadow-md transition-shadow h-full">
+          <div className="grid md:grid-cols-3 gap-6">
+            {steps.map((step, index) => <Card key={step.number} className="relative overflow-hidden bg-background shadow-sm hover:shadow-md transition-shadow h-full">
                 <CardContent className="p-6">
                   <div className="flex flex-col gap-4">
                     {/* Step Number and Title */}
