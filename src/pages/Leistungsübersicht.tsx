@@ -100,9 +100,7 @@ const Leistungsübersicht = () => {
       <div className="container mx-auto px-4 py-16">
         {/* Hero Section */}
         <div className="text-center mb-16">
-          <Badge className="mb-4 bg-primary/10 text-primary">
-            Leistungsübersicht
-          </Badge>
+          
           <h1 className="text-4xl md:text-5xl font-bold mb-6">Unsere Leistungen für Sie</h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">Seit mehr als 35 Jahren stehen wir für umfassende Immobiliendienstleistungen – mit höchster Professionalität und einem persönlichen Service, der überzeugt.</p>
         </div>
@@ -115,9 +113,7 @@ const Leistungsübersicht = () => {
             {mainServices.map((service, index) => <Card key={index} className="h-full">
                 <CardHeader>
                   <div className="flex items-center gap-4 mb-4">
-                    <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-                      <service.icon className="h-8 w-8 text-primary" />
-                    </div>
+                    
                     <div>
                       <CardTitle className="text-xl">{service.title}</CardTitle>
                     </div>
