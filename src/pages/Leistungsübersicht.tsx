@@ -168,7 +168,7 @@ const Leistungsübersicht = () => {
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {advantages.map((advantage, index) => <Card key={index} className="text-center p-6 border-2 hover:border-primary/20 transition-colors">
-                <advantage.icon className="h-12 w-12 text-primary mx-auto mb-4" />
+                <advantage.icon className="h-12 w-12 text-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-semibold mb-2">{advantage.title}</h3>
                 <p className="text-muted-foreground text-sm">{advantage.description}</p>
               </Card>)}
