@@ -368,28 +368,29 @@ const PropertyDetails = () => {
               </CardContent>
             </Card>
 
-            {/* Property Application Button */}
-            <PropertyApplicationFlow
-              propertyId={property.id}
-              propertyTitle={property.title}
-              trigger={
-                <Button className="w-full mb-4" size="lg" variant="default">
-                  Für Immobilie bewerben
-                </Button>
-              }
-            />
+            {/* Action Buttons */}
+            <div className="flex flex-col lg:flex-row gap-3 mb-6">
+              <PropertyApplicationFlow
+                propertyId={property.id}
+                propertyTitle={property.title}
+                trigger={
+                  <Button className="w-full bg-background text-foreground border border-input hover:bg-primary hover:text-primary-foreground transition-colors" size="lg">
+                    Für Immobilie bewerben
+                  </Button>
+                }
+              />
 
-            {/* Contact Button */}
-            <ContactForm
-              propertyId={property.id}
-              propertyTitle={property.title}
-              isDialog={true}
-              trigger={
-                <Button className="w-full mb-6" size="lg" variant="outline">
-                  Anfrage senden
-                </Button>
-              }
-            />
+              <ContactForm
+                propertyId={property.id}
+                propertyTitle={property.title}
+                isDialog={true}
+                trigger={
+                  <Button className="w-full bg-background text-foreground border border-input hover:bg-primary hover:text-primary-foreground transition-colors" size="lg">
+                    Anfrage senden
+                  </Button>
+                }
+              />
+            </div>
 
             {/* Location */}
             <Card className="border-0 shadow-sm rounded-xl bg-muted/40 overflow-hidden">
