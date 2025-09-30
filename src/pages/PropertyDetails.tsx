@@ -173,6 +173,19 @@ const PropertyDetails = () => {
               </div>
             </div>
 
+            {/* Property Application Button */}
+            <div className="mb-6">
+              <PropertyApplicationFlow
+                propertyId={property.id}
+                propertyTitle={property.title}
+                trigger={
+                  <Button className="w-full bg-background text-foreground border border-input hover:bg-primary hover:text-primary-foreground transition-colors" size="lg">
+                    Für Immobilie bewerben
+                  </Button>
+                }
+              />
+            </div>
+
             {/* Property Details */}
             <Card className="mb-6 border-0 shadow-sm rounded-xl bg-muted/40">
               <div className="p-6 pb-0">
@@ -368,29 +381,17 @@ const PropertyDetails = () => {
               </CardContent>
             </Card>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col lg:flex-row gap-3 mb-6">
-              <PropertyApplicationFlow
-                propertyId={property.id}
-                propertyTitle={property.title}
-                trigger={
-                  <Button className="w-full bg-background text-foreground border border-input hover:bg-primary hover:text-primary-foreground transition-colors" size="lg">
-                    Für Immobilie bewerben
-                  </Button>
-                }
-              />
-
-              <ContactForm
-                propertyId={property.id}
-                propertyTitle={property.title}
-                isDialog={true}
-                trigger={
-                  <Button className="w-full bg-background text-foreground border border-input hover:bg-primary hover:text-primary-foreground transition-colors" size="lg">
-                    Anfrage senden
-                  </Button>
-                }
-              />
-            </div>
+            {/* Contact Button */}
+            <ContactForm
+              propertyId={property.id}
+              propertyTitle={property.title}
+              isDialog={true}
+              trigger={
+                <Button className="w-full mb-6 bg-background text-foreground border border-input hover:bg-primary hover:text-primary-foreground transition-colors" size="lg">
+                  Anfrage senden
+                </Button>
+              }
+            />
 
             {/* Location */}
             <Card className="border-0 shadow-sm rounded-xl bg-muted/40 overflow-hidden">
