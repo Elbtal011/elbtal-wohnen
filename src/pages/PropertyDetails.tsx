@@ -179,7 +179,7 @@ const PropertyDetails = () => {
                 propertyId={property.id}
                 propertyTitle={property.title}
                 trigger={
-                  <Button className="bg-background text-foreground border border-input hover:bg-primary hover:text-primary-foreground transition-colors" size="lg">
+                  <Button className="bg-background text-foreground border border-foreground hover:bg-primary hover:text-primary-foreground transition-colors" size="lg">
                     Für Immobilie bewerben
                   </Button>
                 }
@@ -387,7 +387,7 @@ const PropertyDetails = () => {
               propertyTitle={property.title}
               isDialog={true}
               trigger={
-                <Button className="w-full mb-6 bg-background text-foreground border border-input hover:bg-primary hover:text-primary-foreground transition-colors" size="lg">
+                <Button className="w-full mb-6 bg-background text-foreground border border-foreground hover:bg-primary hover:text-primary-foreground transition-colors" size="lg">
                   Anfrage senden
                 </Button>
               }
