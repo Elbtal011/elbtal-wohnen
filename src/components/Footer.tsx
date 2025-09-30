@@ -8,7 +8,7 @@ export const Footer = () => {
           {/* Company Info */}
           <div className="space-y-4">
             <div>
-              <img src="/lovable-uploads/f4bd2064-0f8f-4de3-9863-bc4d9797aa3f.png" alt="AMIEL - Immobilienverwaltung seit 1988" className="max-h-16 h-auto w-auto object-contain mb-2" />
+              <img src="/lovable-uploads/f4bd2064-0f8f-4de3-9863-bc4d9797aa3f.png" alt="AMIEL - Immobilienverwaltung seit 1988" className="max-h-16 h-auto w-[60%] md:w-auto object-contain mb-2" />
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Ihr vertrauensvoller Partner für hochwertige Mietwohnungen in Deutschland. 
