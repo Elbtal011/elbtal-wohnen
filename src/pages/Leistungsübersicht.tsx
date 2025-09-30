@@ -167,8 +167,10 @@ const Leistungsübersicht = () => {
           <h2 className="text-3xl font-bold text-center mb-12">Warum Amiel Immobilienverwaltung?</h2>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {advantages.map((advantage, index) => <Card key={index} className="text-center p-6 border-2 hover:border-primary/20 transition-colors">
-                <advantage.icon className="h-8 w-8 text-foreground mx-auto mb-4" />
+            {advantages.map((advantage, index) => <Card key={index} className="text-center p-6">
+                <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                  <advantage.icon className="h-8 w-8 text-foreground" />
+                </div>
                 <h3 className="text-lg font-semibold mb-2">{advantage.title}</h3>
                 <p className="text-muted-foreground text-sm">{advantage.description}</p>
               </Card>)}
