@@ -93,19 +93,14 @@ const Vermietungsablauf = () => {
         <div className="mb-20">
           <Card>
             <CardHeader>
-              <div className="flex items-center gap-3">
-                <FileText className="h-8 w-8 text-primary" />
-                <div>
-                  <CardTitle className="text-2xl">Erforderliche Unterlagen</CardTitle>
-                  <p className="text-muted-foreground">
-                    Diese Dokumente benötigen wir für Ihre Bewerbung
-                  </p>
-                </div>
-              </div>
+              <CardTitle className="text-2xl">Erforderliche Unterlagen</CardTitle>
+              <p className="text-muted-foreground">
+                Diese Dokumente benötigen wir für Ihre Bewerbung
+              </p>
             </CardHeader>
             <CardContent>
               <div className="grid md:grid-cols-2 gap-4">
-                {requiredDocuments.map((doc, index) => <div key={index} className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                {requiredDocuments.map((doc, index) => <div key={index} className="flex items-center gap-3 p-3 rounded-lg border border-border">
                     <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
                     <span>{doc}</span>
                   </div>)}
