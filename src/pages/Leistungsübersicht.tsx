@@ -185,7 +185,7 @@ const Leistungsübersicht = () => {
               Unsere Preise sind fair, transparent und orientieren sich an der erbrachten Leistung. 
               Versteckte Kosten gibt es bei uns nicht.
             </p>
-            <Button size="lg">
+            <Button size="lg" variant="outline" className="bg-white hover:bg-primary hover:text-white border-gray-400">
               Kostenlose Beratung vereinbaren
             </Button>
           </CardContent>
