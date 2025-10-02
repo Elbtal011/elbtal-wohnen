@@ -167,7 +167,7 @@ const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
 
       {/* Vertical Gallery - 40% */}
       {validImages.length > 1 && (
-        <div className="flex-[0_0_40%] h-[500px] overflow-y-auto space-y-3">
+        <div className="flex-[0_0_40%] h-[500px] overflow-y-auto grid grid-cols-2 gap-3 content-start">
           {validImages.map((image, index) => (
             <button
               key={`${image}-${index}`}
