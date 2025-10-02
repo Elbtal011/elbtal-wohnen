@@ -142,8 +142,8 @@ const PropertyDetails = () => {
               Empfohlen
             </Badge>
           )}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
                 <Badge variant="secondary">
                   {property.property_type?.name || 'Typ nicht verfügbar'}
@@ -154,28 +154,20 @@ const PropertyDetails = () => {
                 </div>
               </div>
               <h1 className="text-xl md:text-2xl font-bold mb-2">{property.title}</h1>
-              <p className="text-lg text-muted-foreground">
+              <p className="text-lg text-muted-foreground mb-4">
                 {property.address}, {property.neighborhood}
               </p>
-            </div>
-            <div className="text-left sm:text-right">
-              <div className="text-xl md:text-3xl font-bold text-foreground">
-                {property.warmmiete_monthly 
-                  ? formatPrice(property.warmmiete_monthly) 
-                  : formatPrice(property.price_monthly + (property.additional_costs_monthly || 0))
-                }
+              <div>
+                <div className="text-xl md:text-3xl font-bold text-foreground">
+                  {property.warmmiete_monthly 
+                    ? formatPrice(property.warmmiete_monthly) 
+                    : formatPrice(property.price_monthly + (property.additional_costs_monthly || 0))
+                  }
+                </div>
+                <div className="text-sm text-muted-foreground">Warmmiete</div>
               </div>
-              <div className="text-sm text-muted-foreground">Warmmiete</div>
             </div>
-          </div>
-        </div>
-
-        {/* Two Column Layout - Description and Contact Info */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-          {/* Left Column - Description - 60% */}
-          <div className="lg:col-span-3">
-            {/* Property Application Button */}
-            <div className="mb-6">
+            <div className="flex-shrink-0">
               <PropertyApplicationFlow
                 propertyId={property.id}
                 propertyTitle={property.title}
@@ -186,7 +178,13 @@ const PropertyDetails = () => {
                 }
               />
             </div>
+          </div>
+        </div>
 
+        {/* Two Column Layout - Description and Contact Info */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+          {/* Left Column - Description - 60% */}
+          <div className="lg:col-span-3">
             {/* Property Details */}
             <Card className="mb-6 border-0 shadow-sm rounded-xl bg-muted/40">
               <div className="p-6 pb-0">
