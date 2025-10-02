@@ -143,7 +143,7 @@ const PropertyDetails = () => {
             </Badge>
           )}
           <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-3">
               <Badge variant="secondary">
                 {property.property_type?.name || 'Typ nicht verfügbar'}
               </Badge>
@@ -153,9 +153,26 @@ const PropertyDetails = () => {
               </div>
             </div>
             
-            {/* Title and Action Buttons Row */}
-            <div className="flex items-start justify-between gap-4 mb-4">
-              <h1 className="text-xl md:text-2xl font-bold flex-1">{property.title}</h1>
+            {/* Title and Action Buttons */}
+            <div className="flex items-start justify-between gap-4 mb-3">
+              <div className="flex-1">
+                <h1 className="text-xl md:text-2xl font-bold mb-3">{property.title}</h1>
+                
+                <p className="text-base text-muted-foreground mb-3">
+                  {property.address}, {property.neighborhood}
+                </p>
+                
+                <div className="flex items-center gap-2">
+                  <div className="text-xl md:text-3xl font-bold text-foreground">
+                    {property.warmmiete_monthly 
+                      ? formatPrice(property.warmmiete_monthly) 
+                      : formatPrice(property.price_monthly + (property.additional_costs_monthly || 0))
+                    }
+                  </div>
+                  <div className="text-sm text-muted-foreground">Warmmiete</div>
+                </div>
+              </div>
+              
               <div className="flex flex-col gap-2 flex-shrink-0">
                 <PropertyApplicationFlow
                   propertyId={property.id}
@@ -177,19 +194,6 @@ const PropertyDetails = () => {
                   }
                 />
               </div>
-            </div>
-            
-            <p className="text-lg text-muted-foreground mb-4">
-              {property.address}, {property.neighborhood}
-            </p>
-            <div className="flex items-center gap-2 mb-6">
-              <div className="text-xl md:text-3xl font-bold text-foreground">
-                {property.warmmiete_monthly 
-                  ? formatPrice(property.warmmiete_monthly) 
-                  : formatPrice(property.price_monthly + (property.additional_costs_monthly || 0))
-                }
-              </div>
-              <div className="text-sm text-muted-foreground">Warmmiete</div>
             </div>
           </div>
         </div>
