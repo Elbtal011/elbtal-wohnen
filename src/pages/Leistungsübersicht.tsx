@@ -178,16 +178,14 @@ const Leistungsübersicht = () => {
         </div>
 
         {/* Pricing Info */}
-        <Card className="mb-20 bg-muted/50">
+        <Card className="mb-20 border">
           <CardContent className="text-center p-12">
-            <Calculator className="h-16 w-16 text-primary mx-auto mb-6" />
             <h2 className="text-3xl font-bold mb-4">Transparente Preisgestaltung</h2>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
               Unsere Preise sind fair, transparent und orientieren sich an der erbrachten Leistung. 
               Versteckte Kosten gibt es bei uns nicht.
             </p>
             <Button size="lg">
-              <FileText className="h-5 w-5 mr-2" />
               Kostenlose Beratung vereinbaren
             </Button>
           </CardContent>
