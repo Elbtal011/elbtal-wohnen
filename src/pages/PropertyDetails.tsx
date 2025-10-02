@@ -142,41 +142,41 @@ const PropertyDetails = () => {
               Empfohlen
             </Badge>
           )}
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <Badge variant="secondary">
-                  {property.property_type?.name || 'Typ nicht verfügbar'}
-                </Badge>
-                <div className="flex items-center text-muted-foreground text-sm">
-                  <MapPin className="h-4 w-4 mr-1" />
-                  {property.city?.name || 'Stadt nicht verfügbar'}
-                </div>
-              </div>
-              <h1 className="text-xl md:text-2xl font-bold mb-2">{property.title}</h1>
-              <p className="text-lg text-muted-foreground mb-4">
-                {property.address}, {property.neighborhood}
-              </p>
-              <div>
-                <div className="text-xl md:text-3xl font-bold text-foreground">
-                  {property.warmmiete_monthly 
-                    ? formatPrice(property.warmmiete_monthly) 
-                    : formatPrice(property.price_monthly + (property.additional_costs_monthly || 0))
-                  }
-                </div>
-                <div className="text-sm text-muted-foreground">Warmmiete</div>
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-2">
+              <Badge variant="secondary">
+                {property.property_type?.name || 'Typ nicht verfügbar'}
+              </Badge>
+              <div className="flex items-center text-muted-foreground text-sm">
+                <MapPin className="h-4 w-4 mr-1" />
+                {property.city?.name || 'Stadt nicht verfügbar'}
               </div>
             </div>
-            <div className="flex-shrink-0">
-              <PropertyApplicationFlow
-                propertyId={property.id}
-                propertyTitle={property.title}
-                trigger={
-                  <Button className="bg-background text-foreground border border-foreground/30 hover:bg-primary hover:text-primary-foreground transition-colors" size="lg">
-                    Für Immobilie bewerben
-                  </Button>
+            <div className="flex items-center justify-between gap-4 mb-2">
+              <h1 className="text-xl md:text-2xl font-bold">{property.title}</h1>
+              <div className="flex-shrink-0">
+                <PropertyApplicationFlow
+                  propertyId={property.id}
+                  propertyTitle={property.title}
+                  trigger={
+                    <Button className="bg-background text-foreground border border-foreground/30 hover:bg-primary hover:text-primary-foreground transition-colors" size="lg">
+                      Für Immobilie bewerben
+                    </Button>
+                  }
+                />
+              </div>
+            </div>
+            <p className="text-lg text-muted-foreground mb-4">
+              {property.address}, {property.neighborhood}
+            </p>
+            <div>
+              <div className="text-xl md:text-3xl font-bold text-foreground">
+                {property.warmmiete_monthly 
+                  ? formatPrice(property.warmmiete_monthly) 
+                  : formatPrice(property.price_monthly + (property.additional_costs_monthly || 0))
                 }
-              />
+              </div>
+              <div className="text-sm text-muted-foreground">Warmmiete</div>
             </div>
           </div>
         </div>
