@@ -169,7 +169,7 @@ const PropertyDetails = () => {
             <p className="text-lg text-muted-foreground mb-4">
               {property.address}, {property.neighborhood}
             </p>
-            <div>
+            <div className="flex items-center gap-2">
               <div className="text-xl md:text-3xl font-bold text-foreground">
                 {property.warmmiete_monthly 
                   ? formatPrice(property.warmmiete_monthly) 
