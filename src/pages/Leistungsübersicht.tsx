@@ -153,7 +153,7 @@ const Leistungsübersicht = () => {
           
           <div className="grid md:grid-cols-4 gap-8">
             {processSteps.map((step, index) => <div key={step.number} className="text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold shadow-lg" style={{ color: '#1F3D59' }}>
+                <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center mx-auto mb-4 text-white text-2xl font-bold shadow-lg">
                   {step.number}
                 </div>
                 <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
