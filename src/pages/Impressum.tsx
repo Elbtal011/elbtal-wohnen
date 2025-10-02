@@ -3,18 +3,14 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-
 const Impressum = () => {
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <Header />
       
       <div className="container mx-auto px-4 py-16">
         {/* Hero Section */}
         <div className="text-center mb-16">
-          <Badge className="mb-4 bg-primary/10 text-primary">
-            Rechtliches
-          </Badge>
+          
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
             Impressum
           </h1>
@@ -197,8 +193,6 @@ const Impressum = () => {
       </div>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Impressum;
