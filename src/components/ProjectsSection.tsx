@@ -1,3 +1,5 @@
+import immobilienImage from "@/assets/immobilien-mit-zukunft.jpg";
+
 export const ProjectsSection = () => {
   return <section className="py-16 bg-background">
       <div className="container mx-auto px-4">
@@ -5,7 +7,7 @@ export const ProjectsSection = () => {
           {/* Image on the left */}
           <div className="lg:w-1/2">
             <div className="relative group">
-              <img src="/lovable-uploads/11592b9e-0fa6-423a-bca8-f1636341f7e4.png" alt="Klassisches Gebäude" className="w-full h-[450px] object-cover rounded-lg shadow-lg transition-transform duration-300 group-hover:scale-105" />
+              <img src={immobilienImage} alt="Luxusvilla mit Pool bei Nacht" className="w-full h-[450px] object-cover rounded-lg shadow-lg transition-transform duration-300 group-hover:scale-105" />
               <div className="absolute inset-0 bg-black/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </div>
           </div>
