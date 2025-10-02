@@ -152,7 +152,33 @@ const PropertyDetails = () => {
                 {property.city?.name || 'Stadt nicht verfügbar'}
               </div>
             </div>
-            <h1 className="text-xl md:text-2xl font-bold mb-4">{property.title}</h1>
+            
+            {/* Title and Action Buttons Row */}
+            <div className="flex items-start justify-between gap-4 mb-4">
+              <h1 className="text-xl md:text-2xl font-bold flex-1">{property.title}</h1>
+              <div className="flex flex-col gap-2 flex-shrink-0">
+                <PropertyApplicationFlow
+                  propertyId={property.id}
+                  propertyTitle={property.title}
+                  trigger={
+                    <Button className="bg-background text-foreground border border-foreground/30 hover:bg-primary hover:text-primary-foreground transition-colors whitespace-nowrap" size="lg">
+                      Für Immobilie bewerben
+                    </Button>
+                  }
+                />
+                <ContactForm
+                  propertyId={property.id}
+                  propertyTitle={property.title}
+                  isDialog={true}
+                  trigger={
+                    <Button className="bg-background text-foreground border border-foreground/30 hover:bg-primary hover:text-primary-foreground transition-colors whitespace-nowrap" size="lg">
+                      Anfrage senden
+                    </Button>
+                  }
+                />
+              </div>
+            </div>
+            
             <p className="text-lg text-muted-foreground mb-4">
               {property.address}, {property.neighborhood}
             </p>
@@ -164,29 +190,6 @@ const PropertyDetails = () => {
                 }
               </div>
               <div className="text-sm text-muted-foreground">Warmmiete</div>
-            </div>
-            
-            {/* Action Buttons */}
-            <div className="flex flex-col gap-3 max-w-md">
-              <PropertyApplicationFlow
-                propertyId={property.id}
-                propertyTitle={property.title}
-                trigger={
-                  <Button className="w-full bg-background text-foreground border border-foreground/30 hover:bg-primary hover:text-primary-foreground transition-colors" size="lg">
-                    Für Immobilie bewerben
-                  </Button>
-                }
-              />
-              <ContactForm
-                propertyId={property.id}
-                propertyTitle={property.title}
-                isDialog={true}
-                trigger={
-                  <Button className="w-full bg-background text-foreground border border-foreground/30 hover:bg-primary hover:text-primary-foreground transition-colors" size="lg">
-                    Anfrage senden
-                  </Button>
-                }
-              />
             </div>
           </div>
         </div>
