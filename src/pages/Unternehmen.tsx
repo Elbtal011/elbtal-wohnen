@@ -100,9 +100,7 @@ const Unternehmen = () => {
       <div className="container mx-auto px-4 py-16">
         {/* Hero Section */}
         <div className="text-center mb-16">
-          <Badge className="mb-4 bg-primary/10 text-primary">
-            Unternehmen
-          </Badge>
+          
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
             Amiel Immobilienverwaltung
           </h1>
