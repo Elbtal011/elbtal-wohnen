@@ -127,52 +127,53 @@ const PropertyDetails = () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-          {/* Left Column - 60% */}
-          <div className="lg:col-span-3">
-            {/* Property Images */}
-            <PropertyImageGallery 
-              images={images}
-              title={property.title}
-              className="mb-6"
-            />
+        {/* Property Images - Full Width */}
+        <PropertyImageGallery 
+          images={images}
+          title={property.title}
+          className="mb-6"
+        />
 
-            {/* Property Title and Info */}
-            <div className="mb-6">
-              {property.is_featured && (
-                <Badge className="mb-3 bg-accent text-accent-foreground">
-                  <Star className="w-3 h-3 mr-1" />
-                  Empfohlen
+        {/* Property Title and Info - Full Width */}
+        <div className="mb-6">
+          {property.is_featured && (
+            <Badge className="mb-3 bg-accent text-accent-foreground">
+              <Star className="w-3 h-3 mr-1" />
+              Empfohlen
+            </Badge>
+          )}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Badge variant="secondary">
+                  {property.property_type?.name || 'Typ nicht verfügbar'}
                 </Badge>
-              )}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Badge variant="secondary">
-                      {property.property_type?.name || 'Typ nicht verfügbar'}
-                    </Badge>
-                    <div className="flex items-center text-muted-foreground text-sm">
-                      <MapPin className="h-4 w-4 mr-1" />
-                      {property.city?.name || 'Stadt nicht verfügbar'}
-                    </div>
-                  </div>
-                  <h1 className="text-xl md:text-2xl font-bold mb-2">{property.title}</h1>
-                  <p className="text-lg text-muted-foreground">
-                    {property.address}, {property.neighborhood}
-                  </p>
-                </div>
-                <div className="text-left sm:text-right">
-                  <div className="text-xl md:text-3xl font-bold text-foreground">
-                    {property.warmmiete_monthly 
-                      ? formatPrice(property.warmmiete_monthly) 
-                      : formatPrice(property.price_monthly + (property.additional_costs_monthly || 0))
-                    }
-                  </div>
-                  <div className="text-sm text-muted-foreground">Warmmiete</div>
+                <div className="flex items-center text-muted-foreground text-sm">
+                  <MapPin className="h-4 w-4 mr-1" />
+                  {property.city?.name || 'Stadt nicht verfügbar'}
                 </div>
               </div>
+              <h1 className="text-xl md:text-2xl font-bold mb-2">{property.title}</h1>
+              <p className="text-lg text-muted-foreground">
+                {property.address}, {property.neighborhood}
+              </p>
             </div>
+            <div className="text-left sm:text-right">
+              <div className="text-xl md:text-3xl font-bold text-foreground">
+                {property.warmmiete_monthly 
+                  ? formatPrice(property.warmmiete_monthly) 
+                  : formatPrice(property.price_monthly + (property.additional_costs_monthly || 0))
+                }
+              </div>
+              <div className="text-sm text-muted-foreground">Warmmiete</div>
+            </div>
+          </div>
+        </div>
 
+        {/* Two Column Layout - Description and Contact Info */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+          {/* Left Column - Description - 60% */}
+          <div className="lg:col-span-3">
             {/* Property Application Button */}
             <div className="mb-6">
               <PropertyApplicationFlow
@@ -337,7 +338,7 @@ const PropertyDetails = () => {
             </Card>
           </div>
 
-          {/* Right Column - 40% */}
+          {/* Right Column - Contact Info - 40% */}
           <div className="lg:col-span-2">
             {/* Contact Details */}
             <Card className="mb-6 border-0 shadow-sm rounded-xl bg-muted/40">
