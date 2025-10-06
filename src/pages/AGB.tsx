@@ -261,7 +261,7 @@ const AGB = () => {
                   <p className="text-sm">
                     <strong>Stand:</strong> Januar 2025<br />
                     <strong>Amiel Immobilienverwaltung GmbH</strong><br />
-                    Leuchtenbergring 54, 81677 München
+                    Balantstraße 55-5, 81541 München
                   </p>
                 </div>
               </div>

@@ -23,7 +23,7 @@ const Contact = () => {
     description: "Wir antworten innerhalb von 24 Stunden"
   }, {
     title: "Adresse",
-    details: ["Leuchtenbergring 54", "81677 München"],
+    details: ["Balantstraße 55-5", "81541 München"],
     description: "Direkt im Stadtzentrum gelegen"
   }, {
     title: "Bürozeiten",

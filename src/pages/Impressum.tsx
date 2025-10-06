@@ -40,8 +40,8 @@ const Impressum = () => {
                   <h3 className="font-semibold mb-2">Geschäftsführer</h3>
                   <p className="text-muted-foreground">
                     Amiel Immobilienverwaltung GmbH<br />
-                    Leuchtenbergring 54<br />
-                    81677 München<br />
+                    Balantstraße 55-5<br />
+                    81541 München<br />
                     Daniel Amiel, Geschäftsführer
                   </p>
                 </div>
@@ -72,8 +72,8 @@ const Impressum = () => {
               <CardContent>
                 <div className="space-y-2">
                   <p className="font-medium">Amiel Immobilienverwaltung GmbH</p>
-                  <p className="text-muted-foreground">Leuchtenbergring 54</p>
-                  <p className="text-muted-foreground">81677 München</p>
+                  <p className="text-muted-foreground">Balantstraße 55-5</p>
+                  <p className="text-muted-foreground">81541 München</p>
                   <p className="text-muted-foreground">Deutschland</p>
                 </div>
               </CardContent>
@@ -110,8 +110,8 @@ const Impressum = () => {
               <CardContent>
                 <div className="space-y-2">
                   <p className="font-medium">Daniel Amiel</p>
-                  <p className="text-muted-foreground">Leuchtenbergring 54</p>
-                  <p className="text-muted-foreground">81677 München</p>
+                  <p className="text-muted-foreground">Balantstraße 55-5</p>
+                  <p className="text-muted-foreground">81541 München</p>
                 </div>
               </CardContent>
             </Card>

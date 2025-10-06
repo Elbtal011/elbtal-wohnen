@@ -45,7 +45,7 @@ export const Footer = () => {
             <div className="space-y-4 text-sm text-muted-foreground">
               <div>
                 <p className="font-medium text-foreground mb-1">Adresse</p>
-                <p>Leuchtenbergring 54<br />81677 München</p>
+                <p>Balantstraße 55-5<br />81541 München</p>
               </div>
               <div>
                 <p className="font-medium text-foreground mb-1">Telefon</p>
