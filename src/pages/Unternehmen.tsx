@@ -225,30 +225,19 @@ const Unternehmen = () => {
         
 
         {/* Contact CTA */}
-        <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+        <Card className="border">
           <CardContent className="text-center p-12">
-            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-              <HeartHandshake className="h-8 w-8 text-primary" />
-            </div>
             <h2 className="text-3xl font-bold mb-4 text-foreground">Lernen Sie uns kennen</h2>
             <p className="text-xl mb-8 text-muted-foreground">
               Besuchen Sie uns in unserem Büro in München oder vereinbaren Sie einen persönlichen Beratungstermin.
             </p>
-            <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" variant="default">
-                  <Phone className="h-5 w-5 mr-2" />
-                  +49 089 244 108 610
-                </Button>
-                <Button size="lg" variant="outline">
-                  <Mail className="h-5 w-5 mr-2" />
-                  info@amiel-immobilienverwaltung.de
-                </Button>
-              </div>
-              <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                <MapPin className="h-4 w-4" />
-                <span>Balantstraße 55-5, 81541 München</span>
-              </div>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button size="lg" variant="outline" className="bg-white hover:bg-primary hover:text-white border-gray-400">
+                +49 089 244 108 610
+              </Button>
+              <Button size="lg" variant="outline" className="bg-white hover:bg-primary hover:text-white border-gray-400">
+                info@amiel-immobilienverwaltung.de
+              </Button>
             </div>
           </CardContent>
         </Card>
