@@ -22,14 +22,14 @@
     --primary-dark: 147 100% 20%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 147 25% 95%;
-    --secondary-foreground: 147 27% 20%;
+    --secondary: 213 25% 95%;
+    --secondary-foreground: 213 27% 20%;
 
-    --muted: 147 15% 96%;
-    --muted-foreground: 147 15% 55%;
+    --muted: 213 15% 96%;
+    --muted-foreground: 213 15% 55%;
 
-    --accent: 147 25% 95%;
-    --accent-foreground: 147 27% 20%;
+    --accent: 213 25% 95%;
+    --accent-foreground: 213 27% 20%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
@@ -47,8 +47,8 @@
     --purple-foreground: 0 0% 100%;
 
     /* Clean Borders & Inputs */
-    --border: 147 20% 90%;
-    --input: 147 20% 95%;
+    --border: 213 20% 90%;
+    --input: 213 20% 95%;
     --ring: 147 100% 25%;
 
     /* Brand color exact as requested */
