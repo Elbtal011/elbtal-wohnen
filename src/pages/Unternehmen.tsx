@@ -132,8 +132,11 @@ const Unternehmen = () => {
             </p>
           </div>
           
-          <Card className="border">
-            <CardContent className="p-12 text-center">
+          <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+            <CardContent className="p-8 text-center">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Building className="h-8 w-8 text-primary" />
+              </div>
               <h3 className="text-2xl font-bold mb-4 text-foreground">Unsere Mission</h3>
               <p className="text-lg leading-relaxed text-muted-foreground max-w-2xl mx-auto">
                 Wir schaffen Vertrauen im Immobilienmarkt durch transparente, zuverlässige 
@@ -219,37 +222,7 @@ const Unternehmen = () => {
         </div>
 
         {/* Services Summary */}
-        <Card className="mb-20 bg-muted/50">
-          <CardContent className="p-12">
-            <div className="text-center mb-8">
-              <Home className="h-16 w-16 text-primary mx-auto mb-6" />
-              <h2 className="text-3xl font-bold mb-4">Warum Amiel Immobilienverwaltung?</h2>
-            </div>
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="text-center">
-                <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
-                <h3 className="font-semibold mb-3">Lokale Expertise</h3>
-                <p className="text-sm text-muted-foreground">
-                  Tiefgreifende Marktkenntnis in München und Umgebung seit über 35 Jahren.
-                </p>
-              </div>
-              <div className="text-center">
-                <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
-                <h3 className="font-semibold mb-3">Vollservice</h3>
-                <p className="text-sm text-muted-foreground">
-                  Alle Immobiliendienstleistungen aus einer Hand - von der Vermietung bis zur Verwaltung.
-                </p>
-              </div>
-              <div className="text-center">
-                <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
-                <h3 className="font-semibold mb-3">Persönlicher Service</h3>
-                <p className="text-sm text-muted-foreground">
-                  Ihr fester Ansprechpartner für alle Anliegen - schnell, zuverlässig, persönlich.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        
 
         {/* Contact CTA */}
         <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
