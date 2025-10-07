@@ -67,7 +67,7 @@ export const PropertySearchFilter = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
           {/* Location */}
           <div className="space-y-2">
-            <Label htmlFor="location" className="text-sm font-semibold text-foreground">
+            <Label htmlFor="location" className="text-sm font-semibold text-white">
               Standort
             </Label>
             <Select value={searchData.location} onValueChange={value => setSearchData({
@@ -88,7 +88,7 @@ export const PropertySearchFilter = () => {
 
           {/* Property Type */}
           <div className="space-y-2">
-            <Label htmlFor="propertyType" className="text-sm font-semibold text-foreground">
+            <Label htmlFor="propertyType" className="text-sm font-semibold text-white">
               Objektart
             </Label>
             <Select value={searchData.propertyType} onValueChange={value => setSearchData({
@@ -109,7 +109,7 @@ export const PropertySearchFilter = () => {
 
           {/* Min Price */}
           <div className="space-y-2">
-            <Label htmlFor="minPrice" className="text-sm font-semibold text-foreground">
+            <Label htmlFor="minPrice" className="text-sm font-semibold text-white">
               Miete von
             </Label>
             <Input id="minPrice" type="number" placeholder="z.B. 500" className="h-11 text-sm bg-background" value={searchData.minPrice} onChange={e => setSearchData({
@@ -120,7 +120,7 @@ export const PropertySearchFilter = () => {
 
           {/* Max Price */}
           <div className="space-y-2">
-            <Label htmlFor="maxPrice" className="text-sm font-semibold text-foreground">
+            <Label htmlFor="maxPrice" className="text-sm font-semibold text-white">
               Miete bis
             </Label>
             <Input id="maxPrice" type="number" placeholder="z.B. 2000" className="h-11 text-sm bg-background" value={searchData.maxPrice} onChange={e => setSearchData({
@@ -131,7 +131,7 @@ export const PropertySearchFilter = () => {
 
           {/* Area */}
           <div className="space-y-2">
-            <Label htmlFor="minArea" className="text-sm font-semibold text-foreground">
+            <Label htmlFor="minArea" className="text-sm font-semibold text-white">
               Fläche ab (m²)
             </Label>
             <Input id="minArea" type="number" placeholder="z.B. 50" className="h-11 text-sm bg-background" value={searchData.minArea} onChange={e => setSearchData({
@@ -142,7 +142,7 @@ export const PropertySearchFilter = () => {
 
           {/* Rooms */}
           <div className="space-y-2">
-            <Label htmlFor="rooms" className="text-sm font-semibold text-foreground">
+            <Label htmlFor="rooms" className="text-sm font-semibold text-white">
               Zimmer
             </Label>
             <Select value={searchData.rooms} onValueChange={value => setSearchData({
