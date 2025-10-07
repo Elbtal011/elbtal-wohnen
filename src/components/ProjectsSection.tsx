@@ -16,7 +16,7 @@ export const ProjectsSection = () => {
           <div className="lg:w-1/2">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">Immobilien mit Zukunft</h2>
             <div className="space-y-6">
-              <p className="text-lg text-muted-foreground leading-relaxed">Die Amiel Immobilienverwaltung GmbH entwickelt hochwertige Wohn-, Büro- und Handelsimmobilien sowie Hotels und Ärztehäuser. Mit langjähriger Erfahrung, Fachwissen und Qualitätsbewusstsein schaffen wir moderne Lösungen für Wohnen und Arbeiten.</p>
+              <p className="text-lg text-muted-foreground leading-relaxed">JK IMMOBILIEN GmbH entwickelt hochwertige Wohn-, Büro- und Handelsimmobilien sowie Hotels und Ärztehäuser. Mit langjähriger Erfahrung, Fachwissen und Qualitätsbewusstsein schaffen wir moderne Lösungen für Wohnen und Arbeiten.</p>
               <p className="text-lg text-muted-foreground leading-relaxed">Wir wissen: Lebens- und Arbeitsräume verändern sich stetig. Deshalb bieten wir innovative Konzepte und maßgeschneiderte Flächen für Büro, Handel und Gastronomie. Unser Ziel: die optimale Immobilie für Ihre Bedürfnisse – funktional, nachhaltig und zukunftsorientiert.</p>
             </div>
           </div>

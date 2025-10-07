@@ -8,7 +8,7 @@ const ansprechpartner = [
     title: "Ihr Verwalter",
     name: "Daniel Amiel",
     phone: "+49 089 244 108 610",
-    email: "info@amiel-immobilienverwaltung.de",
+    email: "info@jk-immobilien.de",
     description: "Allgemeine Verwaltungsangelegenheiten",
     image: "/lovable-uploads/794cf7ca-0c21-48b6-8856-3f24fa932c56.png"
   },
@@ -17,7 +17,7 @@ const ansprechpartner = [
     title: "Ihr Techniker", 
     name: "Thomas Karlstein",
     phone: "+49 089 244 108 610",
-    email: "info@amiel-immobilienverwaltung.de",
+    email: "info@jk-immobilien.de",
     description: "Technische Angelegenheiten & Schadensmeldungen",
     image: "/lovable-uploads/d6fb0e5c-3998-42cf-b2fc-b5915b06d762.png"
   },
@@ -26,7 +26,7 @@ const ansprechpartner = [
     title: "Schadensbearbeitung",
     name: "Maria Rosenthal",
     phone: "+49 089 244 108 610",
-    email: "info@amiel-immobilienverwaltung.de", 
+    email: "info@jk-immobilien.de",
     description: "Schadensmeldungen & Versicherungsangelegenheiten",
     image: "/lovable-uploads/37f77204-1324-4ab1-bae3-696640f6ce97.png"
   },
@@ -35,7 +35,7 @@ const ansprechpartner = [
     title: "Buchhaltung",
     name: "Andrea Klein",
     phone: "+49 089 244 108 610",
-    email: "info@amiel-immobilienverwaltung.de",
+    email: "info@jk-immobilien.de",
     description: "Abrechnungen & finanzielle Angelegenheiten",
     image: "/lovable-uploads/264784dc-8e41-42aa-9e8e-8e42c707c9fb.png"
   }

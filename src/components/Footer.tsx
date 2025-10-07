@@ -55,7 +55,7 @@ export const Footer = () => {
               </div>
               <div>
                 <p className="font-medium text-foreground mb-1">E-Mail</p>
-                <p className="break-all">info@amiel-immobilienverwaltung.de</p>
+                <p className="break-all">info@jk-immobilien.de</p>
               </div>
               <div>
                 <p className="font-medium text-foreground mb-1">Öffnungszeiten</p>
@@ -69,7 +69,7 @@ export const Footer = () => {
 
         {/* Bottom Section */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-          <div>© 2025 Amiel Immobilienverwaltung. Alle Rechte vorbehalten.</div>
+          <div>© 2025 JK IMMOBILIEN. Alle Rechte vorbehalten.</div>
           <div className="flex flex-wrap justify-center gap-6">
             <Link to="/impressum" className="hover:text-foreground transition-colors">Impressum</Link>
             <span className="text-muted-foreground/30">•</span>

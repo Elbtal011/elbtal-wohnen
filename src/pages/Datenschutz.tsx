@@ -32,10 +32,10 @@ const Datenschutz = () => {
                 Verantwortlicher für die Datenverarbeitung auf dieser Website ist:
               </p>
               <div className="bg-muted/50 p-4 rounded-lg">
-                <p className="font-medium">Amiel Immobilienverwaltung GmbH</p>
+                <p className="font-medium">JK IMMOBILIEN GmbH</p>
                 <p className="text-muted-foreground">Balantstraße 55-5, 81541 München</p>
                 <p className="text-muted-foreground">Telefon: +49 089 244 108 610</p>
-                <p className="text-muted-foreground">E-Mail: info@amiel-immobilienverwaltung.de</p>
+                <p className="text-muted-foreground">E-Mail: info@jk-immobilien.de</p>
               </div>
             </CardContent>
           </Card>
@@ -224,7 +224,7 @@ const Datenschutz = () => {
                 Bei Fragen zum Datenschutz oder zur Ausübung Ihrer Rechte wenden Sie sich bitte an:
               </p>
               <div className="bg-muted/50 p-4 rounded-lg">
-                <p className="font-medium">Amiel Immobilienverwaltung GmbH</p>
+                <p className="font-medium">JK IMMOBILIEN GmbH</p>
                 <p className="text-muted-foreground">Datenschutz</p>
                 <p className="text-muted-foreground">Balantstraße 55-5, 81541 München</p>
                 <p className="text-muted-foreground">E-Mail: datenschutz@elbtal-immobilien.de</p>

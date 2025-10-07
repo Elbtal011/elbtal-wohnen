@@ -52,7 +52,7 @@ const BackupManagement: React.FC<BackupManagementProps> = ({ backupData, setBack
     const now = new Date();
     const dateStr = format(now, 'yyyy-MM-dd');
     const timeStr = format(now, 'HHmmss');
-    const fileName = `amiel-${dateStr}-${timeStr}.zip`;
+    const fileName = `jk-immobilien-${dateStr}-${timeStr}.zip`;
     
     // Try to get actual file size from GitHub
     let fileSize = null;

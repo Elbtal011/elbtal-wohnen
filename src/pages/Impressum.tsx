@@ -32,17 +32,17 @@ const Impressum = () => {
                 <div>
                   <h3 className="font-semibold mb-2">Firmenname</h3>
                   <p className="text-muted-foreground">
-                    Amiel Immobilienverwaltung GmbH
+                    JK IMMOBILIEN GmbH
                   </p>
                 </div>
                 
                 <div>
                   <h3 className="font-semibold mb-2">Geschäftsführer</h3>
                   <p className="text-muted-foreground">
-                    Amiel Immobilienverwaltung GmbH<br />
+                    JK IMMOBILIEN GmbH<br />
                     Balantstraße 55-5<br />
                     81541 München<br />
-                    Daniel Amiel, Geschäftsführer
+                    Geschäftsführer
                   </p>
                 </div>
 
@@ -71,7 +71,7 @@ const Impressum = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <p className="font-medium">Amiel Immobilienverwaltung GmbH</p>
+                  <p className="font-medium">JK IMMOBILIEN GmbH</p>
                   <p className="text-muted-foreground">Balantstraße 55-5</p>
                   <p className="text-muted-foreground">81541 München</p>
                   <p className="text-muted-foreground">Deutschland</p>
@@ -96,7 +96,7 @@ const Impressum = () => {
 
                 <div>
                   <p className="font-medium">E-Mail</p>
-                  <p className="text-muted-foreground">info@amiel-immobilienverwaltung.de</p>
+                  <p className="text-muted-foreground">info@jk-immobilien.de</p>
                 </div>
               </CardContent>
             </Card>
@@ -109,7 +109,7 @@ const Impressum = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <p className="font-medium">Daniel Amiel</p>
+                  <p className="font-medium">Geschäftsführer</p>
                   <p className="text-muted-foreground">Balantstraße 55-5</p>
                   <p className="text-muted-foreground">81541 München</p>
                 </div>

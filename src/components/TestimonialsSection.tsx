@@ -12,13 +12,13 @@ export const TestimonialsSection = () => {
       name: "Sarah Mueller",
       city: "Berlin",
       rating: 5,
-      text: "Amiel hat mir dabei geholfen, die perfekte Wohnung in Berlin zu finden. Der Service war ausgezeichnet und die Beratung sehr professionell. Absolut empfehlenswert!",
+      text: "JK IMMOBILIEN hat mir dabei geholfen, die perfekte Wohnung in Berlin zu finden. Der Service war ausgezeichnet und die Beratung sehr professionell. Absolut empfehlenswert!",
     },
     {
       name: "Thomas Weber",
       city: "München",
       rating: 5,
-      text: "Sehr zufrieden mit dem Service von Amiel. Die Wohnungssuche war unkompliziert und das Team war immer erreichbar. Tolle Betreuung vom ersten Kontakt bis zur Schlüsselübergabe.",
+      text: "Sehr zufrieden mit dem Service von JK IMMOBILIEN. Die Wohnungssuche war unkompliziert und das Team war immer erreichbar. Tolle Betreuung vom ersten Kontakt bis zur Schlüsselübergabe.",
     },
     {
       name: "Anna Schmidt",
@@ -30,7 +30,7 @@ export const TestimonialsSection = () => {
       name: "Michael Bauer",
       city: "Frankfurt",
       rating: 5,
-      text: "Die Wohnungsbesichtigung war perfekt organisiert und die Abwicklung sehr professionell. Amiel macht die Wohnungssuche so einfach wie nie zuvor. Absolute Empfehlung!",
+      text: "Die Wohnungsbesichtigung war perfekt organisiert und die Abwicklung sehr professionell. JK IMMOBILIEN macht die Wohnungssuche so einfach wie nie zuvor. Absolute Empfehlung!",
     },
   ];
 
@@ -63,7 +63,7 @@ export const TestimonialsSection = () => {
             </h2>
             <p className="text-xl text-muted-foreground leading-relaxed">
               Überzeugen Sie sich selbst von der Qualität unseres Services. 
-              Hier teilen zufriedene Mieter ihre Erfahrungen mit Amiel und 
+              Hier teilen zufriedene Mieter ihre Erfahrungen mit JK IMMOBILIEN und 
               erzählen, wie wir ihnen beim Finden ihres Traumzuhauses geholfen haben.
             </p>
           </div>

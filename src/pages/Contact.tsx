@@ -19,7 +19,7 @@ const Contact = () => {
     description: "Mo-Fr: 9:00-18:00 Uhr, Sa: 9:00-14:00 Uhr"
   }, {
     title: "E-Mail",
-    details: ["info@amiel-immobilienverwaltung.de"],
+    details: ["info@jk-immobilien.de"],
     description: "Wir antworten innerhalb von 24 Stunden"
   }, {
     title: "Adresse",

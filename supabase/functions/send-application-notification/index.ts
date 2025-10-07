@@ -36,8 +36,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send notification email to admin
     const emailResponse = await resend.emails.send({
-      from: "Amiel Immobilienverwaltung <noreply@amiel-immobilienverwaltung.de>",
-      to: ["info@amiel-immobilienverwaltung.de"],
+      from: "JK IMMOBILIEN <noreply@jk-immobilien.de>",
+      to: ["info@jk-immobilien.de"],
       subject: `Neue Wohnungsbewerbung - ${propertyTitle}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -68,7 +68,7 @@ const handler = async (req: Request): Promise<Response> => {
           <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 30px 0;">
           
           <p style="color: #64748b; font-size: 14px; text-align: center;">
-            Diese E-Mail wurde automatisch vom Bewerbungssystem von Amiel Immobilienverwaltung gesendet.<br>
+            Diese E-Mail wurde automatisch vom Bewerbungssystem von JK IMMOBILIEN gesendet.<br>
             Zeitpunkt: ${new Date().toLocaleString('de-DE', { 
               timeZone: 'Europe/Berlin',
               year: 'numeric',
@@ -92,7 +92,7 @@ const handler = async (req: Request): Promise<Response> => {
         operation: 'EMAIL_NOTIFICATION_SENT',
         details: {
           application_id: applicationId,
-          recipient: 'info@amiel-immobilienverwaltung.de',
+          recipient: 'info@jk-immobilien.de',
           applicant_name: applicantName,
           property_title: propertyTitle,
           email_id: emailResponse.data?.id,

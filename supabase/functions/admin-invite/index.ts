@@ -127,11 +127,11 @@ const handler = async (req: Request): Promise<Response> => {
 
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h2 style="color: #333;">Willkommen bei Amiel Immobilienverwaltung Admin</h2>
+        <h2 style="color: #333;">Willkommen bei JK IMMOBILIEN Admin</h2>
         
         <p>Hallo,</p>
         
-        <p>Sie wurden als <strong>${roleText}</strong> zum Amiel Immobilienverwaltung Admin-System eingeladen.</p>
+        <p>Sie wurden als <strong>${roleText}</strong> zum JK IMMOBILIEN Admin-System eingeladen.</p>
         
         <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
           <h3 style="margin-top: 0;">Ihre Zugangsdaten:</h3>
@@ -163,9 +163,9 @@ const handler = async (req: Request): Promise<Response> => {
 
     try {
       const emailResponse = await resend.emails.send({
-        from: 'Amiel Immobilienverwaltung Admin <onboarding@resend.dev>',
+        from: 'JK IMMOBILIEN Admin <onboarding@resend.dev>',
         to: [email],
-        subject: `Einladung zum Amiel Immobilienverwaltung Admin-System (${roleText})`,
+        subject: `Einladung zum JK IMMOBILIEN Admin-System (${roleText})`,
         html: emailHtml,
       });
 

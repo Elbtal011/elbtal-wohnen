@@ -102,7 +102,7 @@ const Unternehmen = () => {
         <div className="text-center mb-16">
           
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            Amiel Immobilienverwaltung
+            JK IMMOBILIEN
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">Seit 1988 Ihr vertrauensvoller Partner für Immobilienverwaltung in München und Umgebung. Mit über 35 Jahren Erfahrung und persönlichem Service.</p>
         </div>
@@ -122,7 +122,7 @@ const Unternehmen = () => {
         <div className="mb-20">
           <h2 className="text-3xl font-bold text-center mb-12">Unsere Geschichte</h2>
           <div className="space-y-4 text-muted-foreground leading-relaxed max-w-4xl mx-auto text-center mb-12">
-            <p>Die Amiel Immobilienverwaltung wurde 1988 in München gegründet und hat sich über mehr als drei Jahrzehnte zu einem der führenden Immobiliendienstleister in der Region entwickelt.</p>
+            <p>JK IMMOBILIEN wurde 1988 in München gegründet und hat sich über mehr als drei Jahrzehnte zu einem der führenden Immobiliendienstleister in der Region entwickelt.</p>
             <p>Was als kleine Hausverwaltung begann, ist heute ein Unternehmen mit einem umfassenden Serviceangebot. Wir betreuen über 300 Wohneinheiten und haben bereits mehr als 4.000 Kunden bei ihren Immobilienangelegenheiten unterstützt.
           </p>
             <p>
@@ -210,7 +210,7 @@ const Unternehmen = () => {
                 +49 089 244 108 610
               </Button>
               <Button size="lg" variant="outline" className="bg-white hover:bg-primary hover:text-white border-gray-400">
-                info@amiel-immobilienverwaltung.de
+                info@jk-immobilien.de
               </Button>
             </div>
           </CardContent>

@@ -50,7 +50,7 @@ Deno.serve(async (req) => {
         }
         const now = new Date();
         const pad = (n: number) => String(n).padStart(2, '0');
-        const fileName = `amiel-${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}.zip`;
+        const fileName = `jk-immobilien-${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}.zip`;
         const { data: rec, error: recErr } = await supabase
           .from('backup_records')
           .insert({

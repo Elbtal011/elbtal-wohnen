@@ -164,7 +164,7 @@ const Leistungsübersicht = () => {
 
         {/* Advantages */}
         <div className="mb-20">
-          <h2 className="text-3xl font-bold text-center mb-12">Warum Amiel Immobilienverwaltung?</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">Warum JK IMMOBILIEN?</h2>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {advantages.map((advantage, index) => <Card key={index} className="text-center p-6">
@@ -203,7 +203,7 @@ const Leistungsübersicht = () => {
                 +49 089 244 108 610
               </Button>
               <Button size="lg" variant="outline" className="bg-white hover:bg-primary hover:text-white border-gray-400">
-                info@amiel-immobilienverwaltung.de
+                info@jk-immobilien.de
               </Button>
             </div>
           </CardContent>

@@ -15,7 +15,7 @@ const AGB = () => {
             Allgemeine Geschäftsbedingungen
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Gültig ab 01.01.2025 für alle Dienstleistungen der Amiel Immobilienverwaltung GmbH
+            Gültig ab 01.01.2025 für alle Dienstleistungen der JK IMMOBILIEN GmbH
           </p>
         </div>
 
@@ -31,7 +31,7 @@ const AGB = () => {
               <div className="space-y-4 text-muted-foreground">
                 <p>
                   Diese Allgemeinen Geschäftsbedingungen (AGB) gelten für alle Verträge zwischen der 
-                  Amiel Immobilienverwaltung GmbH (nachfolgend "Auftragnehmer") und ihren Auftraggebern 
+                  JK IMMOBILIEN GmbH (nachfolgend "Auftragnehmer") und ihren Auftraggebern 
                   (nachfolgend "Auftraggeber") über die Erbringung von Immobilienverwaltungsleistungen.
                 </p>
                 <p>
@@ -260,7 +260,7 @@ const AGB = () => {
                 <div className="border-t pt-4 mt-6">
                   <p className="text-sm">
                     <strong>Stand:</strong> Januar 2025<br />
-                    <strong>Amiel Immobilienverwaltung GmbH</strong><br />
+                    <strong>JK IMMOBILIEN GmbH</strong><br />
                     Balantstraße 55-5, 81541 München
                   </p>
                 </div>
