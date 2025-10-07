@@ -944,7 +944,7 @@ const LeadsManagement: React.FC<LeadsManagementProps> = ({ adminUser }) => {
                                 </Badge>
                                 {/* Current Stage Badge */}
                                 {lead.lead_stage && (
-                                   <Badge variant="outline" className="text-xs px-2 py-0 bg-primary/10 text-primary border-primary/20">
+                                   <Badge variant="outline" className="text-xs px-2 py-0 bg-blue-50 text-blue-700 border-blue-200">
                                      {lead.lead_stage === 'postident1' && 'PostIdent 1'}
                                      {lead.lead_stage === 'postident2' && 'PostIdent 2'} 
                                      {lead.lead_stage === 'contract' && 'Vertrag'}
@@ -1052,7 +1052,7 @@ const LeadsManagement: React.FC<LeadsManagementProps> = ({ adminUser }) => {
                                  <Button 
                                    size="sm" 
                                    onClick={() => moveToPostIdent1(lead.id)}
-                                   className="h-7 text-xs px-2 bg-primary hover:bg-primary/90"
+                                   className="h-7 text-xs px-2 bg-blue-600 hover:bg-blue-700"
                                  >
                                    <ArrowRight className="h-3 w-3 mr-1" />
                                    <span className="hidden sm:inline">PostIdent 1</span>
@@ -1382,9 +1382,9 @@ const LeadsManagement: React.FC<LeadsManagementProps> = ({ adminUser }) => {
                     </div>
                     
                     {uploadingDocument && (
-                      <div className="mb-4 p-3 bg-primary/10 border border-primary/20 rounded-lg">
-                        <div className="flex items-center gap-2 text-primary">
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
+                      <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div className="flex items-center gap-2 text-blue-700">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-700" />
                           <span className="text-sm">Dokumente werden hochgeladen...</span>
                         </div>
                       </div>
@@ -1456,7 +1456,7 @@ const LeadsManagement: React.FC<LeadsManagementProps> = ({ adminUser }) => {
                             <h5 className="font-medium text-sm mb-3 text-muted-foreground">Admin-Dokumente</h5>
                             <div className="space-y-3">
                               {leadDocuments.map((doc) => (
-                                <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors border-primary/20 bg-primary/5">
+                                <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors border-blue-200 bg-blue-50/50">
                                   <div className="flex-1 min-w-0">
                                     <div className="font-medium text-sm">{getDocumentTypeLabel(doc.document_type)}</div>
                                     <div className="text-sm text-muted-foreground truncate">{doc.file_name}</div>

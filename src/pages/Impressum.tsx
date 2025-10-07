@@ -3,14 +3,18 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+
 const Impressum = () => {
-  return <div className="min-h-screen bg-background">
+  return (
+    <div className="min-h-screen bg-background">
       <Header />
       
       <div className="container mx-auto px-4 py-16">
         {/* Hero Section */}
         <div className="text-center mb-16">
-          
+          <Badge className="mb-4 bg-primary/10 text-primary">
+            Rechtliches
+          </Badge>
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
             Impressum
           </h1>
@@ -32,17 +36,17 @@ const Impressum = () => {
                 <div>
                   <h3 className="font-semibold mb-2">Firmenname</h3>
                   <p className="text-muted-foreground">
-                    JK IMMOBILIEN GmbH
+                    Amiel Immobilienverwaltung GmbH
                   </p>
                 </div>
                 
                 <div>
                   <h3 className="font-semibold mb-2">Geschäftsführer</h3>
                   <p className="text-muted-foreground">
-                    JK IMMOBILIEN GmbH<br />
-                    Balantstraße 55-5<br />
-                    81541 München<br />
-                    Geschäftsführer
+                    Amiel Immobilienverwaltung GmbH<br />
+                    Leuchtenbergring 54<br />
+                    81677 München<br />
+                    Daniel Amiel, Geschäftsführer
                   </p>
                 </div>
 
@@ -71,9 +75,9 @@ const Impressum = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <p className="font-medium">JK IMMOBILIEN GmbH</p>
-                  <p className="text-muted-foreground">Balantstraße 55-5</p>
-                  <p className="text-muted-foreground">81541 München</p>
+                  <p className="font-medium">Amiel Immobilienverwaltung GmbH</p>
+                  <p className="text-muted-foreground">Leuchtenbergring 54</p>
+                  <p className="text-muted-foreground">81677 München</p>
                   <p className="text-muted-foreground">Deutschland</p>
                 </div>
               </CardContent>
@@ -96,7 +100,7 @@ const Impressum = () => {
 
                 <div>
                   <p className="font-medium">E-Mail</p>
-                  <p className="text-muted-foreground">info@jk-immobilien.de</p>
+                  <p className="text-muted-foreground">info@amiel-immobilienverwaltung.de</p>
                 </div>
               </CardContent>
             </Card>
@@ -109,9 +113,9 @@ const Impressum = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <p className="font-medium">Geschäftsführer</p>
-                  <p className="text-muted-foreground">Balantstraße 55-5</p>
-                  <p className="text-muted-foreground">81541 München</p>
+                  <p className="font-medium">Daniel Amiel</p>
+                  <p className="text-muted-foreground">Leuchtenbergring 54</p>
+                  <p className="text-muted-foreground">81677 München</p>
                 </div>
               </CardContent>
             </Card>
@@ -193,6 +197,8 @@ const Impressum = () => {
       </div>
 
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default Impressum;

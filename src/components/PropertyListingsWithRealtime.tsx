@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
+import { MapPin, Home, Euro, Ruler, Users, Search } from 'lucide-react';
 
 interface City {
   id: string;
@@ -165,14 +166,16 @@ export const PropertyListings: React.FC<PropertyListingsProps> = ({ onFilterChan
       {/* Search Filters */}
       <Card className="mb-8">
         <CardHeader>
-          <CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Search className="h-5 w-5" />
             Filter & Suche
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="location" className="text-sm font-medium">
+              <Label htmlFor="location" className="text-sm font-medium flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-primary" />
                 Standort
               </Label>
               <Select value={filters.location} onValueChange={(value) => handleFilterChange('location', value)}>
@@ -191,7 +194,8 @@ export const PropertyListings: React.FC<PropertyListingsProps> = ({ onFilterChan
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="propertyType" className="text-sm font-medium">
+              <Label htmlFor="propertyType" className="text-sm font-medium flex items-center gap-2">
+                <Home className="h-4 w-4 text-primary" />
                 Objektart
               </Label>
               <Select value={filters.propertyType} onValueChange={(value) => handleFilterChange('propertyType', value)}>
@@ -210,7 +214,8 @@ export const PropertyListings: React.FC<PropertyListingsProps> = ({ onFilterChan
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="rooms" className="text-sm font-medium">
+              <Label htmlFor="rooms" className="text-sm font-medium flex items-center gap-2">
+                <Users className="h-4 w-4 text-primary" />
                 Zimmer
               </Label>
               <Select value={filters.rooms} onValueChange={(value) => handleFilterChange('rooms', value)}>
@@ -229,7 +234,8 @@ export const PropertyListings: React.FC<PropertyListingsProps> = ({ onFilterChan
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="minPrice" className="text-sm font-medium">
+              <Label htmlFor="minPrice" className="text-sm font-medium flex items-center gap-2">
+                <Euro className="h-4 w-4 text-primary" />
                 Miete von
               </Label>
               <Input
@@ -242,7 +248,8 @@ export const PropertyListings: React.FC<PropertyListingsProps> = ({ onFilterChan
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="maxPrice" className="text-sm font-medium">
+              <Label htmlFor="maxPrice" className="text-sm font-medium flex items-center gap-2">
+                <Euro className="h-4 w-4 text-primary" />
                 Miete bis
               </Label>
               <Input
@@ -255,7 +262,8 @@ export const PropertyListings: React.FC<PropertyListingsProps> = ({ onFilterChan
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="minArea" className="text-sm font-medium">
+              <Label htmlFor="minArea" className="text-sm font-medium flex items-center gap-2">
+                <Ruler className="h-4 w-4 text-primary" />
                 Fläche ab (m²)
               </Label>
               <Input
@@ -307,12 +315,15 @@ export const PropertyListings: React.FC<PropertyListingsProps> = ({ onFilterChan
                 
                 <div className="grid grid-cols-3 gap-3 text-sm">
                   <div className="flex items-center">
+                    <Ruler className="h-4 w-4 mr-1 text-primary" />
                     <span>{property.area_sqm} m²</span>
                   </div>
                   <div className="flex items-center">
+                    <Users className="h-4 w-4 mr-1 text-primary" />
                     <span>{property.rooms} Zimmer</span>
                   </div>
                   <div className="flex items-center">
+                    <Home className="h-4 w-4 mr-1 text-primary" />
                     <span>{property.property_type?.name}</span>
                   </div>
                 </div>
@@ -323,6 +334,7 @@ export const PropertyListings: React.FC<PropertyListingsProps> = ({ onFilterChan
       ) : (
         <Card>
           <CardContent className="text-center py-8">
+            <Home className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold mb-2">Keine Immobilien gefunden</h3>
             <p className="text-muted-foreground">
               Versuchen Sie, Ihre Suchfilter anzupassen.

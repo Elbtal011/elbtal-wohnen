@@ -1,7 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Carousel, CarouselContent, CarouselItem, CarouselApi } from "@/components/ui/carousel";
 import { Star } from "lucide-react";
-import { useEffect, useState } from "react";
 
 const reviews = [
   {
@@ -9,14 +7,14 @@ const reviews = [
     name: "Familie Schmidt",
     location: "Berlin-Mitte",
     rating: 5,
-    text: "Seit 3 Jahren sind wir sehr zufrieden mit der Betreuung durch JK IMMOBILIEN. Schnelle Hilfe bei Problemen und immer freundliche Ansprechpartner. Die Verwaltung unserer Wohnung läuft reibungslos."
+    text: "Seit 3 Jahren sind wir sehr zufrieden mit der Betreuung durch Amiel. Schnelle Hilfe bei Problemen und immer freundliche Ansprechpartner. Die Verwaltung unserer Wohnung läuft reibungslos."
   },
   {
     id: 2,
     name: "Michael Krause", 
     location: "Hamburg",
     rating: 5,
-    text: "Als Vermieter kann ich JK IMMOBILIEN nur empfehlen. Die professionelle Verwaltung meiner Immobilien und die transparente Kommunikation haben meine Erwartungen übertroffen. Sehr kompetentes Team!"
+    text: "Als Vermieter kann ich Amiel nur empfehlen. Die professionelle Verwaltung meiner Immobilien und die transparente Kommunikation haben meine Erwartungen übertroffen. Sehr kompetentes Team!"
   },
   {
     id: 3,
@@ -37,40 +35,18 @@ const reviews = [
     name: "Thomas Weber",
     location: "Potsdam", 
     rating: 5,
-    text: "Nach dem Wechsel zu JK IMMOBILIEN läuft alles viel besser. Die digitalen Services sind sehr praktisch und der persönliche Kontakt stimmt. Bin sehr froh über diese Entscheidung."
+    text: "Nach dem Wechsel zu Amiel läuft alles viel besser. Die digitalen Services sind sehr praktisch und der persönliche Kontakt stimmt. Bin sehr froh über diese Entscheidung."
   },
   {
     id: 6,
     name: "Möbel Zentrale GmbH",
     location: "Berlin",
     rating: 5,
-    text: "Unsere Einzelhandelsflächen werden professionell und zuverlässig betreut. Das Team von JK IMMOBILIEN denkt mit und findet immer passende Lösungen. Sehr zu empfehlen!"
+    text: "Unsere Einzelhandelsflächen werden professionell und zuverlässig betreut. Das Team von Amiel denkt mit und findet immer passende Lösungen. Sehr zu empfehlen!"
   }
 ];
 
 export const CustomerReviewsSection = () => {
-  const [api, setApi] = useState<CarouselApi>()
-  const [current, setCurrent] = useState(0)
-  const [count, setCount] = useState(0)
-
-  useEffect(() => {
-    if (!api) return
-
-    setCount(api.scrollSnapList().length)
-    setCurrent(api.selectedScrollSnap() + 1)
-
-    api.on("select", () => {
-      setCurrent(api.selectedScrollSnap() + 1)
-    })
-
-    // Auto-play functionality
-    const timer = setInterval(() => {
-      api.scrollNext()
-    }, 2500)
-
-    return () => clearInterval(timer)
-  }, [api])
-
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, index) => (
       <Star
@@ -94,53 +70,24 @@ export const CustomerReviewsSection = () => {
           </p>
         </div>
 
-        <Carousel
-          setApi={setApi}
-          opts={{
-            align: "start",
-            loop: true,
-            duration: 30,
-            skipSnaps: false,
-          }}
-          className="w-full"
-        >
-          <CarouselContent className="-ml-2 md:-ml-4">
-            {reviews.map((review) => (
-              <CarouselItem key={review.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
-                <Card className="h-full hover:shadow-lg transition-all duration-300">
-                  <CardContent className="p-6">
-                    <div className="flex items-center mb-4">
-                      <div className="flex">{renderStars(review.rating)}</div>
-                    </div>
-                    
-                    <p className="text-muted-foreground mb-4 leading-relaxed">
-                      "{review.text}"
-                    </p>
-                    
-                    <div className="border-t pt-4">
-                      <h4 className="font-semibold text-foreground">{review.name}</h4>
-                      <p className="text-sm text-muted-foreground">{review.location}</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-        </Carousel>
-
-        {/* Dots indicator */}
-        <div className="flex justify-center mt-8 space-x-2">
-          {Array.from({ length: Math.ceil(reviews.length / 3) }).map((_, index) => (
-            <button
-              key={index}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                Math.floor((current - 1) / 3) === index
-                  ? "bg-primary scale-110"
-                  : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
-              }`}
-              onClick={() => api?.scrollTo(index * 3)}
-              aria-label={`Go to slide ${index + 1}`}
-            />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {reviews.map((review) => (
+            <Card key={review.id} className="h-full hover:shadow-lg transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center mb-4">
+                  <div className="flex">{renderStars(review.rating)}</div>
+                </div>
+                
+                <p className="text-muted-foreground mb-4 leading-relaxed">
+                  "{review.text}"
+                </p>
+                
+                <div className="border-t pt-4">
+                  <h4 className="font-semibold text-foreground">{review.name}</h4>
+                  <p className="text-sm text-muted-foreground">{review.location}</p>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
 

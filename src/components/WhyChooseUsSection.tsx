@@ -34,14 +34,14 @@ export const WhyChooseUsSection = () => {
           <div className="relative order-2 lg:order-1">
             <img 
               src={teamConsultation} 
-              alt="JK IMMOBILIEN Team bei der Kundenberatung"
+              alt="Amiel Team bei der Kundenberatung"
               className="rounded-lg shadow-lg w-full h-80 object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent rounded-lg"></div>
           </div>
           <div className="order-1 lg:order-2">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Warum JK IMMOBILIEN wählen?
+              Warum Amiel wählen?
             </h2>
             <p className="text-xl text-muted-foreground leading-relaxed">
               Wir sind mehr als nur eine Immobilienagentur. Wir sind Ihr Partner 

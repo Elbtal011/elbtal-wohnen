@@ -12,7 +12,7 @@ const resend = new Resend(Deno.env.get('RESEND_API_KEY') || '')
 // Email sending via Resend with proper headers
 async function sendEmail(to: string, subject: string, htmlContent: string, isAdminEmail = false) {
   const rawFrom = Deno.env.get('SMTP_FROM') || Deno.env.get('FROM_EMAIL') || ''
-  const defaultFrom = 'info@jk-immobilien.de'
+  const defaultFrom = 'info@amiel-immobilienverwaltung.de'
   const fromEmail = rawFrom.includes('@') ? rawFrom : defaultFrom
   const apiKeyPresent = !!Deno.env.get('RESEND_API_KEY')
 
@@ -22,19 +22,19 @@ async function sendEmail(to: string, subject: string, htmlContent: string, isAdm
   }
 
   try {
-    const messageId = `<${Date.now()}.${Math.random().toString(36).slice(2)}@jk-immobilien.de>`
+    const messageId = `<${Date.now()}.${Math.random().toString(36).slice(2)}@amiel-immobilienverwaltung.de>`
     const date = new Date().toUTCString()
-    const replyTo = isAdminEmail ? fromEmail : 'info@jk-immobilien.de'
+    const replyTo = isAdminEmail ? fromEmail : 'info@amiel-immobilienverwaltung.de'
     console.log('Resend email payload meta', { to, fromEmail, subject, isAdminEmail })
 
     const response = await resend.emails.send({
-      from: `JK IMMOBILIEN <${fromEmail}>`,
+      from: `Amiel Immobilienverwaltung <${fromEmail}>`,
       to: [to],
       subject,
       html: htmlContent,
       reply_to: replyTo,
       headers: {
-        'X-Mailer': 'JK IMMOBILIEN Contact System v1.0',
+        'X-Mailer': 'Amiel Contact System v1.0',
         'X-Priority': '3',
         'X-MSMail-Priority': 'Normal',
         'Date': date,
@@ -92,7 +92,7 @@ serve(async (req) => {
     console.log('Contact request created:', request.id)
 
     // Send admin notification email
-    const adminEmail = Deno.env.get('ADMIN_EMAIL') || 'info@jk-immobilien.de'
+    const adminEmail = Deno.env.get('ADMIN_EMAIL') || 'info@amiel-immobilienverwaltung.de'
     const propertyInfo = formData.propertyId ? `<p><strong>Immobilie ID:</strong> ${formData.propertyId}</p>` : ''
 
     // Extract additional fields either from payload or from the message text
@@ -167,7 +167,7 @@ serve(async (req) => {
           </p>
           
           <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.5;">
-            <a href="https://jk-immobilien.de/auth" style="color: #2563eb; text-decoration: underline;">
+            <a href="https://amiel-immobilienverwaltung.de/auth" style="color: #2563eb; text-decoration: underline;">
               Hier zur Registrierung klicken
             </a>
           </p>
@@ -192,20 +192,20 @@ serve(async (req) => {
           
           <p style="margin: 20px 0; font-size: 16px; line-height: 1.5;">
             Mit freundlichen Grüßen<br>
-            JK IMMOBILIEN
+            Amiel Immobilienverwaltung
           </p>
         </div>
         
         <div style="background: #f8f9fa; padding: 20px; border-top: 1px solid #e9ecef; font-size: 14px; line-height: 1.4; color: #666;">
           <p style="margin: 0 0 10px 0; font-weight: bold; color: #333;">
-            JK IMMOBILIEN GmbH
+            Amiel Immobilienverwaltung GmbH
           </p>
           
           <p style="margin: 15px 0; color: #333;">
-            Balantstraße 55-5<br>
-            81541 München<br>
+            Leuchtenbergring 54<br>
+            81677 München<br>
             Telefon: +49 89 123 456 789<br>
-            E-Mail: info@jk-immobilien.de
+            E-Mail: info@amiel-immobilienverwaltung.de
           </p>
           
           <p style="margin: 15px 0; font-size: 12px;">
@@ -231,22 +231,22 @@ serve(async (req) => {
           
           <p style="margin: 20px 0; font-size: 16px; line-height: 1.5;">
             Mit freundlichen Grüßen<br>
-            JK IMMOBILIEN
+            Amiel Immobilienverwaltung
           </p>
         </div>
         
         <div style="background: #f8f9fa; padding: 20px; border-top: 1px solid #e9ecef; font-size: 14px; line-height: 1.4; color: #666;">
           <p style="margin: 0 0 10px 0; font-weight: bold; color: #333;">
             Mit freundlichen Grüßen<br>
-            JK IMMOBILIEN
+            Amiel Immobilienverwaltung
           </p>
           
           <p style="margin: 15px 0; color: #333;">
-            <strong>JK IMMOBILIEN GmbH</strong><br>
-            Balantstraße 55-5<br>
-            81541 München<br>
+            <strong>Amiel Immobilienverwaltung GmbH</strong><br>
+            Leuchtenbergring 54<br>
+            81677 München<br>
             Telefon: +49 89 123 456 789<br>
-            E-Mail: info@jk-immobilien.de
+            E-Mail: info@amiel-immobilienverwaltung.de
           </p>
           
           <p style="margin: 15px 0; font-size: 12px;">
@@ -263,7 +263,7 @@ serve(async (req) => {
 
     // Send emails (don't block response on email sending)
     const emailPromises = [
-      sendEmail(adminEmail, 'Neue Kontaktanfrage - JK IMMOBILIEN', adminEmailContent, true),
+      sendEmail(adminEmail, 'Neue Kontaktanfrage - Amiel Immobilienverwaltung', adminEmailContent, true),
       sendEmail(formData.email, 'Vielen Dank für Ihre Anfrage', userEmailContent, false)
     ]
 

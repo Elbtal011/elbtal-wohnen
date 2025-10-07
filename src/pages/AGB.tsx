@@ -3,19 +3,23 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+
 const AGB = () => {
-  return <div className="min-h-screen bg-background">
+  return (
+    <div className="min-h-screen bg-background">
       <Header />
       
       <div className="container mx-auto px-4 py-16">
         {/* Hero Section */}
         <div className="text-center mb-16">
-          
+          <Badge className="mb-4 bg-primary/10 text-primary">
+            Geschäftsbedingungen
+          </Badge>
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
             Allgemeine Geschäftsbedingungen
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Gültig ab 01.01.2025 für alle Dienstleistungen der JK IMMOBILIEN GmbH
+            Gültig ab 01.01.2025 für alle Dienstleistungen der Amiel Immobilienverwaltung GmbH
           </p>
         </div>
 
@@ -31,7 +35,7 @@ const AGB = () => {
               <div className="space-y-4 text-muted-foreground">
                 <p>
                   Diese Allgemeinen Geschäftsbedingungen (AGB) gelten für alle Verträge zwischen der 
-                  JK IMMOBILIEN GmbH (nachfolgend "Auftragnehmer") und ihren Auftraggebern 
+                  Amiel Immobilienverwaltung GmbH (nachfolgend "Auftragnehmer") und ihren Auftraggebern 
                   (nachfolgend "Auftraggeber") über die Erbringung von Immobilienverwaltungsleistungen.
                 </p>
                 <p>
@@ -260,8 +264,8 @@ const AGB = () => {
                 <div className="border-t pt-4 mt-6">
                   <p className="text-sm">
                     <strong>Stand:</strong> Januar 2025<br />
-                    <strong>JK IMMOBILIEN GmbH</strong><br />
-                    Balantstraße 55-5, 81541 München
+                    <strong>Amiel Immobilienverwaltung GmbH</strong><br />
+                    Leuchtenbergring 54, 81677 München
                   </p>
                 </div>
               </div>
@@ -271,6 +275,8 @@ const AGB = () => {
       </div>
 
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default AGB;
