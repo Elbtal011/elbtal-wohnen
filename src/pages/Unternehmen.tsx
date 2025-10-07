@@ -195,29 +195,6 @@ const Unternehmen = () => {
           </div>
         </div>
 
-        {/* Team Section */}
-        <div className="mb-20">
-          <h2 className="text-3xl font-bold text-center mb-12">Unser Führungsteam</h2>
-          
-          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            {team.map((member, index) => <Card key={index}>
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Users className="h-8 w-8 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold">{member.name}</h3>
-                      <p className="text-primary font-medium mb-2">{member.position}</p>
-                      <p className="text-sm text-muted-foreground mb-1">{member.experience}</p>
-                      <p className="text-xs text-muted-foreground">{member.specialization}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>)}
-          </div>
-        </div>
-
         {/* Services Summary */}
         
 
