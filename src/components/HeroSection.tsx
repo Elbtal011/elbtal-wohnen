@@ -28,14 +28,12 @@ export const HeroSection = () => {
       </div>
       {/* Content */}
       <div className="container mx-auto px-4 relative z-10">
-        <div className="text-center mb-10">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight drop-shadow-lg lg:text-5xl">Ihr neues Zuhause zum Leben &amp; Arbeiten</h1>
-          <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto leading-relaxed drop-shadow-md">Exklusive Wohnungen in Deutschlands beliebtesten Städten – mit persönlichem Service.</p>
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight drop-shadow-lg lg:text-5xl">Entdecken Sie Ihr neues Zuhause</h1>
+          <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto leading-relaxed drop-shadow-md">Suchen Sie in Berlin, Hamburg, München, Frankfurt, Düsseldorf und weiteren Städten</p>
         </div>
         
-        <div className="mb-8">
-          <PropertySearchFilter />
-        </div>
+        <PropertySearchFilter />
       </div>
     </section>;
 };
