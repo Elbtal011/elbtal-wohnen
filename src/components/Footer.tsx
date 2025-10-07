@@ -1,5 +1,7 @@
 import { Separator } from "@/components/ui/separator";
 import { Link } from "react-router-dom";
+import logoJK from "@/assets/logo-jk.png";
+
 export const Footer = () => {
   return <footer className="bg-secondary/10 border-t border-border/50">
       <div className="container mx-auto px-4 py-16">
@@ -8,7 +10,7 @@ export const Footer = () => {
           {/* Company Info */}
           <div className="space-y-6">
             <div>
-              <img src="/lovable-uploads/f4bd2064-0f8f-4de3-9863-bc4d9797aa3f.png" alt="AMIEL - Immobilienverwaltung seit 1988" className="max-h-20 h-auto w-[70%] md:w-auto object-contain" />
+              <img src={logoJK} alt="JK Immobilien" className="max-h-20 h-auto w-[70%] md:w-auto object-contain" />
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Ihr vertrauensvoller Partner für hochwertige Mietwohnungen in Deutschland. 

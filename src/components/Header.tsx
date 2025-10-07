@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ChevronDown, User, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import logoJK from "@/assets/logo-jk.png";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -53,8 +54,8 @@ export const Header = () => {
           <div className="flex items-center">
             <Link to="/" className="block">
               <img 
-                src="/lovable-uploads/f4bd2064-0f8f-4de3-9863-bc4d9797aa3f.png" 
-                alt="AMIEL - Immobilienverwaltung seit 1988" 
+                src={logoJK}
+                alt="JK Immobilien" 
                 className="h-8 lg:h-10 w-auto"
               />
             </Link>
