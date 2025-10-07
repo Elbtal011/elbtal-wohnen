@@ -235,7 +235,7 @@ const PostIdent2Management: React.FC<PostIdent2ManagementProps> = ({ adminUser }
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <UserCheck className="h-5 w-5 text-blue-500" />
+            <UserCheck className="h-5 w-5 text-primary" />
             {filtered.length} Lead{filtered.length !== 1 ? 's' : ''} in PostIdent 2
           </CardTitle>
         </CardHeader>
@@ -289,7 +289,7 @@ const PostIdent2Management: React.FC<PostIdent2ManagementProps> = ({ adminUser }
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                        <Badge variant="secondary" className="bg-primary/10 text-primary">
                           Video-Verifikation
                         </Badge>
                       </TableCell>
@@ -323,7 +323,7 @@ const PostIdent2Management: React.FC<PostIdent2ManagementProps> = ({ adminUser }
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <UserCheck className="h-5 w-5 text-blue-500" />
+              <UserCheck className="h-5 w-5 text-primary" />
               PostIdent 2 - Finale Verifikation
             </DialogTitle>
             <DialogDescription>
@@ -360,12 +360,12 @@ const PostIdent2Management: React.FC<PostIdent2ManagementProps> = ({ adminUser }
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="text-center">
-                      <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <VideoIcon className="h-12 w-12 text-blue-600" />
+                      <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <VideoIcon className="h-12 w-12 text-primary" />
                       </div>
                       <Button 
                         onClick={startVideoCall}
-                        className="w-full gap-2 bg-blue-600 hover:bg-blue-700"
+                        className="w-full gap-2 bg-primary hover:bg-primary/90"
                       >
                         <VideoIcon className="h-4 w-4" />
                         Video-Anruf starten

@@ -16,26 +16,26 @@
     --popover: 0 0% 100%;
     --popover-foreground: 213 27% 20%;
 
-    /* Professional Blue Theme */
-    --primary: 213 85% 45%;
-    --primary-light: 213 75% 55%;
-    --primary-dark: 213 85% 35%;
+    /* Professional Green Theme */
+    --primary: 147 100% 25%;
+    --primary-light: 147 80% 35%;
+    --primary-dark: 147 100% 20%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 213 25% 95%;
-    --secondary-foreground: 213 27% 20%;
+    --secondary: 147 25% 95%;
+    --secondary-foreground: 147 27% 20%;
 
-    --muted: 213 15% 96%;
-    --muted-foreground: 213 15% 55%;
+    --muted: 147 15% 96%;
+    --muted-foreground: 147 15% 55%;
 
-    --accent: 213 25% 95%;
-    --accent-foreground: 213 27% 20%;
+    --accent: 147 25% 95%;
+    --accent-foreground: 147 27% 20%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
     /* Extended semantic colors for badges & UI states */
-    --info: 213 85% 45%;
+    --info: 147 100% 25%;
     --info-foreground: 0 0% 100%;
     --success: 142 71% 45%;
     --success-foreground: 0 0% 10%;
@@ -47,12 +47,12 @@
     --purple-foreground: 0 0% 100%;
 
     /* Clean Borders & Inputs */
-    --border: 213 20% 90%;
-    --input: 213 20% 95%;
-    --ring: 213 85% 45%;
+    --border: 147 20% 90%;
+    --input: 147 20% 95%;
+    --ring: 147 100% 25%;
 
     /* Brand color exact as requested */
-    --brand-blue: 213 86% 45%;
+    --brand-green: 147 100% 25%;
 
     --radius: 0.5rem;
 
@@ -99,7 +99,7 @@
     --destructive-foreground: 210 40% 98%;
 
     /* Extended semantic colors (dark) */
-    --info: 213 70% 55%;
+    --info: 147 70% 40%;
     --info-foreground: 0 0% 100%;
     --success: 142 50% 40%;
     --success-foreground: 210 40% 98%;

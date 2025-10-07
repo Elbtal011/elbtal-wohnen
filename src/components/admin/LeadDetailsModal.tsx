@@ -206,7 +206,7 @@ const LeadDetailsModal: React.FC<LeadDetailsModalProps> = ({
                   </Button>
                 </>
               ) : (
-                <Button onClick={() => setIsEditing(true)} variant="outline" size="sm" className="border-blue-500 text-blue-600 hover:bg-blue-50">
+                <Button onClick={() => setIsEditing(true)} variant="outline" size="sm" className="border-primary text-primary hover:bg-primary/10">
                   <Edit className="h-4 w-4 mr-2" />
                   Bearbeiten
                 </Button>

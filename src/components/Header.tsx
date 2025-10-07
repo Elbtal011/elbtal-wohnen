@@ -144,7 +144,7 @@ export const Header = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button asChild className="bg-white text-gray-700 border border-gray-300 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors">
+              <Button asChild className="bg-white text-gray-700 border border-gray-300 hover:bg-primary hover:text-white hover:border-primary transition-colors">
                 <Link to="/auth">
                   Anmelden
                 </Link>
