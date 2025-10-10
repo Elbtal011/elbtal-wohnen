@@ -279,7 +279,7 @@ const Unternehmen = () => {
               </div>
               <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                 <MapPin className="h-4 w-4" />
-                <span>Leuchtenbergring 54, 81677 München</span>
+                <span>Balantstraße 55-5, 81541 München</span>
               </div>
             </div>
           </CardContent>

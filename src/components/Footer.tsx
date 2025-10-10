@@ -44,7 +44,7 @@ export const Footer = () => {
             <h4 className="font-semibold text-foreground">Kontakt</h4>
             <div className="space-y-3 text-sm text-muted-foreground">
               <div>
-                <span>Leuchtenbergring 54<br />81677 München</span>
+                <span>Balantstraße 55-5<br />81541 München</span>
               </div>
               <div>
                 <span>+49 089 244 108 610</span>
