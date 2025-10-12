@@ -127,42 +127,43 @@ const PropertyDetails = () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-          {/* Left Column - 60% */}
-          <div className="lg:col-span-3">
-            {/* Property Images */}
-            <PropertyImageGallery 
-              images={images}
-              title={property.title}
-              className="mb-6"
-            />
+        {/* Property Images - Full Width */}
+        <PropertyImageGallery 
+          images={images}
+          title={property.title}
+          className="mb-6"
+        />
 
-            {/* Property Title and Info */}
-            <div className="mb-6">
-              {property.is_featured && (
-                <Badge className="mb-3 bg-accent text-accent-foreground">
-                  <Star className="w-3 h-3 mr-1" />
-                  Empfohlen
-                </Badge>
-              )}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Badge variant="secondary">
-                      {property.property_type?.name || 'Typ nicht verfügbar'}
-                    </Badge>
-                    <div className="flex items-center text-muted-foreground text-sm">
-                      <MapPin className="h-4 w-4 mr-1" />
-                      {property.city?.name || 'Stadt nicht verfügbar'}
-                    </div>
-                  </div>
-                  <h1 className="text-xl md:text-2xl font-bold mb-2">{property.title}</h1>
-                  <p className="text-lg text-muted-foreground">
-                    {property.address}, {property.neighborhood}
-                  </p>
-                </div>
-                <div className="text-left sm:text-right">
-                  <div className="text-xl md:text-3xl font-bold text-primary">
+        {/* Property Title and Info - Full Width */}
+        <div className="mb-6">
+          {property.is_featured && (
+            <Badge className="mb-3 bg-accent text-accent-foreground">
+              <Star className="w-3 h-3 mr-1" />
+              Empfohlen
+            </Badge>
+          )}
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-3">
+              <Badge variant="secondary">
+                {property.property_type?.name || 'Typ nicht verfügbar'}
+              </Badge>
+              <div className="flex items-center text-muted-foreground text-sm">
+                <MapPin className="h-4 w-4 mr-1" />
+                {property.city?.name || 'Stadt nicht verfügbar'}
+              </div>
+            </div>
+            
+            {/* Title and Action Buttons */}
+            <div className="flex items-start justify-between gap-4 mb-3">
+              <div className="flex-1">
+                <h1 className="text-xl md:text-2xl font-bold mb-3">{property.title}</h1>
+                
+                <p className="text-base text-muted-foreground mb-3">
+                  {property.address}, {property.neighborhood}
+                </p>
+                
+                <div className="flex items-center gap-2">
+                  <div className="text-xl md:text-3xl font-bold text-foreground">
                     {property.warmmiete_monthly 
                       ? formatPrice(property.warmmiete_monthly) 
                       : formatPrice(property.price_monthly + (property.additional_costs_monthly || 0))
@@ -171,12 +172,40 @@ const PropertyDetails = () => {
                   <div className="text-sm text-muted-foreground">Warmmiete</div>
                 </div>
               </div>
+              
+              <div className="flex flex-col gap-2 flex-shrink-0">
+                <PropertyApplicationFlow
+                  propertyId={property.id}
+                  propertyTitle={property.title}
+                  trigger={
+                    <Button className="bg-background text-foreground border border-foreground/30 hover:bg-primary hover:text-primary-foreground transition-colors whitespace-nowrap" size="lg">
+                      Für Immobilie bewerben
+                    </Button>
+                  }
+                />
+                <ContactForm
+                  propertyId={property.id}
+                  propertyTitle={property.title}
+                  isDialog={true}
+                  trigger={
+                    <Button className="bg-background text-foreground border border-foreground/30 hover:bg-primary hover:text-primary-foreground transition-colors whitespace-nowrap" size="lg">
+                      Anfrage senden
+                    </Button>
+                  }
+                />
+              </div>
             </div>
+          </div>
+        </div>
 
+        {/* Two Column Layout - Description and Contact Info */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+          {/* Left Column - Description - 60% */}
+          <div className="lg:col-span-3">
             {/* Property Details */}
             <Card className="mb-6 border-0 shadow-sm rounded-xl bg-muted/40">
               <div className="p-6 pb-0">
-                <CardTitle className="text-lg md:text-xl border-b-2 border-[#1169D4] pb-2 inline-block mb-6">Objektbeschreibung</CardTitle>
+                <CardTitle className="text-lg md:text-xl mb-6">Objektbeschreibung</CardTitle>
               </div>
               <CardContent>
                 <div className="text-muted-foreground leading-relaxed mb-6">
@@ -207,7 +236,7 @@ const PropertyDetails = () => {
                 {property.features_description && (
                   <>
                     <div className="mb-6">
-                      <CardTitle className="mb-3 text-lg md:text-xl border-b-2 border-[#1169D4] pb-2 inline-block">Ausstattung</CardTitle>
+                      <CardTitle className="mb-3 text-lg md:text-xl">Ausstattung</CardTitle>
                       <div className="text-muted-foreground leading-relaxed">
                         <div dangerouslySetInnerHTML={{
                           __html: property.features_description.replace(/\n/g, '<br />')
@@ -281,7 +310,7 @@ const PropertyDetails = () => {
 
                 {/* Address Section */}
                 <div className="mb-6">
-                  <CardTitle className="mb-3 text-lg md:text-xl border-b-2 border-[#1169D4] pb-2 inline-block">Adresse</CardTitle>
+                  <CardTitle className="mb-3 text-lg md:text-xl">Adresse</CardTitle>
                   <div className="space-y-2">
                     <div className="text-lg font-medium">{property.address}</div>
                     <div className="text-muted-foreground">
@@ -301,7 +330,7 @@ const PropertyDetails = () => {
 
                 {/* Energy Information */}
                 <div className="mb-6">
-                  <CardTitle className="mb-3 text-lg md:text-xl border-b-2 border-[#1169D4] pb-2 inline-block">
+                  <CardTitle className="mb-3 text-lg md:text-xl">
                     Energie & Heizung
                   </CardTitle>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -324,12 +353,12 @@ const PropertyDetails = () => {
             </Card>
           </div>
 
-          {/* Right Column - 40% */}
+          {/* Right Column - Contact Info - 40% */}
           <div className="lg:col-span-2">
             {/* Contact Details */}
             <Card className="mb-6 border-0 shadow-sm rounded-xl bg-muted/40">
               <div className="p-6 pb-0">
-                <CardTitle className="text-lg md:text-xl border-b-2 border-[#1169D4] pb-2 inline-block mb-6">Kontakt</CardTitle>
+                <CardTitle className="text-lg md:text-xl mb-6">Kontakt</CardTitle>
               </div>
               <CardContent>
                 <div className="space-y-2 text-sm">
@@ -348,7 +377,7 @@ const PropertyDetails = () => {
             {/* Operation Hours */}
             <Card className="mb-6 border-0 shadow-sm rounded-xl bg-muted/40">
               <div className="p-6 pb-0">
-                <CardTitle className="text-lg md:text-xl border-b-2 border-[#1169D4] pb-2 inline-block mb-6">Öffnungszeiten</CardTitle>
+                <CardTitle className="text-lg md:text-xl mb-6">Öffnungszeiten</CardTitle>
               </div>
               <CardContent>
                 <div className="space-y-2 text-sm">
@@ -368,33 +397,11 @@ const PropertyDetails = () => {
               </CardContent>
             </Card>
 
-            {/* Property Application Button */}
-            <PropertyApplicationFlow
-              propertyId={property.id}
-              propertyTitle={property.title}
-              trigger={
-                <Button className="w-full mb-4" size="lg" variant="default">
-                  Für Immobilie bewerben
-                </Button>
-              }
-            />
-
-            {/* Contact Button */}
-            <ContactForm
-              propertyId={property.id}
-              propertyTitle={property.title}
-              isDialog={true}
-              trigger={
-                <Button className="w-full mb-6" size="lg" variant="outline">
-                  Anfrage senden
-                </Button>
-              }
-            />
 
             {/* Location */}
             <Card className="border-0 shadow-sm rounded-xl bg-muted/40 overflow-hidden">
               <div className="p-6 pb-0">
-                <CardTitle className="text-lg md:text-xl border-b-2 border-[#1169D4] pb-2 inline-block mb-6">Lage</CardTitle>
+                <CardTitle className="text-lg md:text-xl mb-6">Lage</CardTitle>
               </div>
               <CardContent className="p-0">
                 <SimpleLocationDisplay 

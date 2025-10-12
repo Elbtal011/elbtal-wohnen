@@ -291,7 +291,8 @@ const handleSubmit = async (e: React.FormEvent) => {
 
       <Button 
         type="submit" 
-        className="w-full" 
+        variant="outline"
+        className="w-full bg-white hover:bg-primary hover:text-white border-gray-400" 
         size="lg"
         disabled={isSubmitting}
       >
