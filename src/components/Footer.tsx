@@ -53,7 +53,7 @@ export const Footer = () => {
               <div className="space-y-4 text-sm">
                 <div className="flex items-start gap-3">
                   <MapPin className="h-4 w-4 text-primary mt-1 flex-shrink-0" />
-                  <span className="text-muted-foreground">Leuchtenbergring 54<br />81677 München</span>
+                  <span className="text-muted-foreground">Balantstraße 55-5<br />81541 München</span>
                 </div>
                 <div className="flex items-start gap-3">
                   <Phone className="h-4 w-4 text-primary mt-1 flex-shrink-0" />
