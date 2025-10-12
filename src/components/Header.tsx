@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ChevronDown, User, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import logoJK from "@/assets/logo-jk.png";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -54,8 +53,8 @@ export const Header = () => {
           <div className="flex items-center">
             <Link to="/" className="block">
               <img 
-                src={logoJK}
-                alt="JK Immobilien" 
+                src="/lovable-uploads/f4bd2064-0f8f-4de3-9863-bc4d9797aa3f.png" 
+                alt="AMIEL - Immobilienverwaltung seit 1988" 
                 className="h-8 lg:h-10 w-auto"
               />
             </Link>
@@ -145,7 +144,7 @@ export const Header = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button asChild className="bg-white text-gray-700 border border-gray-300 hover:bg-primary hover:text-white hover:border-primary transition-colors">
+              <Button asChild className="bg-white text-gray-700 border border-gray-300 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors">
                 <Link to="/auth">
                   Anmelden
                 </Link>

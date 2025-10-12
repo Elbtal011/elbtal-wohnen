@@ -3,14 +3,18 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+
 const AGB = () => {
-  return <div className="min-h-screen bg-background">
+  return (
+    <div className="min-h-screen bg-background">
       <Header />
       
       <div className="container mx-auto px-4 py-16">
         {/* Hero Section */}
         <div className="text-center mb-16">
-          
+          <Badge className="mb-4 bg-primary/10 text-primary">
+            Geschäftsbedingungen
+          </Badge>
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
             Allgemeine Geschäftsbedingungen
           </h1>
@@ -261,7 +265,7 @@ const AGB = () => {
                   <p className="text-sm">
                     <strong>Stand:</strong> Januar 2025<br />
                     <strong>Amiel Immobilienverwaltung GmbH</strong><br />
-                    Balantstraße 55-5, 81541 München
+                    Leuchtenbergring 54, 81677 München
                   </p>
                 </div>
               </div>
@@ -271,6 +275,8 @@ const AGB = () => {
       </div>
 
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default AGB;

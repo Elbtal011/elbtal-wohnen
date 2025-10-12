@@ -3,14 +3,18 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+
 const Datenschutz = () => {
-  return <div className="min-h-screen bg-background">
+  return (
+    <div className="min-h-screen bg-background">
       <Header />
       
       <div className="container mx-auto px-4 py-16">
         {/* Hero Section */}
         <div className="text-center mb-16">
-          
+          <Badge className="mb-4 bg-primary/10 text-primary">
+            Datenschutz
+          </Badge>
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
             Datenschutzerklärung
           </h1>
@@ -33,7 +37,7 @@ const Datenschutz = () => {
               </p>
               <div className="bg-muted/50 p-4 rounded-lg">
                 <p className="font-medium">Amiel Immobilienverwaltung GmbH</p>
-                <p className="text-muted-foreground">Balantstraße 55-5, 81541 München</p>
+                <p className="text-muted-foreground">Leuchtenbergring 54, 81677 München</p>
                 <p className="text-muted-foreground">Telefon: +49 089 244 108 610</p>
                 <p className="text-muted-foreground">E-Mail: info@amiel-immobilienverwaltung.de</p>
               </div>
@@ -226,7 +230,7 @@ const Datenschutz = () => {
               <div className="bg-muted/50 p-4 rounded-lg">
                 <p className="font-medium">Amiel Immobilienverwaltung GmbH</p>
                 <p className="text-muted-foreground">Datenschutz</p>
-                <p className="text-muted-foreground">Balantstraße 55-5, 81541 München</p>
+                <p className="text-muted-foreground">Leuchtenbergring 54, 81677 München</p>
                 <p className="text-muted-foreground">E-Mail: datenschutz@elbtal-immobilien.de</p>
               </div>
               <p className="text-muted-foreground mt-4">
@@ -239,6 +243,8 @@ const Datenschutz = () => {
       </div>
 
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default Datenschutz;

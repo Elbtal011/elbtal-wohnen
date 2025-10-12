@@ -390,8 +390,8 @@ const PropertyApplicationFlow = ({ propertyId, propertyTitle, trigger }: Propert
             Bewerbung für: {propertyTitle}
           </DialogTitle>
           {!user && (
-            <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 mb-4">
-              <p className="text-sm text-primary">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+              <p className="text-sm text-blue-800">
                 <strong>Hinweis:</strong> Sie müssen sich zuerst registrieren und anmelden, um eine Bewerbung für diese Immobilie abzusenden. 
                 <a href="/auth" className="underline font-medium ml-1">Hier registrieren</a>
               </p>

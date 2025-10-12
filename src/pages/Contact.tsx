@@ -11,21 +11,25 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import ContactForm from '@/components/SimpleContactForm';
-
+import { Phone, Mail, MapPin, Clock, Building, HeartHandshake } from 'lucide-react';
 const Contact = () => {
   const contactInfo = [{
+    icon: Phone,
     title: "Telefon",
     details: ["+49 089 244 108 610"],
     description: "Mo-Fr: 9:00-18:00 Uhr, Sa: 9:00-14:00 Uhr"
   }, {
+    icon: Mail,
     title: "E-Mail",
     details: ["info@amiel-immobilienverwaltung.de"],
     description: "Wir antworten innerhalb von 24 Stunden"
   }, {
+    icon: MapPin,
     title: "Adresse",
-    details: ["Balantstraße 55-5", "81541 München"],
+    details: ["Leuchtenbergring 54", "81677 München"],
     description: "Direkt im Stadtzentrum gelegen"
   }, {
+    icon: Building,
     title: "Bürozeiten",
     details: ["Montag - Freitag: 9:00 - 18:00", "Samstag: 9:00 - 14:00"],
     description: "Termine nach Vereinbarung möglich"
@@ -58,14 +62,19 @@ const Contact = () => {
             {/* Contact Details */}
             {contactInfo.map((info, index) => <Card key={index}>
                 <CardContent className="p-6">
-                  <div>
-                    <h3 className="font-semibold text-lg mb-2">{info.title}</h3>
-                    {info.details.map((detail, idx) => <p key={idx} className="text-foreground font-medium">
-                        {detail}
-                      </p>)}
-                    <p className="text-muted-foreground text-sm mt-1">
-                      {info.description}
-                    </p>
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                      <info.icon className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-lg mb-2">{info.title}</h3>
+                      {info.details.map((detail, idx) => <p key={idx} className="text-foreground font-medium">
+                          {detail}
+                        </p>)}
+                      <p className="text-muted-foreground text-sm mt-1">
+                        {info.description}
+                      </p>
+                    </div>
                   </div>
                 </CardContent>
               </Card>)}

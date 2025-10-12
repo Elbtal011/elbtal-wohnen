@@ -3,14 +3,18 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+
 const Impressum = () => {
-  return <div className="min-h-screen bg-background">
+  return (
+    <div className="min-h-screen bg-background">
       <Header />
       
       <div className="container mx-auto px-4 py-16">
         {/* Hero Section */}
         <div className="text-center mb-16">
-          
+          <Badge className="mb-4 bg-primary/10 text-primary">
+            Rechtliches
+          </Badge>
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
             Impressum
           </h1>
@@ -40,8 +44,8 @@ const Impressum = () => {
                   <h3 className="font-semibold mb-2">Geschäftsführer</h3>
                   <p className="text-muted-foreground">
                     Amiel Immobilienverwaltung GmbH<br />
-                    Balantstraße 55-5<br />
-                    81541 München<br />
+                    Leuchtenbergring 54<br />
+                    81677 München<br />
                     Daniel Amiel, Geschäftsführer
                   </p>
                 </div>
@@ -72,8 +76,8 @@ const Impressum = () => {
               <CardContent>
                 <div className="space-y-2">
                   <p className="font-medium">Amiel Immobilienverwaltung GmbH</p>
-                  <p className="text-muted-foreground">Balantstraße 55-5</p>
-                  <p className="text-muted-foreground">81541 München</p>
+                  <p className="text-muted-foreground">Leuchtenbergring 54</p>
+                  <p className="text-muted-foreground">81677 München</p>
                   <p className="text-muted-foreground">Deutschland</p>
                 </div>
               </CardContent>
@@ -110,8 +114,8 @@ const Impressum = () => {
               <CardContent>
                 <div className="space-y-2">
                   <p className="font-medium">Daniel Amiel</p>
-                  <p className="text-muted-foreground">Balantstraße 55-5</p>
-                  <p className="text-muted-foreground">81541 München</p>
+                  <p className="text-muted-foreground">Leuchtenbergring 54</p>
+                  <p className="text-muted-foreground">81677 München</p>
                 </div>
               </CardContent>
             </Card>
@@ -193,6 +197,8 @@ const Impressum = () => {
       </div>
 
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default Impressum;

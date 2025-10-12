@@ -74,7 +74,7 @@ const AdminOverview: React.FC<AdminOverviewProps> = ({ onTabChange }) => {
       value: stats.totalProperties,
       description: `${stats.activeProperties} aktiv`,
       icon: Building2,
-      color: 'text-primary',
+      color: 'text-blue-600',
     },
     {
       title: 'Kontaktanfragen',
@@ -163,7 +163,7 @@ const AdminOverview: React.FC<AdminOverviewProps> = ({ onTabChange }) => {
               onClick={() => onTabChange('properties')}
             >
               <div className="flex items-center gap-3">
-                <Building2 className="h-4 w-4 sm:h-5 sm:w-5 text-primary shrink-0" />
+                <Building2 className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 shrink-0" />
                 <span className="text-sm sm:text-base">Neue Immobilie hinzufügen</span>
               </div>
               <span className="text-xs text-muted-foreground hidden sm:block">Strg+N</span>

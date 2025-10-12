@@ -202,8 +202,8 @@ serve(async (req) => {
           </p>
           
           <p style="margin: 15px 0; color: #333;">
-            Balantstraße 55-5<br>
-            81541 München<br>
+            Leuchtenbergring 54<br>
+            81677 München<br>
             Telefon: +49 89 123 456 789<br>
             E-Mail: info@amiel-immobilienverwaltung.de
           </p>
@@ -243,8 +243,8 @@ serve(async (req) => {
           
           <p style="margin: 15px 0; color: #333;">
             <strong>Amiel Immobilienverwaltung GmbH</strong><br>
-            Balantstraße 55-5<br>
-            81541 München<br>
+            Leuchtenbergring 54<br>
+            81677 München<br>
             Telefon: +49 89 123 456 789<br>
             E-Mail: info@amiel-immobilienverwaltung.de
           </p>
