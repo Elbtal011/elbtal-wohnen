@@ -73,11 +73,11 @@ const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
   }
 
   return (
-    <div className={`flex gap-4 ${className}`}>
-      {/* Main Image - 60% */}
+    <div className={`relative ${className}`}>
+      {/* Main Image */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogTrigger asChild>
-          <div className="relative flex-[0_0_60%] h-[500px] rounded-lg overflow-hidden bg-muted cursor-pointer group">
+          <div className="relative h-[400px] rounded-lg overflow-hidden bg-muted cursor-pointer group">
             {validImages.length > 0 && (
               <>
                 <img
@@ -101,6 +101,35 @@ const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
                     <ImageIcon className="h-16 w-16 text-muted-foreground" />
                   </div>
                 )}
+              </>
+            )}
+
+            {/* Navigation Buttons */}
+            {validImages.length > 1 && (
+              <>
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white shadow-lg z-10"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handlePrevious();
+                  }}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white shadow-lg z-10"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleNext();
+                  }}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
               </>
             )}
 
@@ -165,14 +194,14 @@ const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
         </DialogContent>
       </Dialog>
 
-      {/* Vertical Gallery - 40% */}
+      {/* Thumbnail Strip */}
       {validImages.length > 1 && (
-        <div className="flex-[0_0_40%] h-[500px] overflow-y-auto grid grid-cols-2 gap-3 content-start">
+        <div className="mt-4 flex space-x-3 overflow-x-auto pb-2">
           {validImages.map((image, index) => (
             <button
               key={`${image}-${index}`}
               onClick={() => setCurrentIndex(index)}
-              className={`w-full h-[155px] rounded-lg overflow-hidden border-2 transition-all duration-200 ${
+              className={`flex-shrink-0 w-24 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200 ${
                 index === currentValidIndex
                   ? 'border-primary ring-2 ring-primary/20'
                   : 'border-border hover:border-muted-foreground'

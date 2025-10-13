@@ -36,8 +36,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send notification email to admin
     const emailResponse = await resend.emails.send({
-      from: "Amiel Immobilienverwaltung <noreply@amiel-immobilien.com>",
-      to: ["info@amiel-immobilien.com"],
+      from: "Amiel Immobilienverwaltung <noreply@amiel-immobilienverwaltung.de>",
+      to: ["info@amiel-immobilienverwaltung.de"],
       subject: `Neue Wohnungsbewerbung - ${propertyTitle}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -92,7 +92,7 @@ const handler = async (req: Request): Promise<Response> => {
         operation: 'EMAIL_NOTIFICATION_SENT',
         details: {
           application_id: applicationId,
-          recipient: 'info@amiel-immobilien.com',
+          recipient: 'info@amiel-immobilienverwaltung.de',
           applicant_name: applicantName,
           property_title: propertyTitle,
           email_id: emailResponse.data?.id,

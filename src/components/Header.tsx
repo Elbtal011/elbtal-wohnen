@@ -55,7 +55,7 @@ export const Header = () => {
               <img 
                 src="/lovable-uploads/f4bd2064-0f8f-4de3-9863-bc4d9797aa3f.png" 
                 alt="AMIEL - Immobilienverwaltung seit 1988" 
-                className="h-8 lg:h-10 w-auto"
+                className="h-12 w-auto lg:h-12 md:h-10 h-8"
               />
             </Link>
           </div>
@@ -144,7 +144,7 @@ export const Header = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button asChild className="bg-white text-gray-700 border border-gray-300 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors">
+              <Button asChild>
                 <Link to="/auth">
                   Anmelden
                 </Link>

@@ -274,12 +274,12 @@ const Unternehmen = () => {
                 </Button>
                 <Button size="lg" variant="outline">
                   <Mail className="h-5 w-5 mr-2" />
-                  info@amiel-immobilien.com
+                  info@amiel-immobilienverwaltung.de
                 </Button>
               </div>
               <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                 <MapPin className="h-4 w-4" />
-                <span>Balantstraße 55-5, 81541 München</span>
+                <span>Leuchtenbergring 54, 81677 München</span>
               </div>
             </div>
           </CardContent>
