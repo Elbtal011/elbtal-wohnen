@@ -264,7 +264,7 @@ const Vermietungsablauf = () => {
               </Button>
               <Button size="lg" variant="outline">
                 <Mail className="h-5 w-5 mr-2" />
-                info@amiel-immobilienverwaltung.de
+                info@amiel-immobilien.com
               </Button>
             </div>
           </CardContent>

@@ -50,7 +50,7 @@ export const Footer = () => {
                 <span>+49 089 244 108 610</span>
               </div>
               <div>
-                <span>info@amiel-immobilienverwaltung.de</span>
+                <span>info@amiel-immobilien.com</span>
               </div>
               <div>
                 <span>Mo-Fr: 9:00-18:00 Uhr</span>

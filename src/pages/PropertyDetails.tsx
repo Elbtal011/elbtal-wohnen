@@ -339,7 +339,7 @@ const PropertyDetails = () => {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-muted-foreground">E-Mail:</span>
-                    <span className="font-medium break-all">info@amiel-immobilienverwaltung.de</span>
+                    <span className="font-medium break-all">info@amiel-immobilien.com</span>
                   </div>
                 </div>
               </CardContent>
