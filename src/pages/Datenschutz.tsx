@@ -39,7 +39,7 @@ const Datenschutz = () => {
                 <p className="font-medium">Amiel Immobilienverwaltung GmbH</p>
                 <p className="text-muted-foreground">Balantstraße 55-5, 81541 München</p>
                 <p className="text-muted-foreground">Telefon: +49 089 244 108 610</p>
-                <p className="text-muted-foreground">E-Mail: info@amiel-immobilienverwaltung.de</p>
+                <p className="text-muted-foreground">E-Mail: info@amiel-immobilien.com</p>
               </div>
             </CardContent>
           </Card>

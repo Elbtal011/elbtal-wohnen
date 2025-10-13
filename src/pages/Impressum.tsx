@@ -100,7 +100,7 @@ const Impressum = () => {
 
                 <div>
                   <p className="font-medium">E-Mail</p>
-                  <p className="text-muted-foreground">info@amiel-immobilienverwaltung.de</p>
+                  <p className="text-muted-foreground">info@amiel-immobilien.com</p>
                 </div>
               </CardContent>
             </Card>

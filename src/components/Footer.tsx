@@ -61,7 +61,7 @@ export const Footer = () => {
                 </div>
                 <div className="flex items-start gap-3">
                   <Mail className="h-4 w-4 text-primary mt-1 flex-shrink-0" />
-                  <span className="text-muted-foreground break-all">info@amiel-immobilienverwaltung.de</span>
+                  <span className="text-muted-foreground break-all">info@amiel-immobilien.com</span>
                 </div>
                 <div className="flex items-start gap-3">
                   <Clock className="h-4 w-4 text-primary mt-1 flex-shrink-0" />

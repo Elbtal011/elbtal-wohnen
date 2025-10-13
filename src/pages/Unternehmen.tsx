@@ -274,7 +274,7 @@ const Unternehmen = () => {
                 </Button>
                 <Button size="lg" variant="outline">
                   <Mail className="h-5 w-5 mr-2" />
-                  info@amiel-immobilienverwaltung.de
+                  info@amiel-immobilien.com
                 </Button>
               </div>
               <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">

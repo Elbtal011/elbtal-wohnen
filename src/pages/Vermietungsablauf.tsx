@@ -167,7 +167,7 @@ const Vermietungsablauf = () => {
                 +49 089 244 108 610
               </Button>
               <Button size="lg" variant="outline" className="bg-white hover:bg-primary hover:text-white border-gray-400">
-                info@amiel-immobilienverwaltung.de
+                info@amiel-immobilien.com
               </Button>
             </div>
           </CardContent>
