@@ -1205,7 +1205,7 @@ serve(async (req) => {
 
       case 'update_lead':
         try {
-          const { id, vorname, nachname, email, telefon, strasse, nummer, plz, ort, nettoeinkommen } = data;
+          const { id, vorname, nachname, email, telefon, strasse, nummer, plz, ort, nettoeinkommen, geburtsdatum, geburtsort } = data;
           
           // Update contact request basic info
           const { error: updateError } = await supabase
@@ -1225,8 +1225,13 @@ serve(async (req) => {
 
           if (updateError) throw updateError;
 
-          // If nettoeinkommen is provided, update it in the nachricht field
-          if (nettoeinkommen) {
+          // Update additional fields in nachricht if provided
+          const fieldsToUpdate: { [key: string]: string } = {};
+          if (nettoeinkommen) fieldsToUpdate['Nettoeinkommen'] = nettoeinkommen;
+          if (geburtsdatum) fieldsToUpdate['Geburtsdatum'] = geburtsdatum;
+          if (geburtsort) fieldsToUpdate['Geburtsort'] = geburtsort;
+
+          if (Object.keys(fieldsToUpdate).length > 0) {
             const { data: currentLead, error: fetchError } = await supabase
               .from('contact_requests')
               .select('nachricht')
@@ -1235,20 +1240,25 @@ serve(async (req) => {
 
             if (fetchError) throw fetchError;
 
-            // Parse existing message and update Nettoeinkommen
+            // Parse existing message and update fields
             const lines = currentLead.nachricht.split('\n');
-            let nettoFound = false;
+            const foundKeys = new Set<string>();
+            
             const updatedLines = lines.map(line => {
-              if (line.startsWith('Nettoeinkommen:')) {
-                nettoFound = true;
-                return `Nettoeinkommen: ${nettoeinkommen}`;
+              for (const [key, value] of Object.entries(fieldsToUpdate)) {
+                if (line.startsWith(`${key}:`)) {
+                  foundKeys.add(key);
+                  return `${key}: ${value}`;
+                }
               }
               return line;
             });
 
-            // If Nettoeinkommen wasn't found, add it
-            if (!nettoFound) {
-              updatedLines.push(`Nettoeinkommen: ${nettoeinkommen}`);
+            // Add any fields that weren't found
+            for (const [key, value] of Object.entries(fieldsToUpdate)) {
+              if (!foundKeys.has(key)) {
+                updatedLines.push(`${key}: ${value}`);
+              }
             }
 
             const updatedMessage = updatedLines.join('\n');
