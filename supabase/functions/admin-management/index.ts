@@ -1271,6 +1271,24 @@ serve(async (req) => {
             if (messageUpdateError) throw messageUpdateError;
           }
 
+          // Keep property applications in sync so UI reflects changes correctly
+          if (email && (geburtsdatum || geburtsort || nettoeinkommen)) {
+            const updateAppData: Record<string, any> = {};
+            if (geburtsdatum) updateAppData.geburtsdatum = geburtsdatum;
+            if (geburtsort) updateAppData.geburtsort = geburtsort;
+            if (nettoeinkommen) {
+              const n = parseInt(String(nettoeinkommen).replace(/[^0-9]/g, ''), 10);
+              if (!Number.isNaN(n)) updateAppData.nettoeinkommen = n;
+            }
+            if (Object.keys(updateAppData).length > 0) {
+              const { error: appUpdateError } = await supabase
+                .from('property_applications')
+                .update(updateAppData)
+                .eq('email', email);
+              if (appUpdateError) console.warn('Property applications update skipped:', appUpdateError.message);
+            }
+          }
+
           return new Response(
             JSON.stringify({ success: true }),
             { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
