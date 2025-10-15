@@ -224,7 +224,31 @@ const LeadsManagement: React.FC<LeadsManagementProps> = ({ adminUser }) => {
     }
   };
 
-  useEffect(() => { fetchLeads(); }, []);
+  useEffect(() => { 
+    fetchLeads(); 
+
+    // Subscribe to realtime updates on contact_requests table
+    const channel = supabase
+      .channel('leads-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'contact_requests'
+        },
+        (payload) => {
+          console.log('Realtime lead update received:', payload);
+          // Refresh the list when any change occurs
+          fetchLeads();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   // One-time backfill for missing addresses from property applications
   useEffect(() => {

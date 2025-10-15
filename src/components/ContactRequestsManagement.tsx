@@ -67,6 +67,28 @@ const ContactRequestsManagement = () => {
 
   useEffect(() => {
     fetchRequests();
+
+    // Subscribe to realtime updates on contact_requests table
+    const channel = supabase
+      .channel('contact-requests-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'contact_requests'
+        },
+        (payload) => {
+          console.log('Realtime update received:', payload);
+          // Refresh the list when any change occurs
+          fetchRequests();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const updateStatus = async (requestId: string, newStatus: string) => {
